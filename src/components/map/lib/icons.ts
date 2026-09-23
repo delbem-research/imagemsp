@@ -22,6 +22,7 @@ import lucideChevronLeft from '@iconify/icons-lucide/chevron-left';
 import lucideChevronRight from '@iconify/icons-lucide/chevron-right';
 import lucideChevronsLeft from '@iconify/icons-lucide/chevrons-left';
 import lucideCircle from '@iconify/icons-lucide/circle';
+import lucideLayers from '@iconify/icons-lucide/layers';
 import lucideLayoutList from '@iconify/icons-lucide/layout-list';
 import lucidePause from '@iconify/icons-lucide/pause';
 import lucidePlay from '@iconify/icons-lucide/play';
@@ -83,6 +84,9 @@ addIcon('lucide:pause', lucidePause);
 // Not rendered by the workspace: this one is ours, on the variations tab, and
 // matches the icon cozsolidarias uses for the same tab.
 addIcon('lucide:layout-list', lucideLayoutList);
+// Ours too: the trigger of the "Camadas" layer control (`spec.control.icon`),
+// which geovis renders by name — the same icon cozsolidarias uses there.
+addIcon('lucide:layers', lucideLayers);
 
 export { Icon };
 

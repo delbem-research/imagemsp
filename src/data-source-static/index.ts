@@ -1,2 +1,3 @@
 export { readStaticMapsData } from './readStaticMapsData';
-export type { StaticMapsDataSource } from './types';
+export { readStaticPoints } from './readStaticPoints';
+export type { StaticMapsDataSource, StaticPointsDataSource } from './types';

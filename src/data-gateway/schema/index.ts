@@ -5,3 +5,4 @@ export type {
   MapDataRow,
   MapsDataContract,
 } from './mapsData';
+export type { PointFeature, PointProperties, PointsContract } from './points';

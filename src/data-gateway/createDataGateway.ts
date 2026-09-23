@@ -1,11 +1,17 @@
+import type { PointLayerId } from '@/config/pointLayers';
+
 import { readStaticMapsData } from '../data-source-static/readStaticMapsData';
-import type { MapsDataContract } from './schema';
+import { readStaticPoints } from '../data-source-static/readStaticPoints';
+import type { MapsDataContract, PointsContract } from './schema';
 import { toAppMapsData } from './transformers/toAppMapsData';
+import { toAppPoints } from './transformers/toAppPoints';
 
 /** Gateway interface exposing canonical read functions. */
 export type DataGateway = {
   /** Returns the canonical maps data. */
   getMapsData: () => Promise<MapsDataContract>;
+  /** Returns one map point layer as a GeoJSON FeatureCollection. */
+  getPoints: (layer: PointLayerId) => Promise<PointsContract>;
 };
 
 const KNOWN_SOURCES = ['static'] as const;
@@ -41,6 +47,10 @@ export const createDataGateway = (): DataGateway => {
       getMapsData: async () => {
         const source = await readStaticMapsData();
         return toAppMapsData(source);
+      },
+      getPoints: async (layer) => {
+        const source = await readStaticPoints(layer);
+        return toAppPoints({ layer, source });
       },
     };
   }

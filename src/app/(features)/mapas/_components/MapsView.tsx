@@ -5,7 +5,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 // name, so they resolve from the bundle instead of the Iconify API at runtime.
 import '@/components/map/lib/icons';
 
-import { Box, Text } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import type { MapHoverInfo, VisualizationSpec } from '@ttoss/geovis';
 import { GeovisWorkspace } from '@ttoss/geovis-workspace';
 import { I18nProvider } from '@ttoss/react-i18n';
@@ -19,7 +19,7 @@ import {
   FALLBACK_ZOOM,
   fitZoom,
 } from '@/components/map/lib/mapCamera';
-import { getBandIndex, LEGEND_COLORS } from '@/components/map/lib/mapConfig';
+import { LEGEND_COLORS } from '@/components/map/lib/mapConfig';
 import {
   buildElderlyHistogram,
   buildMapRows,
@@ -35,8 +35,12 @@ import {
 } from '@/components/map/lib/workspaceConfig';
 import LoadingIndicator from '@/components/ui/LoadingIndicator';
 import { thresholdsFor } from '@/config/thresholds';
-import type { MapDataRow, MapsDataContract } from '@/data-gateway/schema';
+import type { MapsDataContract } from '@/data-gateway/schema';
 
+import MapPanel from './MapPanel';
+import { renderTooltipContent, TOOLTIP_STYLE } from './mapTooltips';
+import { buildPointLayers, LAYER_CONTROL } from './pointLayers';
+import { type PointLayersSnapshot, pointLayersStore } from './pointLayersStore';
 import {
   emptyViewportSnapshot,
   MAP_HEIGHT,
@@ -93,8 +97,12 @@ const LAYER_ID = 'sp-districts-fill';
  * for those years and not the censuses taken in them — so the wording says so
  * once, for the whole series.
  *
+ * The point layers' credit is appended only while one of them is on, so the
+ * footer never cites a source for something the map is not showing.
+ *
  * @param params.year - The projection year currently painted.
  * @param params.years - The projection years available, ascending.
+ * @param params.pointLayers - Whether any point layer is on.
  * @returns The reference line for the legend footer.
  *
  * @example
@@ -104,105 +112,19 @@ const LAYER_ID = 'sp-districts-fill';
 const legendReference = ({
   year,
   years,
+  pointLayers,
 }: {
   year: number;
   years: number[];
+  pointLayers: boolean;
 }): string => {
   const first = years[0] ?? year;
   const last = years[years.length - 1] ?? year;
+  const pointLayersCredit = pointLayers
+    ? ' Camadas de pontos: {link:GeoSampa|https://geosampa.prefeitura.sp.gov.br}.'
+    : '';
 
-  return `Fonte dos dados: {link:Dados agregados por distrito municipal a partir das projeções populacionais por sexo e idade do SEADE|https://repositorio.seade.gov.br/dataset/populacao-residente-municipio-de-sao-paulo-evolucao} — projeção para ${year}, de uma série quinquenal que vai de ${first} a ${last}. Geometria: Distritos Municipais de São Paulo. Mapa base: {link:OpenFreeMap|https://openfreemap.org/} · {link:OpenStreetMap|https://www.openstreetmap.org/copyright}.`;
-};
-
-/**
- * Generates dynamic tooltip text based on selected category and group.
- *
- * @param category - The demographic category.
- * @param group - The age group.
- * @returns Descriptive text for the tooltip value line.
- */
-const getTooltipText = (category: Category, group: Group): string => {
-  const ageLabels: Record<Group, string> = {
-    '65': '65+',
-    '70': '70+',
-    '75': '75+',
-    '65-69': '65 a 69 anos',
-    '70-74': '70 a 74 anos',
-  };
-
-  const contextLabels: Record<Category, string> = {
-    'cumulative-total': 'do total',
-    'cumulative-65plus': 'da pop 65+',
-    '5year-65plus': 'da pop 65+',
-  };
-
-  return `População com idade ${ageLabels[group]} ${contextLabels[category]}`;
-};
-
-/**
- * Renders the tooltip content for a district feature.
- *
- * @param params.featureId - The feature ID from the hover event.
- * @param params.rowLookup - Map of geometryId to MapDataRow.
- * @param params.category - Current selected category.
- * @param params.group - Current selected group.
- * @param params.thresholds - The active series' class breaks, so the swatch is
- * read off the same scale the layer is painted with.
- * @returns Tooltip JSX content.
- */
-const renderTooltipContent = ({
-  featureId,
-  rowLookup,
-  category,
-  group,
-  thresholds,
-}: {
-  featureId: string | number;
-  rowLookup: Map<number, MapDataRow>;
-  category: Category;
-  group: Group;
-  thresholds: number[];
-}) => {
-  const row = rowLookup.get(Number(featureId));
-  const bandIndex =
-    row != null ? getBandIndex({ value: row.value, thresholds }) : null;
-  const swatchColor =
-    bandIndex != null
-      ? LEGEND_COLORS[bandIndex]
-      : 'var(--chakra-colors-border-subtle)';
-
-  return (
-    <Box display="flex" flexDirection="column" gap="2" minWidth="200px">
-      {/* District name */}
-      <Text fontWeight="bold" fontSize="md" lineHeight="tight">
-        {row?.name ?? String(featureId)}
-      </Text>
-
-      {/* Value with color swatch */}
-      {row && (
-        <Box display="flex" flexDirection="column" gap="1">
-          <Box display="flex" alignItems="center" gap="2">
-            <Box
-              width="14px"
-              height="14px"
-              borderRadius="2px"
-              flexShrink={0}
-              bg={swatchColor}
-            />
-            <Text fontSize="xs" color="text.muted" lineHeight="tight">
-              {(row.value * 100).toFixed(1)}% {getTooltipText(category, group)}
-            </Text>
-          </Box>
-          {row.count != null && row.totalCount != null && (
-            <Text fontSize="xs" color="text.muted" lineHeight="tight" pl="22px">
-              ({row.count.toLocaleString('pt-BR')} de{' '}
-              {row.totalCount.toLocaleString('pt-BR')} pessoas)
-            </Text>
-          )}
-        </Box>
-      )}
-    </Box>
-  );
+  return `Fonte dos dados: {link:Dados agregados por distrito municipal a partir das projeções populacionais por sexo e idade do SEADE|https://repositorio.seade.gov.br/dataset/populacao-residente-municipio-de-sao-paulo-evolucao} — projeção para ${year}, de uma série quinquenal que vai de ${first} a ${last}. Geometria: Distritos Municipais de São Paulo. Mapa base: {link:OpenFreeMap|https://openfreemap.org/} · {link:OpenStreetMap|https://www.openstreetmap.org/copyright}.${pointLayersCredit}`;
 };
 
 /**
@@ -217,6 +139,7 @@ const renderTooltipContent = ({
  * @param params.category - The demographic category to visualize.
  * @param params.group - The age group to visualize.
  * @param params.year - The projection year to visualize.
+ * @param params.pointLayers - The point layers' toggles and loaded data.
  * @returns A complete VisualizationSpec for GeoVis rendering.
  */
 const buildSpec = ({
@@ -225,12 +148,14 @@ const buildSpec = ({
   group,
   year,
   zoom,
+  pointLayers,
 }: {
   data: MapsDataContract;
   category: Category;
   group: Group;
   year: number;
   zoom: number;
+  pointLayers: PointLayersSnapshot;
 }): VisualizationSpec => {
   const rows = buildMapRows({ counts: data.counts, year, category, group });
 
@@ -262,6 +187,12 @@ const buildSpec = ({
     })
   );
 
+  const points = buildPointLayers({
+    layers: pointLayers,
+    tooltipStyle: TOOLTIP_STYLE,
+  });
+  const anyPointLayer = Object.values(pointLayers.active).some(Boolean);
+
   return {
     engine: 'maplibre',
     basemap: {
@@ -290,6 +221,7 @@ const buildSpec = ({
         type: 'geojson',
         data: '/distrito-municipal-v2.geojson',
       },
+      ...points.sources,
     ],
     layers: [
       {
@@ -328,7 +260,11 @@ const buildSpec = ({
             // Values are proportions in [0, 1]; render each bin as a percent
             // range (`< 5%`, `5% – 10%`, … `> 30%`) instead of raw breaks.
             labelFormat: { type: 'percentage', decimals: 0 },
-            reference: legendReference({ year, years: data.years }),
+            reference: legendReference({
+              year,
+              years: data.years,
+              pointLayers: anyPointLayer,
+            }),
           },
         ],
         hoverTooltip: {
@@ -341,18 +277,13 @@ const buildSpec = ({
               thresholds,
             });
           },
-          style: {
-            background: 'var(--chakra-colors-surface-raised)',
-            color: 'var(--chakra-colors-text-primary)',
-            border: '1px solid var(--chakra-colors-border-subtle)',
-            borderRadius: 'var(--chakra-radii-md)',
-            boxShadow: 'var(--chakra-shadows-md)',
-            padding: 'var(--chakra-spacing-2) var(--chakra-spacing-3)',
-            zIndex: 50,
-          },
+          style: TOOLTIP_STYLE,
         },
       },
+      // Last, so the points draw above the district fill.
+      ...points.layers,
     ],
+    control: LAYER_CONTROL,
     mapData: [
       {
         mapDataId: MAP_DATA_ID,
@@ -508,6 +439,16 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
     sidebarCoversMap
   );
 
+  /*
+   * Written by `MapPanel` when a layer toggle flips, and by the store's own
+   * requests when they land (see `pointLayersStore`).
+   */
+  const pointLayers = React.useSyncExternalStore(
+    pointLayersStore.subscribe,
+    pointLayersStore.getSnapshot,
+    pointLayersStore.getServerSnapshot
+  );
+
   const spec = React.useMemo(() => {
     return buildSpec({
       data: mapsData,
@@ -515,8 +456,9 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
       group: selection.group,
       year: selection.year,
       zoom,
+      pointLayers,
     });
-  }, [mapsData, selection, zoom]);
+  }, [mapsData, selection, zoom, pointLayers]);
 
   /*
    * Independent of `selection`: the 65+ total per year is the same series
@@ -536,7 +478,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
    * re-render the whole sidebar eleven times per run and change nothing.
    */
   const config = React.useMemo(() => {
-    return buildWorkspaceConfig({
+    const base = buildWorkspaceConfig({
       category: selection.category,
       group: selection.group,
       years: mapsData.years,
@@ -544,6 +486,14 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
       elderlyHistogram,
       sidebarInitiallyOpen,
     });
+
+    // The `map` slot is overridden here rather than in `buildWorkspaceConfig`,
+    // which stays free of this route's components: `MapPanel` is what relays
+    // the layer toggles out of the geovis provider (see its docs).
+    return {
+      ...base,
+      slots: { ...base.slots, map: { component: MapPanel } },
+    };
   }, [
     selection.category,
     selection.group,
