@@ -1,0 +1,36 @@
+nome,tipo,endereco,status,longitude,latitude,distrito
+Terminal Rodoviario do Jabaquara,RODOVIARIO,"R. dos Jequitibas, Jabaquara. (Est. Jabaquara do metro)",em operação,-46.64126194,-23.64675021,Jabaquara
+Terminal Rodoviario do Tiete,RODOVIARIO,"Av. Cruzeiro do Sul, 1800, Santana (Est. Tiete do metro)",em operação,-46.62501588,-23.51549485,Santana
+Terminal Rodoviario Intermodal Barra Funda,RODOVIARIO,"R. Auro Soares De Moura Andrade, 664, Barra Funda",em operação,-46.66817985,-23.52607395,Barra Funda
+Term. Amaral Gurgel,URBANO,Ac A Rua Ana Cintra,em operação,-46.64814498,-23.53941823,Santa Cecília
+Term. Aricanduva,URBANO,Av Aricanduva,em operação,-46.55437572,-23.52840123,Penha
+Term. Bandeira,URBANO,Av Nove de Julho,em operação,-46.63950962,-23.54966444,República
+Term. Capelinha,URBANO,Est de Itapecerica,em operação,-46.76204141,-23.65488209,Capão Redondo
+Term. Carrao,URBANO,Av Rio das Pedras,em operação,-46.52249836,-23.55850085,Carrão
+Term. Casa Verde,URBANO,Av Eng. Caetano Alvares,em operação,-46.66250452,-23.49631242,Casa Verde
+Term. Cid. Tiradentes,URBANO,Av Metalurgicos,em operação,-46.40823027,-23.58334355,Cidade Tiradentes
+Term. Grajau,URBANO,R Giovanni Bononcini,em operação,-46.69618865,-23.73563971,Grajaú
+Term. Guarapiranga,URBANO,Est do M'Boi Mirim,em operação,-46.73494023,-23.6687824,Jardim São Luís
+Term. Jardim Angela,URBANO,Est do M'Boi Mirim,em operação,-46.77381804,-23.69046671,Jardim Ângela
+Term. Jardim Britania,URBANO,Av Pierre Renoir,em operação,-46.78715697,-23.43110496,Anhanguera
+Term. Joao Dias,URBANO,Av Joao Dias,em operação,-46.73379711,-23.64401995,Jardim São Luís
+Term. Lapa,URBANO,R Guaicurus,em operação,-46.70023828,-23.52047978,Lapa
+Term. Largo do Campo Limpo,URBANO,Est do Campo Limpo,em operação,-46.77229182,-23.63177865,Campo Limpo
+Term. Parque D. Pedro II,URBANO,Av do Estado,em operação,-46.6304202,-23.5462444,Sé
+Term. Penha,URBANO,Av Gabriela Mistral,em operação,-46.54703137,-23.51878008,Penha
+Term. Pinheiros,URBANO,R Capri,em operação,-46.70175246,-23.56626961,Pinheiros
+Term. Pirituba,URBANO,Vd Raimundo Pereira de Magalhaes,em operação,-46.72641937,-23.4863311,Pirituba
+Term. Princesa Isabel,URBANO,Av Rio Branco,em operação,-46.64463581,-23.53438015,Santa Cecília
+Term. Sacoma,URBANO,Pc Altemar Dutra,em operação,-46.6028341,-23.60298149,Ipiranga
+Term. Santo Amaro,URBANO,R Pe. Jose Maria,em operação,-46.71247217,-23.65438619,Santo Amaro
+Term. Sao Miguel,URBANO,R Idioma Esperanto,em operação,-46.43514625,-23.49166582,Vila Curuçá
+Term. Sapopemba,URBANO,Av Sapopemba,em operação,-46.50061751,-23.61426191,Sapopemba
+Term. Varginha,URBANO,Av Paulo Guilguer Reimberg,em operação,-46.71623164,-23.76816426,Parelheiros
+Term. Mercado,URBANO,Av do Estado,em operação,-46.62972017,-23.54691441,Sé
+Term. Vila Nova Cachoeirinha,URBANO,Av Inajar de Souza,em operação,-46.66924177,-23.47460901,Cachoeirinha
+Term. Vila Prudente,URBANO,Av Prf. Luiz Ignacio Anhaia Mello,em operação,-46.58519425,-23.58407118,Vila Prudente
+Term. A. E. Carvalho,URBANO,Av Aguia de Haia,em operação,-46.47582815,-23.5175802,Itaquera
+Term. Parelheiros,URBANO,Est da Colonia,em operação,-46.72716929,-23.82823534,Parelheiros
+Jabaquara,EMTU,Jabaquara,em operação,-46.63985836,-23.64682153,Jabaquara
+São Mateus,EMTU,São Mateus,em operação,-46.47613549,-23.6130516,São Mateus
+Armênia Norte,EMTU,Armênia Norte,em operação,-46.6284052,-23.52505024,Bom Retiro

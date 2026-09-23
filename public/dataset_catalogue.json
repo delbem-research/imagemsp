@@ -7,7 +7,7 @@
     "language": "pt-BR",
     "status": "draft",
     "created_at": "2026-07-08",
-    "updated_at": "2026-09-01",
+    "updated_at": "2026-09-23",
     "typing_reference": "src/data-source-static/types.ts",
     "quality_notes": [
       {
@@ -24,6 +24,16 @@
         "id": "distritos_geojson_null_properties",
         "severity": "low",
         "message": "As feições de `distrito-municipal-v2.geojson` têm `properties: null`; o join é pelo `id` nativo da feição (1–96), que corresponde ao `geometry_id` de `maps-data.json` — este, por sua vez, é o `cod_distr` do SEADE menos 80000. `scripts/generateMapsData.ts` valida essa correspondência contra o próprio GeoJSON a cada geração."
+      },
+      {
+        "id": "hospitais_geosampa_incomplete_coverage",
+        "severity": "medium",
+        "message": "`hospitais_geosampa.csv` não é o universo de hospitais da cidade: a camada do GeoSampa é centrada na rede pública e conveniada (só 17 dos 98 são privados, e hospitais privados grandes como Einstein e Sírio-Libanês não aparecem). Para cobertura completa, a fonte seria o CNES/DataSUS."
+      },
+      {
+        "id": "distritos_malha_frestas",
+        "severity": "low",
+        "message": "A malha `distrito-municipal-v2.geojson` tem frestas de até ~25 m entre distritos vizinhos (é uma geometria simplificada), e pontos sobre divisas — como as estações Trianon-MASP e Brigadeiro, na Av. Paulista — não caem em nenhum polígono. Os CSVs de equipamentos atribuem esses pontos ao distrito mais próximo quando estão a até 30 m de uma borda; a mais de 30 m, são tratados como fora do município (os casos conferidos de outras cidades, como Presidente Altino em Osasco, ficam a 70 m ou mais)."
       }
     ]
   },
@@ -269,6 +279,819 @@
           }
         ]
       }
+    },
+    "distritos_hospitais": {
+      "id": "distritos_hospitais",
+      "collection_id": "geosampa",
+      "slug": "distritos-hospitais",
+      "title": "Hospitais da cidade de São Paulo por distrito municipal",
+      "description": "Hospitais (estabelecimentos com leitos, média e alta complexidade) cadastrados no GeoSampa, um por linha, com tipo, esfera administrativa, endereço, contato, coordenadas e o distrito municipal onde o ponto cai. Cobre 55 dos 96 distritos.",
+      "file": "src/data-source-static/data/raw/hospitais_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&typeNames=geoportal:equipamento_saude_hospital&outputFormat=application/json&srsName=EPSG:4326",
+        "notes": "Camada WFS `geoportal:equipamento_saude_hospital` do GeoSampa, baixada em WGS84 (EPSG:4326) e reduzida às colunas úteis. Delimitador `,` e encoding UTF-8. A camada não traz o distrito: a coluna `distrito` foi calculada por ponto-em-polígono contra `distrito-municipal-v2.geojson`."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-23"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "hospital (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 98,
+        "size_bytes": 16001,
+        "checkSum": "sha256:dcd29cb2d4b1f819e978dc0ce12c1e34396babee136ff33ed8dcef99833d274b"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome do hospital (`nm_equipamento`)"
+          },
+          {
+            "name": "tipo",
+            "description": "Hospital, Hospital Geral ou Hospital Especializado (`nm_tipo_equipamento`)"
+          },
+          {
+            "name": "esfera",
+            "description": "Esfera administrativa: Municipal, Estadual, Federal ou Privado (`nm_esfera_administrativa_equipamento`)"
+          },
+          {
+            "name": "endereco",
+            "description": "Logradouro e número (`tx_endereco_equipamento`)"
+          },
+          {
+            "name": "bairro",
+            "description": "Bairro informado pela fonte (`nm_bairro_equipamento`) — denominação informal, nem sempre coincide com o distrito"
+          },
+          {
+            "name": "cep",
+            "description": "CEP (`cd_cep_equipamento`)"
+          },
+          {
+            "name": "telefone",
+            "description": "Telefone(s) de contato (`tx_numero_telefone`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha do projeto (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "distritos_ubs": {
+      "id": "distritos_ubs",
+      "collection_id": "geosampa",
+      "slug": "distritos-ubs",
+      "title": "Unidades Básicas de Saúde (UBS) da cidade de São Paulo por distrito municipal",
+      "description": "UBS, postos e centros de saúde cadastrados no GeoSampa (porta de entrada do SUS), um por linha, com tipo, esfera, endereço, contato, coordenadas e distrito. Cobre 93 dos 96 distritos.",
+      "file": "src/data-source-static/data/raw/ubs_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_ubs_posto_centro",
+        "notes": "Camada WFS `geoportal:equipamento_saude_ubs_posto_centro` do GeoSampa, com os mesmos campos da camada de hospitais, reduzida às colunas úteis. 479 são \"Unidade Básica de Saúde\" e 4 vêm \"SEM TIPO\" na fonte. A camada não traz o distrito: a coluna `distrito` foi calculada por ponto-em-polígono contra `distrito-municipal-v2.geojson`, com tolerância de 30 m para pontos que caem nas frestas da malha (ver `distritos_malha_frestas`). Pontos a mais de 30 m de qualquer distrito foram descartados como fora do município. Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-23"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 483,
+        "size_bytes": 79595,
+        "checkSum": "sha256:a9eb2373bdfee2f2bdcef2fc7a82113c6085285e849c949a44339f45caee0765"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome da unidade (`nm_equipamento`)"
+          },
+          {
+            "name": "tipo",
+            "description": "Tipo do equipamento (`nm_tipo_equipamento`); \"Unidade Básica de Saúde\" ou \"SEM TIPO\""
+          },
+          {
+            "name": "esfera",
+            "description": "Esfera administrativa (`nm_esfera_administrativa_equipamento`)"
+          },
+          {
+            "name": "endereco",
+            "description": "Logradouro e número (`tx_endereco_equipamento`)"
+          },
+          {
+            "name": "bairro",
+            "description": "Bairro informado pela fonte (`nm_bairro_equipamento`)"
+          },
+          {
+            "name": "cep",
+            "description": "CEP (`cd_cep_equipamento`)"
+          },
+          {
+            "name": "telefone",
+            "description": "Telefone(s) (`tx_numero_telefone`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha do projeto (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "distritos_estacoes_metro_trem": {
+      "id": "distritos_estacoes_metro_trem",
+      "collection_id": "geosampa",
+      "slug": "distritos-estacoes-metro-trem",
+      "title": "Estações de metrô e trem da cidade de São Paulo por distrito municipal",
+      "description": "Estações de metrô (Metrô, ViaQuatro, ViaMobilidade) e de trem metropolitano (CPTM, ViaMobilidade) em operação dentro do município, uma linha por estação e por linha — estações de baldeação, como Sé ou Luz, aparecem uma vez para cada linha que as atende.",
+      "file": "src/data-source-static/data/raw/estacoes_metro_trem_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": null,
+        "notes": "União das camadas WFS `geoportal:estacao_metro` e `geoportal:estacao_trem` do GeoSampa. A camada de trem cobre a região metropolitana inteira: as estações de outros municípios (Mauá, Osasco, Guarulhos, Jundiaí…) foram descartadas. Uma linha exatamente duplicada na fonte (Vila Mariana, linha Azul) foi removida. A camada não traz o distrito: a coluna `distrito` foi calculada por ponto-em-polígono contra `distrito-municipal-v2.geojson`, com tolerância de 30 m para pontos que caem nas frestas da malha (ver `distritos_malha_frestas`). Pontos a mais de 30 m de qualquer distrito foram descartados como fora do município. Delimitador `,` e encoding UTF-8.",
+        "urls": [
+          "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:estacao_metro",
+          "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:estacao_trem"
+        ]
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-23"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 150,
+        "size_bytes": 12099,
+        "checkSum": "sha256:51ecc45e1a42d4882ad265d8e9d7d95f88e71b346b30a2e66992893808077dcc"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome da estação (`nm_estacao_metro_trem`)"
+          },
+          {
+            "name": "modal",
+            "description": "Metrô ou Trem (camada de origem)"
+          },
+          {
+            "name": "empresa",
+            "description": "Operadora (`nm_empresa_metro_trem`): METRO, VIAQUATRO, CPTM, VIAMOBILIDADE"
+          },
+          {
+            "name": "linha",
+            "description": "Cor da linha (`nm_linha_metro_trem`), ex.: AZUL, RUBI"
+          },
+          {
+            "name": "situacao",
+            "description": "Situação (`tx_situacao_metro_trem`); todas OPERANDO nesta extração"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha do projeto (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "distritos_terminais_onibus": {
+      "id": "distritos_terminais_onibus",
+      "collection_id": "geosampa",
+      "slug": "distritos-terminais-onibus",
+      "title": "Terminais de ônibus da cidade de São Paulo por distrito municipal",
+      "description": "Terminais de ônibus urbanos, metropolitanos e rodoviários dentro do município, com tipo, endereço, status, coordenadas e distrito.",
+      "file": "src/data-source-static/data/raw/terminais_onibus_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:terminal_onibus",
+        "notes": "Camada WFS `geoportal:terminal_onibus` do GeoSampa. Ela inclui terminais metropolitanos de outros municípios (Cotia, Diadema, São Bernardo…), que foram descartados: 35 dos 50 ficam na capital. A camada não traz o distrito: a coluna `distrito` foi calculada por ponto-em-polígono contra `distrito-municipal-v2.geojson`, com tolerância de 30 m para pontos que caem nas frestas da malha (ver `distritos_malha_frestas`). Pontos a mais de 30 m de qualquer distrito foram descartados como fora do município. Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-23"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 35,
+        "size_bytes": 3514,
+        "checkSum": "sha256:93d317867612300b9b779c474f84c37a3fe02f597bef58a99b6de376929240d6"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome do terminal (`nm_terminal`)"
+          },
+          {
+            "name": "tipo",
+            "description": "Tipo do terminal (`nm_tipo_terminal`), ex.: RODOVIARIO"
+          },
+          {
+            "name": "endereco",
+            "description": "Endereço (`tx_endereco_terminal`)"
+          },
+          {
+            "name": "status",
+            "description": "Status (`tx_status_terminal`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha do projeto (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "distritos_pontos_onibus": {
+      "id": "distritos_pontos_onibus",
+      "collection_id": "geosampa",
+      "slug": "distritos-pontos-onibus",
+      "title": "Pontos de ônibus da cidade de São Paulo por distrito municipal",
+      "description": "Pontos de parada de ônibus dentro do município, um por linha, com o código da parada, descrição, coordenadas e distrito. Cobre os 96 distritos; volume alto demais para desenhar ponto a ponto no mapa — candidato a agregação por distrito.",
+      "file": "src/data-source-static/data/raw/pontos_onibus_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:ponto_onibus",
+        "notes": "Camada WFS `geoportal:ponto_onibus` do GeoSampa (SPTrans). 97 pontos fora do município foram descartados. A camada não traz o distrito: a coluna `distrito` foi calculada por ponto-em-polígono contra `distrito-municipal-v2.geojson`, com tolerância de 30 m para pontos que caem nas frestas da malha (ver `distritos_malha_frestas`). Pontos a mais de 30 m de qualquer distrito foram descartados como fora do município. Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-23"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 22462,
+        "size_bytes": 3071959,
+        "checkSum": "sha256:d2f762ac14a42501b9446d82addc5b2fb8431dbb05f25445fa62b8d19c4e222c"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "codigo",
+            "description": "Código da parada na fonte (`cd_identificador_ponto_onibus`)",
+            "role": "identifier"
+          },
+          {
+            "name": "nome",
+            "description": "Identificação da parada, em geral logradouro e número (`nm_ponto_onibus`)"
+          },
+          {
+            "name": "endereco",
+            "description": "Referência do local (`tx_endereco_ponto_onibus`)"
+          },
+          {
+            "name": "descricao",
+            "description": "Descrição (`tx_descricao_ponto_onibus`), frequentemente igual a `endereco`"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha do projeto (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "distritos_restaurantes_publicos": {
+      "id": "distritos_restaurantes_publicos",
+      "collection_id": "geosampa",
+      "slug": "distritos-restaurantes-publicos",
+      "title": "Restaurantes públicos da cidade de São Paulo por distrito municipal",
+      "description": "Restaurantes e cozinhas de refeição a preço popular ou gratuita — Bom Prato (estadual) e Rede Cozinha Cidadã (municipal) — com programa, esfera, endereço, coordenadas e distrito.",
+      "file": "src/data-source-static/data/raw/restaurantes_publicos_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:seguranca_alimentar",
+        "notes": "Camada WFS `geoportal:seguranca_alimentar` do GeoSampa. Os 7 Armazéns Solidários da camada foram excluídos, por não servirem refeições. Um registro sem nome (\"-\"), a 52 m da malha, ficou de fora como fora do município. Bairro, CEP, telefone e distrito vêm nulos na fonte. A camada não traz o distrito: a coluna `distrito` foi calculada por ponto-em-polígono contra `distrito-municipal-v2.geojson`, com tolerância de 30 m para pontos que caem nas frestas da malha (ver `distritos_malha_frestas`). Pontos a mais de 30 m de qualquer distrito foram descartados como fora do município. Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-23"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 70,
+        "size_bytes": 8597,
+        "checkSum": "sha256:13a787aa27794d2488915f548182932943ee0efe5ae02b9f031cd060bce61817"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome da unidade (`nm_equipamento`)"
+          },
+          {
+            "name": "programa",
+            "description": "Programa (`nm_classe_equipamento`): BOM PRATO ou REDE COZINHA CIDADÃ"
+          },
+          {
+            "name": "esfera",
+            "description": "Esfera (`nm_esfera_administrativa_equipamento`): ESTADUAL, MUNICIPAL ou ESTADUAL/MUNICIPAL"
+          },
+          {
+            "name": "endereco",
+            "description": "Endereço (`tx_endereco_equipamento`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha do projeto (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_hospitais": {
+      "id": "camada_hospitais",
+      "collection_id": "dados_processados",
+      "slug": "camada-hospitais",
+      "title": "Camada de hospitais do mapa — snapshot",
+      "description": "Snapshot servido à camada de hospitais do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/hospitais` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/hospitais.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_hospitais` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-23"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 98,
+        "size_bytes": 28768,
+        "checkSum": "sha256:382bedce53e0ccc6cba31ea02c4df544b1240caf9c35c19c15d31e9dc103b3e9"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–98) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_hospitais`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_hospitais"]
+    },
+    "camada_ubs": {
+      "id": "camada_ubs",
+      "collection_id": "dados_processados",
+      "slug": "camada-ubs",
+      "title": "Camada de UBS do mapa — snapshot",
+      "description": "Snapshot servido à camada de UBS do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/ubs` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/ubs.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_ubs` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-23"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 483,
+        "size_bytes": 143181,
+        "checkSum": "sha256:ad667a2a62e2914bcb7fedbe81cecb1631da739c76a110f950482592e3d9a950"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–483) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_ubs`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_ubs"]
+    },
+    "camada_restaurantes": {
+      "id": "camada_restaurantes",
+      "collection_id": "dados_processados",
+      "slug": "camada-restaurantes",
+      "title": "Camada de restaurantes públicos do mapa — snapshot",
+      "description": "Snapshot servido à camada de restaurantes públicos do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/restaurantes` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/restaurantes.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_restaurantes_publicos` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-23"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 70,
+        "size_bytes": 15752,
+        "checkSum": "sha256:5cc4b7509e78844106a4f817e201edf06d58498c05121309f3755bd1c9fde156"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–70) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_restaurantes_publicos`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_restaurantes_publicos"]
+    },
+    "camada_estacoes": {
+      "id": "camada_estacoes",
+      "collection_id": "dados_processados",
+      "slug": "camada-estacoes",
+      "title": "Camada de estações de metrô e trem do mapa — snapshot",
+      "description": "Snapshot servido à camada de estações de metrô e trem do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/estacoes` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/estacoes.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_estacoes_metro_trem` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-23"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 150,
+        "size_bytes": 29041,
+        "checkSum": "sha256:ad1e35c6d31816fe49c1a7d9a67237be806ba29673314f67439723e50c2dec71"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–150) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_estacoes_metro_trem`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_estacoes_metro_trem"]
+    },
+    "camada_terminais": {
+      "id": "camada_terminais",
+      "collection_id": "dados_processados",
+      "slug": "camada-terminais",
+      "title": "Camada de terminais de ônibus do mapa — snapshot",
+      "description": "Snapshot servido à camada de terminais de ônibus do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/terminais` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/terminais.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_terminais_onibus` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-23"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 35,
+        "size_bytes": 6992,
+        "checkSum": "sha256:bf32a4fe4ff99a79e1f64514bc4b15b98617bac03366c136607d86867110ce52"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–35) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_terminais_onibus`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_terminais_onibus"]
+    },
+    "camada_pontos_onibus": {
+      "id": "camada_pontos_onibus",
+      "collection_id": "dados_processados",
+      "slug": "camada-pontos-onibus",
+      "title": "Camada de pontos de ônibus do mapa — snapshot",
+      "description": "Snapshot servido à camada de pontos de ônibus do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/pontos-onibus` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/pontos-onibus.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_pontos_onibus` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-23"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 22462,
+        "size_bytes": 5464032,
+        "checkSum": "sha256:a0a21d034ae47fbaa1ff7067b8ab1237cbf2ebbbbb1739f3cf8069c50e119821"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–22462) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_pontos_onibus`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_pontos_onibus"]
     }
   }
 }
