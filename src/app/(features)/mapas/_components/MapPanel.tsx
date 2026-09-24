@@ -1,10 +1,10 @@
 import { GeoVisCanvas, useGeoVis } from '@ttoss/geovis';
 import * as React from 'react';
 
-import { POINT_LAYERS } from '@/config/pointLayers';
+import { OVERLAYS } from '@/config/overlays';
 
-import { pointLayerSpecId } from './pointLayers';
-import { pointLayersStore } from './pointLayersStore';
+import { overlaySpecId } from './overlays';
+import { overlaysStore } from './overlaysStore';
 
 /**
  * The workspace's `map` slot, replacing a default that is nothing but the same
@@ -15,7 +15,7 @@ import { pointLayersStore } from './pointLayersStore';
  * toggle nowhere else: it has no callback, it just flips the layer's `visible`
  * in the runtime's spec. `MapsView` renders `<GeovisWorkspace>` and so sits
  * outside that tree; this component relays each flip to
- * {@link pointLayersStore}, which fetches a layer on its first activation.
+ * {@link overlaysStore}, which fetches a layer on its first activation.
  *
  * Overriding the slot gives up geovis-workspace's cold-start panel, which
  * covers the window before the first spec resolves. `MapsView` already holds
@@ -32,10 +32,10 @@ const MapPanel = () => {
 
   // A string, so the effect below re-runs only when a toggle actually flips —
   // not on every timeline tick, which rebuilds `spec.layers` each time.
-  const visibleLayers = POINT_LAYERS.filter((config) => {
+  const visibleLayers = OVERLAYS.filter((config) => {
     return (
       spec.layers.find((layer) => {
-        return layer.id === pointLayerSpecId(config.id);
+        return layer.id === overlaySpecId(config.id);
       })?.visible !== false
     );
   })
@@ -47,8 +47,8 @@ const MapPanel = () => {
   React.useEffect(() => {
     const visible = new Set(visibleLayers.split(','));
 
-    for (const config of POINT_LAYERS) {
-      pointLayersStore.setActive(config.id, visible.has(config.id));
+    for (const config of OVERLAYS) {
+      overlaysStore.setActive(config.id, visible.has(config.id));
     }
   }, [visibleLayers]);
 

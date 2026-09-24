@@ -1,9 +1,16 @@
 /**
  * @jest-environment node
  */
-import { createPointLayersStore } from '@/app/(features)/mapas/_components/pointLayersStore';
-import { isPointLayerId, POINT_LAYER_IDS } from '@/config/pointLayers';
-import type { PointsContract } from '@/data-gateway/schema';
+import { createOverlaysStore } from '@/app/(features)/mapas/_components/overlaysStore';
+import {
+  isOverlayId,
+  isPointOverlayId,
+  OVERLAY_IDS,
+  OVERLAYS,
+  POINT_OVERLAY_IDS,
+} from '@/config/overlays';
+import type { OverlayContract } from '@/data-gateway/schema';
+import { toAppParks } from '@/data-gateway/transformers/toAppParks';
 import { toAppPoints } from '@/data-gateway/transformers/toAppPoints';
 
 const SANTA_CASA = {
@@ -19,7 +26,7 @@ const SANTA_CASA = {
   },
 };
 
-const COLLECTION: PointsContract = {
+const COLLECTION: OverlayContract = {
   type: 'FeatureCollection',
   features: [
     {
@@ -41,12 +48,22 @@ const flushPromises = () => {
   });
 };
 
-describe('isPointLayerId', () => {
+describe('overlay registry', () => {
   test('accepts every registered layer and rejects anything else', () => {
-    for (const id of POINT_LAYER_IDS) {
-      expect(isPointLayerId(id)).toBe(true);
+    for (const id of OVERLAY_IDS) {
+      expect(isOverlayId(id)).toBe(true);
     }
-    expect(isPointLayerId('parques')).toBe(false);
+    expect(isOverlayId('clubes')).toBe(false);
+  });
+
+  test('tells the point overlays from the polygon ones', () => {
+    expect(isPointOverlayId('ubs')).toBe(true);
+    expect(isPointOverlayId('parques')).toBe(false);
+  });
+
+  test('lists the parks first, so they draw on top of every other overlay', () => {
+    expect(OVERLAYS[0]?.id).toBe('parques');
+    expect(OVERLAYS[0]?.kind).toBe('polygon');
   });
 });
 
@@ -101,10 +118,80 @@ describe('readStaticPoints — validation', () => {
     const { readStaticPoints } =
       await import('@/data-source-static/readStaticPoints');
 
-    for (const layer of POINT_LAYER_IDS) {
+    for (const layer of POINT_OVERLAY_IDS) {
       const { points } = await readStaticPoints(layer);
       expect(points.length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe('parks', () => {
+  afterEach(() => {
+    jest.resetModules();
+  });
+
+  const IBIRAPUERA = {
+    id: 1,
+    nome: 'Ibirapuera',
+    categoria: 'Parque Urbano',
+    cadparc: 'PQ_VM_01',
+    geometry: {
+      type: 'Polygon' as const,
+      coordinates: [
+        [
+          [-46.66, -23.59],
+          [-46.65, -23.59],
+          [-46.65, -23.58],
+          [-46.66, -23.59],
+        ] as [number, number][],
+      ],
+    },
+  };
+
+  test('toAppParks labels each park with its name and category', () => {
+    expect(toAppParks({ parques: [IBIRAPUERA] })).toEqual({
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          id: 1,
+          properties: { name: 'Ibirapuera', detail: 'Parque Urbano' },
+          geometry: IBIRAPUERA.geometry,
+        },
+      ],
+    });
+  });
+
+  test('toAppParks throws on an empty snapshot', () => {
+    expect(() => {
+      return toAppParks({ parques: [] });
+    }).toThrow('[data-gateway]');
+  });
+
+  test('readStaticParks rejects a park without a polygon', async () => {
+    jest.doMock('@/data-source-static/data/polygons/parques.json', () => {
+      return {
+        parques: [
+          { ...IBIRAPUERA, geometry: { type: 'Point', coordinates: [0, 0] } },
+        ],
+      };
+    });
+
+    const { readStaticParks } =
+      await import('@/data-source-static/readStaticParks');
+
+    await expect(readStaticParks()).rejects.toThrow('[data-source-static]');
+  });
+
+  test('the versioned parks snapshot passes its own validation', async () => {
+    // `doMock` survives `resetModules`, so the fixture above must be lifted.
+    jest.dontMock('@/data-source-static/data/polygons/parques.json');
+
+    const { readStaticParks } =
+      await import('@/data-source-static/readStaticParks');
+    const { parques } = await readStaticParks();
+
+    expect(parques.length).toBeGreaterThan(0);
   });
 });
 
@@ -153,6 +240,27 @@ describe('toAppPoints', () => {
     expect(contract.features[0]?.properties.detail).toBe('Metrô · Linha Azul');
   });
 
+  test('keeps a sports centre type whole after its category', () => {
+    const contract = toAppPoints({
+      layer: 'esporte',
+      source: {
+        points: [
+          {
+            ...SANTA_CASA,
+            atributos: {
+              nome: 'CENTRO ESPORTIVO SANTO AMARO',
+              tipo: 'Centro Esportivo/Centro Educacional e Esportivo - CE/CEE',
+            },
+          },
+        ],
+      },
+    });
+
+    expect(contract.features[0]?.properties.detail).toBe(
+      'Centro Esportivo · Centro Educacional e Esportivo - CE/CEE'
+    );
+  });
+
   test('throws on an empty snapshot', () => {
     expect(() => {
       return toAppPoints({ layer: 'ubs', source: { points: [] } });
@@ -160,10 +268,10 @@ describe('toAppPoints', () => {
   });
 });
 
-describe('createPointLayersStore', () => {
+describe('createOverlaysStore', () => {
   test('starts with every layer inactive and nothing loaded', () => {
     const fetchPoints = jest.fn();
-    const store = createPointLayersStore(fetchPoints);
+    const store = createOverlaysStore(fetchPoints);
 
     expect(Object.values(store.getSnapshot().active)).not.toContain(true);
     expect(store.getSnapshot().data).toEqual({});
@@ -172,7 +280,7 @@ describe('createPointLayersStore', () => {
 
   test('fetches a layer on its first activation and keeps the result', async () => {
     const fetchPoints = jest.fn().mockResolvedValue(COLLECTION);
-    const store = createPointLayersStore(fetchPoints);
+    const store = createOverlaysStore(fetchPoints);
     const listener = jest.fn();
     store.subscribe(listener);
 
@@ -193,7 +301,7 @@ describe('createPointLayersStore', () => {
 
   test('loads each layer independently', async () => {
     const fetchPoints = jest.fn().mockResolvedValue(COLLECTION);
-    const store = createPointLayersStore(fetchPoints);
+    const store = createOverlaysStore(fetchPoints);
 
     store.setActive('ubs', true);
     store.setActive('estacoes', true);
@@ -205,7 +313,7 @@ describe('createPointLayersStore', () => {
 
   test('does not stack requests while one is in flight', () => {
     const fetchPoints = jest.fn().mockReturnValue(new Promise(() => {}));
-    const store = createPointLayersStore(fetchPoints);
+    const store = createOverlaysStore(fetchPoints);
 
     store.setActive('ubs', true);
     store.setActive('ubs', false);
@@ -219,7 +327,7 @@ describe('createPointLayersStore', () => {
       .fn()
       .mockRejectedValueOnce(new Error('offline'))
       .mockResolvedValueOnce(COLLECTION);
-    const store = createPointLayersStore(fetchPoints);
+    const store = createOverlaysStore(fetchPoints);
 
     store.setActive('ubs', true);
     await flushPromises();
@@ -235,9 +343,7 @@ describe('createPointLayersStore', () => {
   });
 
   test('does not notify when the activation does not change', () => {
-    const store = createPointLayersStore(
-      jest.fn().mockResolvedValue(COLLECTION)
-    );
+    const store = createOverlaysStore(jest.fn().mockResolvedValue(COLLECTION));
     const listener = jest.fn();
     store.subscribe(listener);
 

@@ -1,41 +1,41 @@
-import { POINT_LAYER_IDS, type PointLayerId } from '@/config/pointLayers';
-import type { PointsContract } from '@/data-gateway/schema';
+import { OVERLAY_IDS, type OverlayId } from '@/config/overlays';
+import type { OverlayContract } from '@/data-gateway/schema';
 
 /**
- * Endpoint serving one point layer (`src/app/api/camadas/[layer]/route.ts`).
+ * Endpoint serving one overlay (`src/app/api/camadas/[layer]/route.ts`).
  *
  * @param layer - The layer to request.
  * @returns The layer's URL.
  *
  * @example
- * pointLayerUrl('ubs'); // '/api/camadas/ubs'
+ * overlayUrl('ubs'); // '/api/camadas/ubs'
  */
-export const pointLayerUrl = (layer: PointLayerId): string => {
+export const overlayUrl = (layer: OverlayId): string => {
   return `/api/camadas/${layer}`;
 };
 
 /**
- * State of the point layers, as `useSyncExternalStore` reads it.
+ * State of the overlays, as `useSyncExternalStore` reads it.
  *
  * `active` mirrors each layer's toggle in the "Camadas" control; `data` holds
  * each layer's collection once its first request has settled.
  */
-export type PointLayersSnapshot = {
-  active: Readonly<Record<PointLayerId, boolean>>;
-  data: Readonly<Partial<Record<PointLayerId, PointsContract>>>;
+export type OverlaysSnapshot = {
+  active: Readonly<Record<OverlayId, boolean>>;
+  data: Readonly<Partial<Record<OverlayId, OverlayContract>>>;
 };
 
-const INITIAL_SNAPSHOT: PointLayersSnapshot = {
+const INITIAL_SNAPSHOT: OverlaysSnapshot = {
   active: Object.fromEntries(
-    POINT_LAYER_IDS.map((id) => {
+    OVERLAY_IDS.map((id) => {
       return [id, false];
     })
-  ) as Record<PointLayerId, boolean>,
+  ) as Record<OverlayId, boolean>,
   data: {},
 };
 
 /**
- * Creates the store behind the map's point layers.
+ * Creates the store behind the map's overlays.
  *
  * It is a store rather than component state because two trees need it: the
  * `map` slot override, the only place inside the geovis provider where the
@@ -48,30 +48,30 @@ const INITIAL_SNAPSHOT: PointLayersSnapshot = {
  * stays empty meanwhile, which reads as "not loaded" rather than as a city
  * without any, since its toggle still shows as on.
  *
- * @param fetchPoints - Loads one layer; injectable for tests.
+ * @param fetchOverlay - Loads one overlay; injectable for tests.
  * @returns The store's `subscribe`, snapshot getters and `setActive`.
  *
  * @example
- * const store = createPointLayersStore();
+ * const store = createOverlaysStore();
  * store.setActive('ubs', true); // first activation → one request to /api/camadas/ubs
  */
-export const createPointLayersStore = (
-  fetchPoints: (layer: PointLayerId) => Promise<PointsContract> = async (
+export const createOverlaysStore = (
+  fetchOverlay: (layer: OverlayId) => Promise<OverlayContract> = async (
     layer
   ) => {
-    const response = await fetch(pointLayerUrl(layer));
+    const response = await fetch(overlayUrl(layer));
 
     if (!response.ok) {
       throw new Error(
-        `[pointLayersStore] ${pointLayerUrl(layer)} answered ${response.status}`
+        `[overlaysStore] ${overlayUrl(layer)} answered ${response.status}`
       );
     }
 
-    return response.json() as Promise<PointsContract>;
+    return response.json() as Promise<OverlayContract>;
   }
 ) => {
   let snapshot = INITIAL_SNAPSHOT;
-  const inFlight = new Set<PointLayerId>();
+  const inFlight = new Set<OverlayId>();
   const listeners = new Set<() => void>();
 
   const notify = () => {
@@ -80,12 +80,15 @@ export const createPointLayersStore = (
     }
   };
 
-  const load = (layer: PointLayerId) => {
+  const load = (layer: OverlayId) => {
     inFlight.add(layer);
 
-    fetchPoints(layer)
-      .then((points) => {
-        snapshot = { ...snapshot, data: { ...snapshot.data, [layer]: points } };
+    fetchOverlay(layer)
+      .then((overlay) => {
+        snapshot = {
+          ...snapshot,
+          data: { ...snapshot.data, [layer]: overlay },
+        };
         notify();
       })
       // A failed request leaves the layer's data unset, which is the whole
@@ -105,15 +108,15 @@ export const createPointLayersStore = (
       };
     },
 
-    getSnapshot: (): PointLayersSnapshot => {
+    getSnapshot: (): OverlaysSnapshot => {
       return snapshot;
     },
 
-    getServerSnapshot: (): PointLayersSnapshot => {
+    getServerSnapshot: (): OverlaysSnapshot => {
       return INITIAL_SNAPSHOT;
     },
 
-    setActive: (layer: PointLayerId, active: boolean) => {
+    setActive: (layer: OverlayId, active: boolean) => {
       if (active !== snapshot.active[layer]) {
         snapshot = {
           ...snapshot,
@@ -129,5 +132,5 @@ export const createPointLayersStore = (
   };
 };
 
-/** The app's single point-layers store, shared by `MapsView` and `MapPanel`. */
-export const pointLayersStore = createPointLayersStore();
+/** The app's single overlays store, shared by `MapsView` and `MapPanel`. */
+export const overlaysStore = createOverlaysStore();

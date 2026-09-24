@@ -1,7 +1,7 @@
-import type { PointLayerId } from '@/config/pointLayers';
+import type { PointOverlayId } from '@/config/overlays';
 
 import type { StaticPointsDataSource } from '../../data-source-static/types';
-import type { PointsContract } from '../schema';
+import type { OverlayContract } from '../schema';
 
 /**
  * Turns an all-caps source value into title case (`REDE COZINHA CIDADÃ` →
@@ -38,7 +38,7 @@ const joinDetail = (parts: (string | undefined)[]): string => {
  * the generator, which keeps every column.
  */
 const DETAIL: Record<
-  PointLayerId,
+  PointOverlayId,
   (atributos: Record<string, string>) => string
 > = {
   hospitais: (a) => {
@@ -52,6 +52,19 @@ const DETAIL: Record<
       titleCase(a['programa'] ?? ''),
       titleCase(a['esfera'] ?? ''),
     ]);
+  },
+  // A sports centre's type repeats its category before the slash
+  // (`Centro Esportivo/Balneário`), so only the part after it is kept; a
+  // community club's type already reads on its own.
+  esporte: (a) => {
+    const tipo = a['tipo'] ?? '';
+    const prefix = 'Centro Esportivo/';
+
+    // Split at the first slash only: the rest carries slashes of its own
+    // (`Centro Educacional e Esportivo - CE/CEE`).
+    return tipo.startsWith(prefix)
+      ? joinDetail(['Centro Esportivo', tipo.slice(prefix.length)])
+      : tipo;
   },
   estacoes: (a) => {
     return joinDetail([
@@ -79,7 +92,7 @@ const DETAIL: Record<
  * @param params.layer - The layer the snapshot belongs to; picks its
  * secondary line.
  * @param params.source - Raw record from data-source-static.
- * @returns Canonical {@link PointsContract}.
+ * @returns Canonical {@link OverlayContract}.
  * @throws If the snapshot carries no points — an empty layer would look
  * exactly like a city without any of them.
  *
@@ -91,9 +104,9 @@ export const toAppPoints = ({
   layer,
   source,
 }: {
-  layer: PointLayerId;
+  layer: PointOverlayId;
   source: StaticPointsDataSource;
-}): PointsContract => {
+}): OverlayContract => {
   if (source.points.length === 0) {
     throw new Error(
       `[data-gateway] toAppPoints received an empty ${layer} snapshot`

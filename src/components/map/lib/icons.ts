@@ -33,6 +33,7 @@ import lucideZoomIn from '@iconify/icons-lucide/zoom-in';
 // Phosphor — double caret (bold for toggle buttons)
 // Phosphor — variacoes de faixa etaria na sidebar do mapa
 import phArrowsInLineHorizontal from '@iconify/icons-ph/arrows-in-line-horizontal';
+import phBuildings from '@iconify/icons-ph/buildings';
 import phCalendarBlank from '@iconify/icons-ph/calendar-blank';
 import phCaretDoubleLeftBold from '@iconify/icons-ph/caret-double-left-bold';
 import phCaretDoubleRightBold from '@iconify/icons-ph/caret-double-right-bold';
@@ -47,8 +48,16 @@ import phChartBar from '@iconify/icons-ph/chart-bar';
 import phChartDonut from '@iconify/icons-ph/chart-donut';
 import phChartPieSlice from '@iconify/icons-ph/chart-pie-slice';
 import phClock from '@iconify/icons-ph/clock';
+import phFirstAid from '@iconify/icons-ph/first-aid';
+import phFirstAidKit from '@iconify/icons-ph/first-aid-kit';
+import phForkKnife from '@iconify/icons-ph/fork-knife';
 import phGauge from '@iconify/icons-ph/gauge';
+import phMapTrifold from '@iconify/icons-ph/map-trifold';
 import phPlusCircle from '@iconify/icons-ph/plus-circle';
+import phPolygon from '@iconify/icons-ph/polygon';
+import phSoccerBall from '@iconify/icons-ph/soccer-ball';
+import phSquaresFour from '@iconify/icons-ph/squares-four';
+import phStorefront from '@iconify/icons-ph/storefront';
 import phUsersThree from '@iconify/icons-ph/users-three';
 import { addIcon, Icon } from '@ttoss/react-icons';
 
@@ -68,6 +77,15 @@ addIcon('ph:plus-circle', phPlusCircle);
 addIcon('ph:arrows-in-line-horizontal', phArrowsInLineHorizontal);
 addIcon('ph:calendar-blank', phCalendarBlank);
 addIcon('ph:clock', phClock);
+addIcon('ph:map-trifold', phMapTrifold);
+addIcon('ph:squares-four', phSquaresFour);
+addIcon('ph:polygon', phPolygon);
+addIcon('ph:buildings', phBuildings);
+addIcon('ph:storefront', phStorefront);
+addIcon('ph:first-aid-kit', phFirstAidKit);
+addIcon('ph:first-aid', phFirstAid);
+addIcon('ph:fork-knife', phForkKnife);
+addIcon('ph:soccer-ball', phSoccerBall);
 
 // Register the Lucide icons @ttoss/geovis-workspace renders by name
 addIcon('lucide:circle', lucideCircle);
@@ -105,6 +123,7 @@ export const ICONS = {
   caretRight: 'ph:caret-right',
 
   // Map sidebar — section headers
+  mapTrifold: 'ph:map-trifold',
   gauge: 'ph:gauge',
   usersThree: 'ph:users-three',
   calendarBlank: 'ph:calendar-blank',
@@ -117,6 +136,18 @@ export const ICONS = {
   chartPieSlice: 'ph:chart-pie-slice',
   chartDonut: 'ph:chart-donut',
   chartBar: 'ph:chart-bar',
+
+  // Map sidebar — geographic-level variations
+  squaresFour: 'ph:squares-four',
+  polygon: 'ph:polygon',
+
+  // Map sidebar — offer indicator and its services
+  buildings: 'ph:buildings',
+  storefront: 'ph:storefront',
+  firstAidKit: 'ph:first-aid-kit',
+  firstAid: 'ph:first-aid',
+  forkKnife: 'ph:fork-knife',
+  soccerBall: 'ph:soccer-ball',
 
   // Map sidebar — age-group variations
   plusCircle: 'ph:plus-circle',

@@ -1,4 +1,4 @@
-import type { PointLayerId } from '@/config/pointLayers';
+import type { PointOverlayId } from '@/config/overlays';
 
 import type { StaticPointsDataSource } from './types';
 
@@ -6,7 +6,7 @@ import type { StaticPointsDataSource } from './types';
  * One loader per layer, each a separate dynamic import: a request for the 70
  * public restaurants should not pull the 5 MB bus-stop snapshot into memory.
  */
-const SNAPSHOTS: Record<PointLayerId, () => Promise<{ default: unknown }>> = {
+const SNAPSHOTS: Record<PointOverlayId, () => Promise<{ default: unknown }>> = {
   hospitais: () => {
     return import('./data/points/hospitais.json');
   },
@@ -15,6 +15,9 @@ const SNAPSHOTS: Record<PointLayerId, () => Promise<{ default: unknown }>> = {
   },
   restaurantes: () => {
     return import('./data/points/restaurantes.json');
+  },
+  esporte: () => {
+    return import('./data/points/esporte.json');
   },
   estacoes: () => {
     return import('./data/points/estacoes.json');
@@ -81,7 +84,7 @@ const isStaticPointsDataSource = (
  * // { points: [...] }
  */
 export const readStaticPoints = async (
-  layer: PointLayerId
+  layer: PointOverlayId
 ): Promise<StaticPointsDataSource> => {
   const parsed: unknown = (await SNAPSHOTS[layer]()).default;
 

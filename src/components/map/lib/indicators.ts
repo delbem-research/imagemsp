@@ -1,1 +1,6 @@
-export type { Category, Group } from '@/data-gateway/schema';
+export type {
+  AgeGroup,
+  Category,
+  Group,
+  OfferService,
+} from '@/data-gateway/schema';

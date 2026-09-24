@@ -1,9 +1,23 @@
 export type Category =
   | 'cumulative-total'
   | 'cumulative-65plus'
-  | '5year-65plus';
+  | '5year-65plus'
+  | 'offer-65plus';
 
-export type Group = '65' | '70' | '75' | '65-69' | '70-74';
+/** The age bands of the three population-share categories. */
+export type AgeGroup = '65' | '70' | '75' | '65-69' | '70-74';
+
+/**
+ * The services of the `offer-65plus` category: public facilities counted per
+ * area and set against its 65+ population. Each is also a point overlay.
+ */
+export type OfferService = 'ubs' | 'hospitais' | 'restaurantes' | 'esporte';
+
+/**
+ * The second menu's value: an age band for the share categories, a service for
+ * `offer-65plus`.
+ */
+export type Group = AgeGroup | OfferService;
 
 /** Canonical map data row shape consumed by the app. */
 export type MapDataRow = {
@@ -11,15 +25,18 @@ export type MapDataRow = {
   value: number;
   /** District name for tooltip display. */
   name?: string;
-  /** Absolute population count for the numerator of this rate (tooltip). */
+  /** Absolute count for the numerator of this rate — people, or facilities for an offer series (tooltip). */
   count?: number;
   /** Absolute population count for the denominator of this rate (tooltip). */
   totalCount?: number;
 };
 
 /**
- * Absolute population counts for one district in one projection year — the
- * figures every indicator the map paints is derived from.
+ * Absolute population counts for one area in one projection year — the
+ * figures every indicator the map paints is derived from. The area is a
+ * district in `MapsDataContract.counts` and a subprefeitura in
+ * `MapsDataContract.subprefeituraCounts`; the shape is the same so the same
+ * ratios (`components/map/lib/mapRows`) serve both levels.
  *
  * Counts rather than rates: the eight series the app offers are ratios of these
  * four numbers, and the timeline multiplies everything by eleven years.
@@ -28,9 +45,9 @@ export type MapDataRow = {
  * tick. See `components/map/lib/mapRows` for the derivation.
  */
 export type DistrictCounts = {
-  /** Feature id of the district's polygon in the GeoJSON. */
+  /** Feature id of the area's polygon in its GeoJSON. */
   geometryId: number;
-  /** District name, for the tooltip. */
+  /** Area name, for the tooltip. */
   name: string;
   /** Projection year these counts describe. */
   year: number;
@@ -42,6 +59,12 @@ export type DistrictCounts = {
   count75plus: number;
   /** Residents of every age — the denominator of the `cumulative-total` series. */
   total: number;
+  /**
+   * Public facilities of each `offer-65plus` service in the area, as mapped
+   * today. The same in every year of the series: only the population is
+   * projected, which is why the offer indicators are painted for one year.
+   */
+  services: Record<OfferService, number>;
 };
 
 /** Canonical maps data contract consumed by the app. */
@@ -55,4 +78,21 @@ export type MapsDataContract = {
   thresholds: Record<Category, Partial<Record<Group, number[]>>>;
   /** One entry per district per year. */
   counts: DistrictCounts[];
+  /**
+   * One entry per subprefeitura per year: the sums of its districts' counts.
+   * Summed counts, not averaged rates — a rate is re-derived from these, so a
+   * populous district weighs in proportion to its population.
+   */
+  subprefeituraCounts: DistrictCounts[];
+  /** The 32 subprefeituras, with the districts each one groups. */
+  subprefeituras: Subprefeitura[];
+};
+
+/** A subprefeitura and the districts it groups, for the map's tooltip. */
+export type Subprefeitura = {
+  /** Feature id of its polygon in `public/subprefeituras.geojson`. */
+  geometryId: number;
+  name: string;
+  /** Names of the districts it groups, alphabetically. */
+  districtNames: string[];
 };

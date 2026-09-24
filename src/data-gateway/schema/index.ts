@@ -1,8 +1,15 @@
 export type {
+  AgeGroup,
   Category,
   DistrictCounts,
   Group,
   MapDataRow,
   MapsDataContract,
+  OfferService,
+  Subprefeitura,
 } from './mapsData';
-export type { PointFeature, PointProperties, PointsContract } from './points';
+export type {
+  OverlayContract,
+  OverlayFeature,
+  OverlayProperties,
+} from './overlays';
