@@ -5,7 +5,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 // name, so they resolve from the bundle instead of the Iconify API at runtime.
 import '@/components/map/lib/icons';
 
-import { Box, Text } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import type { MapHoverInfo, VisualizationSpec } from '@ttoss/geovis';
 import { GeovisWorkspace } from '@ttoss/geovis-workspace';
 import { I18nProvider } from '@ttoss/react-i18n';
@@ -19,7 +19,13 @@ import {
   FALLBACK_ZOOM,
   fitZoom,
 } from '@/components/map/lib/mapCamera';
-import { getBandIndex, LEGEND_COLORS } from '@/components/map/lib/mapConfig';
+import { LEGEND_COLORS } from '@/components/map/lib/mapConfig';
+import {
+  isMapLevel,
+  MAP_LEVEL_IDS,
+  MAP_LEVELS,
+  type MapLevel,
+} from '@/components/map/lib/mapLevels';
 import {
   buildElderlyHistogram,
   buildMapRows,
@@ -29,14 +35,21 @@ import {
   CATEGORY_MENU_ID,
   getDefaultGroup,
   GROUP_MENU_ID,
-  MAP_DESCRIPTIONS,
+  LEVEL_MENU_ID,
   MAP_TITLES,
+  mapDescription,
   YEAR_MENU_ID,
 } from '@/components/map/lib/workspaceConfig';
 import LoadingIndicator from '@/components/ui/LoadingIndicator';
+import { isOfferCategory, OFFER_YEAR } from '@/config/offer';
 import { thresholdsFor } from '@/config/thresholds';
-import type { MapDataRow, MapsDataContract } from '@/data-gateway/schema';
+import type { MapsDataContract } from '@/data-gateway/schema';
 
+import { legendLabelFormat, legendReference } from './mapLegend';
+import MapPanel from './MapPanel';
+import { renderTooltipContent, TOOLTIP_STYLE } from './mapTooltips';
+import { buildOverlays, LAYER_CONTROL } from './overlays';
+import { type OverlaysSnapshot, overlaysStore } from './overlaysStore';
 import {
   emptyViewportSnapshot,
   MAP_HEIGHT,
@@ -71,168 +84,54 @@ const scopedSidebarTheme = {
 };
 
 const LEGEND_ID = 'pop-legend';
-const MAP_DATA_ID = 'pop-data';
-const SOURCE_ID = 'sp-districts';
-const LAYER_ID = 'sp-districts-fill';
-
-/**
- * Data-source attribution rendered under the legend swatches. `reference`
- * supports an inline link with the `{link:text|url}` syntax, so the SEADE
- * source keeps its hyperlink (the geometry source is plain text).
- *
- * It also carries the basemap credit, because the spec sets
- * `attributionControlEnabled: false` (see buildSpec): OpenFreeMap serves
- * OpenStreetMap-derived tiles under the ODbL, whose attribution requirement
- * does not go away with MapLibre's own control. This is the surface where it is
- * satisfied instead, so the two must be changed together.
- *
- * The active year is interpolated rather than written into the text: with the
- * timeline driving eleven of them, a fixed year in the credit line would go on
- * naming 2025 while the map painted 2050. Every year in the series is a
- * projection — including the ones already past, which are the model's figures
- * for those years and not the censuses taken in them — so the wording says so
- * once, for the whole series.
- *
- * @param params.year - The projection year currently painted.
- * @param params.years - The projection years available, ascending.
- * @returns The reference line for the legend footer.
- *
- * @example
- * legendReference({ year: 2025, years: [2000, 2050] });
- * // 'Fonte dos dados: ... projeção para 2025 (série 2000–2050) ...'
- */
-const legendReference = ({
-  year,
-  years,
-}: {
-  year: number;
-  years: number[];
-}): string => {
-  const first = years[0] ?? year;
-  const last = years[years.length - 1] ?? year;
-
-  return `Fonte dos dados: {link:Dados agregados por distrito municipal a partir das projeções populacionais por sexo e idade do SEADE|https://repositorio.seade.gov.br/dataset/populacao-residente-municipio-de-sao-paulo-evolucao} — projeção para ${year}, de uma série quinquenal que vai de ${first} a ${last}. Geometria: Distritos Municipais de São Paulo. Mapa base: {link:OpenFreeMap|https://openfreemap.org/} · {link:OpenStreetMap|https://www.openstreetmap.org/copyright}.`;
-};
-
-/**
- * Generates dynamic tooltip text based on selected category and group.
- *
- * @param category - The demographic category.
- * @param group - The age group.
- * @returns Descriptive text for the tooltip value line.
- */
-const getTooltipText = (category: Category, group: Group): string => {
-  const ageLabels: Record<Group, string> = {
-    '65': '65+',
-    '70': '70+',
-    '75': '75+',
-    '65-69': '65 a 69 anos',
-    '70-74': '70 a 74 anos',
-  };
-
-  const contextLabels: Record<Category, string> = {
-    'cumulative-total': 'do total',
-    'cumulative-65plus': 'da pop 65+',
-    '5year-65plus': 'da pop 65+',
-  };
-
-  return `População com idade ${ageLabels[group]} ${contextLabels[category]}`;
-};
-
-/**
- * Renders the tooltip content for a district feature.
- *
- * @param params.featureId - The feature ID from the hover event.
- * @param params.rowLookup - Map of geometryId to MapDataRow.
- * @param params.category - Current selected category.
- * @param params.group - Current selected group.
- * @param params.thresholds - The active series' class breaks, so the swatch is
- * read off the same scale the layer is painted with.
- * @returns Tooltip JSX content.
- */
-const renderTooltipContent = ({
-  featureId,
-  rowLookup,
-  category,
-  group,
-  thresholds,
-}: {
-  featureId: string | number;
-  rowLookup: Map<number, MapDataRow>;
-  category: Category;
-  group: Group;
-  thresholds: number[];
-}) => {
-  const row = rowLookup.get(Number(featureId));
-  const bandIndex =
-    row != null ? getBandIndex({ value: row.value, thresholds }) : null;
-  const swatchColor =
-    bandIndex != null
-      ? LEGEND_COLORS[bandIndex]
-      : 'var(--chakra-colors-border-subtle)';
-
-  return (
-    <Box display="flex" flexDirection="column" gap="2" minWidth="200px">
-      {/* District name */}
-      <Text fontWeight="bold" fontSize="md" lineHeight="tight">
-        {row?.name ?? String(featureId)}
-      </Text>
-
-      {/* Value with color swatch */}
-      {row && (
-        <Box display="flex" flexDirection="column" gap="1">
-          <Box display="flex" alignItems="center" gap="2">
-            <Box
-              width="14px"
-              height="14px"
-              borderRadius="2px"
-              flexShrink={0}
-              bg={swatchColor}
-            />
-            <Text fontSize="xs" color="text.muted" lineHeight="tight">
-              {(row.value * 100).toFixed(1)}% {getTooltipText(category, group)}
-            </Text>
-          </Box>
-          {row.count != null && row.totalCount != null && (
-            <Text fontSize="xs" color="text.muted" lineHeight="tight" pl="22px">
-              ({row.count.toLocaleString('pt-BR')} de{' '}
-              {row.totalCount.toLocaleString('pt-BR')} pessoas)
-            </Text>
-          )}
-        </Box>
-      )}
-    </Box>
-  );
-};
 
 /**
  * Builds a GeoVis VisualizationSpec for rendering a choropleth map, including a
- * spec-driven hover tooltip on the district layer.
+ * spec-driven hover tooltip on the area layer.
  *
  * Rebuilt on every timeline tick, so the work per call is one pass over the
- * year's 96 districts (`buildMapRows`) — the class breaks are fixed per series
- * and never refitted, which is what keeps a colour comparable across years.
+ * year's areas (`buildMapRows`) — the class breaks are fixed per series and
+ * never refitted, which is what keeps a colour comparable across years.
+ *
+ * Both levels' sources stay in the spec, so switching level never refetches a
+ * geometry; only the active level has a fill layer and a join. The two levels
+ * share the class breaks: a colour means the same share whether it paints a
+ * district or a subprefeitura, at the cost of a flatter subprefeitura map,
+ * since summing districts smooths out their extremes.
  *
  * @param params.data - Canonical maps data from the gateway.
+ * @param params.level - The geographic level to paint.
  * @param params.category - The demographic category to visualize.
  * @param params.group - The age group to visualize.
- * @param params.year - The projection year to visualize.
+ * @param params.year - The projection year to visualize — for an offer
+ * indicator, the fixed year it is painted for, whatever the timeline says.
+ * @param params.overlays - The overlays' toggles and loaded data.
  * @returns A complete VisualizationSpec for GeoVis rendering.
  */
 const buildSpec = ({
   data,
+  level,
   category,
   group,
   year,
   zoom,
+  overlays,
 }: {
   data: MapsDataContract;
+  level: MapLevel;
   category: Category;
   group: Group;
   year: number;
   zoom: number;
+  overlays: OverlaysSnapshot;
 }): VisualizationSpec => {
-  const rows = buildMapRows({ counts: data.counts, year, category, group });
+  const areas = MAP_LEVELS[level];
+  const rows = buildMapRows({
+    counts: level === 'distrito' ? data.counts : data.subprefeituraCounts,
+    year,
+    category,
+    group,
+  });
 
   // geovis MapDataRow is strictly `{ geometryId, value }` and its runtime
   // schema sets `additionalProperties: false`. The derived row also carries
@@ -250,10 +149,14 @@ const buildSpec = ({
   // The year belongs in the legend's own heading: during playback it is the
   // only thing on screen that changes, and a title that omits it leaves the
   // reader watching colours shift with no idea which year they are looking at.
-  const title = indicator ? `${indicator} — ${year}` : String(year);
-  const description =
-    (MAP_DESCRIPTIONS[category] as Partial<Record<string, string>>)[group] ??
-    '';
+  const offer = isOfferCategory(category);
+  // An offer title already reads "… POR 10 MIL IDOSOS", so the level follows
+  // as "EM CADA …" rather than a second "POR".
+  const levelPhrase = `${offer ? 'EM CADA' : 'POR'} ${areas.titleNoun}`;
+  const title = indicator
+    ? `${indicator} ${levelPhrase} — ${year}`
+    : String(year);
+  const description = mapDescription({ category, group, level });
 
   // Lookup used by the spec-driven hover tooltip to resolve a feature's row.
   const rowLookup = new Map(
@@ -261,6 +164,22 @@ const buildSpec = ({
       return [row.geometryId, row] as const;
     })
   );
+
+  // Only the aggregated level lists what each area is made of.
+  const members =
+    level === 'subprefeitura'
+      ? new Map(
+          data.subprefeituras.map((sub) => {
+            return [sub.geometryId, sub.districtNames] as const;
+          })
+        )
+      : undefined;
+
+  const overlayLayers = buildOverlays({
+    layers: overlays,
+    tooltipStyle: TOOLTIP_STYLE,
+  });
+  const anyOverlay = Object.values(overlays.active).some(Boolean);
 
   return {
     engine: 'maplibre',
@@ -285,18 +204,21 @@ const buildSpec = ({
       zoom,
     },
     sources: [
-      {
-        id: SOURCE_ID,
-        type: 'geojson',
-        data: '/distrito-municipal-v2.geojson',
-      },
+      ...MAP_LEVEL_IDS.map((id) => {
+        return {
+          id: MAP_LEVELS[id].sourceId,
+          type: 'geojson' as const,
+          data: MAP_LEVELS[id].geojson,
+        };
+      }),
+      ...overlayLayers.sources,
     ],
     layers: [
       {
-        id: LAYER_ID,
-        sourceId: SOURCE_ID,
+        id: areas.layerId,
+        sourceId: areas.sourceId,
         geometry: 'polygon',
-        mapDataId: MAP_DATA_ID,
+        mapDataId: areas.mapDataId,
         activeLegendId: LEGEND_ID,
         legends: [
           {
@@ -327,8 +249,14 @@ const buildSpec = ({
             },
             // Values are proportions in [0, 1]; render each bin as a percent
             // range (`< 5%`, `5% – 10%`, … `> 30%`) instead of raw breaks.
-            labelFormat: { type: 'percentage', decimals: 0 },
-            reference: legendReference({ year, years: data.years }),
+            labelFormat: legendLabelFormat(category),
+            reference: legendReference({
+              level,
+              year,
+              years: data.years,
+              overlays: anyOverlay,
+              offer,
+            }),
           },
         ],
         hoverTooltip: {
@@ -336,27 +264,23 @@ const buildSpec = ({
             return renderTooltipContent({
               featureId: info.featureId,
               rowLookup,
+              members,
               category,
               group,
               thresholds,
             });
           },
-          style: {
-            background: 'var(--chakra-colors-surface-raised)',
-            color: 'var(--chakra-colors-text-primary)',
-            border: '1px solid var(--chakra-colors-border-subtle)',
-            borderRadius: 'var(--chakra-radii-md)',
-            boxShadow: 'var(--chakra-shadows-md)',
-            padding: 'var(--chakra-spacing-2) var(--chakra-spacing-3)',
-            zIndex: 50,
-          },
+          style: TOOLTIP_STYLE,
         },
       },
+      // Last, so the overlays draw above the area fill.
+      ...overlayLayers.layers,
     ],
+    control: LAYER_CONTROL,
     mapData: [
       {
-        mapDataId: MAP_DATA_ID,
-        mapId: SOURCE_ID,
+        mapDataId: areas.mapDataId,
+        mapId: areas.sourceId,
         data: mapDataRows,
       },
     ],
@@ -433,11 +357,97 @@ const initialYear = (years: number[]): number => {
   return years.includes(INITIAL_YEAR) ? INITIAL_YEAR : (years[0] ?? 0);
 };
 
+/** What the sidebar selects: level, indicator, band or service, and year. */
+type Selection = {
+  level: MapLevel;
+  category: Category;
+  group: Group;
+  year: number;
+};
+
+/**
+ * The selection after the sidebar reports its menus' values.
+ *
+ * The level and the year are axes of their own: switching either never resets
+ * the rest. A new category resets the group to the category's first option,
+ * since the groups available depend on it (cascading behaviour) — but not the
+ * year, which would otherwise undo the user's place in the animation on every
+ * menu click.
+ *
+ * @param params.prev - The current selection.
+ * @param params.next - The sidebar's values, keyed by menu id. The timeline
+ * reports its year as a string on every tick; one the snapshot does not carry
+ * is dropped rather than painted, since no area has rows for it and the map
+ * would go blank.
+ * @param params.years - Projection years the snapshot carries.
+ * @returns The next selection.
+ *
+ * @example
+ * nextSelection({ prev, next: { category: 'health-65plus' }, years });
+ * // { ...prev, category: 'health-65plus', group: 'ubs' }
+ */
+const nextSelection = ({
+  prev,
+  next,
+  years,
+}: {
+  prev: Selection;
+  next: Record<string, string | undefined>;
+  years: number[];
+}): Selection => {
+  const reportedYear = Number(next[YEAR_MENU_ID]);
+  const year = years.includes(reportedYear) ? reportedYear : prev.year;
+
+  const reportedLevel = next[LEVEL_MENU_ID];
+  const level = isMapLevel(reportedLevel) ? reportedLevel : prev.level;
+
+  const category = (next[CATEGORY_MENU_ID] ?? prev.category) as Category;
+  const group =
+    category === prev.category
+      ? ((next[GROUP_MENU_ID] ?? prev.group) as Group)
+      : getDefaultGroup(category);
+
+  return { level, category, group, year };
+};
+
+/**
+ * The year the map paints for a selection.
+ *
+ * The offer indicators pair today's facilities with one projection year, so
+ * they paint {@link OFFER_YEAR} whatever the timeline holds — or the opening
+ * year, should a snapshot lack it. The timeline's own year is not touched: its
+ * tab is disabled meanwhile, and picking a share indicator again resumes it
+ * where it was.
+ *
+ * @param params.category - The selected category.
+ * @param params.year - The timeline's year.
+ * @param params.years - Projection years the snapshot carries.
+ * @returns The year to paint.
+ *
+ * @example
+ * paintedYearFor({ category: 'food-65plus', year: 2050, years }); // 2025
+ */
+const paintedYearFor = ({
+  category,
+  year,
+  years,
+}: {
+  category: Category;
+  year: number;
+  years: number[];
+}): number => {
+  if (!isOfferCategory(category)) {
+    return year;
+  }
+
+  return years.includes(OFFER_YEAR) ? OFFER_YEAR : initialYear(years);
+};
+
 /**
  * Interactive client component for the demographic maps visualization.
  *
  * Receives pre-fetched canonical maps data from the server component parent and
- * owns the client-side category/group/year selection. The GeovisWorkspace
+ * owns the client-side level/category/group/year selection. The GeovisWorkspace
  * renders the map canvas and the left sidebar (category and age-group menus
  * plus the projection-year timeline), driven by the spec and config rebuilt on
  * each selection change — including every timeline tick during playback.
@@ -447,11 +457,8 @@ const initialYear = (years: number[]): number => {
 export const MapsView = ({ mapsData }: MapsViewProps) => {
   const defaultYear = initialYear(mapsData.years);
 
-  const [selection, setSelection] = React.useState<{
-    category: Category;
-    group: Group;
-    year: number;
-  }>({
+  const [selection, setSelection] = React.useState<Selection>({
+    level: 'distrito',
     category: 'cumulative-total',
     group: '65',
     year: defaultYear,
@@ -508,15 +515,41 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
     sidebarCoversMap
   );
 
+  /*
+   * Written by `MapPanel` when a layer toggle flips, and by the store's own
+   * requests when they land (see `overlaysStore`).
+   */
+  const overlays = React.useSyncExternalStore(
+    overlaysStore.subscribe,
+    overlaysStore.getSnapshot,
+    overlaysStore.getServerSnapshot
+  );
+
+  const paintedYear = paintedYearFor({
+    category: selection.category,
+    year: selection.year,
+    years: mapsData.years,
+  });
+
   const spec = React.useMemo(() => {
     return buildSpec({
       data: mapsData,
+      level: selection.level,
       category: selection.category,
       group: selection.group,
-      year: selection.year,
+      year: paintedYear,
       zoom,
+      overlays,
     });
-  }, [mapsData, selection, zoom]);
+  }, [
+    mapsData,
+    selection.level,
+    selection.category,
+    selection.group,
+    paintedYear,
+    zoom,
+    overlays,
+  ]);
 
   /*
    * Independent of `selection`: the 65+ total per year is the same series
@@ -536,7 +569,8 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
    * re-render the whole sidebar eleven times per run and change nothing.
    */
   const config = React.useMemo(() => {
-    return buildWorkspaceConfig({
+    const base = buildWorkspaceConfig({
+      level: selection.level,
       category: selection.category,
       group: selection.group,
       years: mapsData.years,
@@ -544,7 +578,16 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
       elderlyHistogram,
       sidebarInitiallyOpen,
     });
+
+    // The `map` slot is overridden here rather than in `buildWorkspaceConfig`,
+    // which stays free of this route's components: `MapPanel` is what relays
+    // the layer toggles out of the geovis provider (see its docs).
+    return {
+      ...base,
+      slots: { ...base.slots, map: { component: MapPanel } },
+    };
   }, [
+    selection.level,
     selection.category,
     selection.group,
     mapsData.years,
@@ -555,6 +598,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
 
   const variables = React.useMemo(() => {
     return {
+      [LEVEL_MENU_ID]: selection.level,
       [CATEGORY_MENU_ID]: selection.category,
       [GROUP_MENU_ID]: selection.group,
       // The timeline publishes and reads its value as a string.
@@ -564,29 +608,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
 
   const handleVariableChange = (next: Record<string, string | undefined>) => {
     setSelection((prev) => {
-      // The timeline reports its value as a string on every tick. A value that
-      // is not a year the snapshot carries is dropped rather than painted: the
-      // map would otherwise go blank for it, since no district has rows there.
-      const reportedYear = Number(next[YEAR_MENU_ID]);
-      const nextYear = mapsData.years.includes(reportedYear)
-        ? reportedYear
-        : prev.year;
-
-      const nextCategory = (next[CATEGORY_MENU_ID] ??
-        prev.category) as Category;
-      // When the category changes, the available groups change too — reset the
-      // group to the new category's first option (cascading behaviour). The
-      // year survives it: the timeline is a separate axis, and resetting it
-      // would undo the user's position in the animation on every menu click.
-      if (nextCategory !== prev.category) {
-        return {
-          category: nextCategory,
-          group: getDefaultGroup(nextCategory),
-          year: nextYear,
-        };
-      }
-      const nextGroup = (next[GROUP_MENU_ID] ?? prev.group) as Group;
-      return { category: nextCategory, group: nextGroup, year: nextYear };
+      return nextSelection({ prev, next, years: mapsData.years });
     });
   };
 

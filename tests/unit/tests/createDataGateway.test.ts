@@ -3,10 +3,41 @@
  */
 import { createDataGateway } from '@/data-gateway/createDataGateway';
 import { readStaticMapsData } from '@/data-source-static/readStaticMapsData';
+import { readStaticPoints } from '@/data-source-static/readStaticPoints';
+import { readStaticSubprefeituras } from '@/data-source-static/readStaticSubprefeituras';
 
 jest.mock('@/data-source-static/readStaticMapsData');
+jest.mock('@/data-source-static/readStaticPoints');
+jest.mock('@/data-source-static/readStaticSubprefeituras');
 
 const mockReadStaticMapsData = jest.mocked(readStaticMapsData);
+const mockReadStaticPoints = jest.mocked(readStaticPoints);
+const mockReadStaticSubprefeituras = jest.mocked(readStaticSubprefeituras);
+
+/** Two UBS in Belém, and no other offer service anywhere. */
+const ubsInBelem = (id: number) => {
+  return {
+    id,
+    longitude: -46.59,
+    latitude: -23.54,
+    distrito: 'Belém',
+    atributos: { nome: `UBS ${id}` },
+  };
+};
+
+/** The fixture's one district (Belém, geometry 8) in its real subprefeitura. */
+const MOCK_SUBPREFEITURAS = {
+  subprefeituras: [
+    {
+      id: 24,
+      codigo: '25',
+      sigla: 'MO',
+      nome: 'Mooca',
+      regiao: 'Leste',
+      distritos: [8],
+    },
+  ],
+};
 
 /**
  * Two years of the same district, so the contract's year dimension is exercised
@@ -45,6 +76,10 @@ describe('createDataGateway', () => {
   beforeEach(() => {
     savedDataSource = process.env['DATA_SOURCE'];
     mockReadStaticMapsData.mockResolvedValue(MOCK_SOURCE);
+    mockReadStaticSubprefeituras.mockResolvedValue(MOCK_SUBPREFEITURAS);
+    mockReadStaticPoints.mockImplementation(async (layer) => {
+      return { points: layer === 'ubs' ? [ubsInBelem(1), ubsInBelem(2)] : [] };
+    });
   });
 
   afterEach(() => {
@@ -122,8 +157,44 @@ describe('createDataGateway', () => {
         count70to74: 1100,
         count75plus: 2100,
         total: 47000,
+        services: { ubs: 2, hospitais: 0, restaurantes: 0, esporte: 0 },
       });
       expect(mockReadStaticMapsData).toHaveBeenCalledTimes(1);
+    });
+
+    test('carries the subprefeitura level alongside the districts', async () => {
+      delete process.env['DATA_SOURCE'];
+      const gateway = createDataGateway();
+      const data = await gateway.getMapsData();
+
+      expect(data.subprefeituras).toEqual([
+        { geometryId: 24, name: 'Mooca', districtNames: ['Belém'] },
+      ]);
+      expect(data.subprefeituraCounts[0]).toEqual({
+        geometryId: 24,
+        name: 'Mooca',
+        year: 2020,
+        count65to69: 1500,
+        count70to74: 1100,
+        count75plus: 2100,
+        total: 47000,
+        services: { ubs: 2, hospitais: 0, restaurantes: 0, esporte: 0 },
+      });
+    });
+
+    test('counts only the offer services, never the bus stops', async () => {
+      delete process.env['DATA_SOURCE'];
+      await createDataGateway().getMapsData();
+
+      const layers = mockReadStaticPoints.mock.calls.map(([layer]) => {
+        return layer;
+      });
+      expect(layers.sort()).toEqual([
+        'esporte',
+        'hospitais',
+        'restaurantes',
+        'ubs',
+      ]);
     });
 
     test('rejects a snapshot whose years the timeline cannot walk', async () => {

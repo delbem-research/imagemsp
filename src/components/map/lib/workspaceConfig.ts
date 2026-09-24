@@ -1,9 +1,27 @@
 import type { GeovisWorkspaceConfig } from '@ttoss/geovis-workspace';
 
 import { ICONS } from '@/components/map/lib/icons';
-import type { Category, Group } from '@/components/map/lib/indicators';
+import type {
+  Category,
+  Group,
+  OfferCategory,
+  OfferService,
+} from '@/components/map/lib/indicators';
+import {
+  MAP_LEVEL_IDS,
+  MAP_LEVELS,
+  type MapLevel,
+} from '@/components/map/lib/mapLevels';
+import {
+  isOfferCategory,
+  OFFER_CATEGORIES,
+  OFFER_CATEGORY_IDS,
+  OFFER_LABELS,
+  OFFER_YEAR,
+} from '@/config/offer';
 
 /** Menu ids used by the GeovisWorkspace left sidebar and selection record. */
+export const LEVEL_MENU_ID = 'level';
 export const CATEGORY_MENU_ID = 'category';
 export const GROUP_MENU_ID = 'group';
 export const YEAR_MENU_ID = 'year';
@@ -41,7 +59,79 @@ const CATEGORY_OPTIONS: { value: Category; label: string; icon: string }[] = [
     // A closed band rather than a cumulative total.
     icon: ICONS.chartBar,
   },
+  // Facilities rather than people, one category per kind of service.
+  {
+    value: 'health-65plus',
+    label: 'saúde (por 10 mil idosos)',
+    icon: ICONS.heartbeat,
+  },
+  {
+    value: 'food-65plus',
+    label: 'alimentação (por 10 mil idosos)',
+    icon: ICONS.forkKnife,
+  },
+  {
+    value: 'leisure-65plus',
+    label: 'lazer (por 10 mil idosos)',
+    icon: ICONS.soccerBall,
+  },
 ];
+
+/**
+ * The categories painted along the timeline — every one but the offer
+ * indicators, which are fixed to {@link OFFER_YEAR}. The timeline tab is
+ * enabled for these only.
+ */
+const TIMELINE_CATEGORIES: Category[] = CATEGORY_OPTIONS.map((option) => {
+  return option.value;
+}).filter((category) => {
+  return !isOfferCategory(category);
+});
+
+/**
+ * Builds a per-offer-category table from one value per category.
+ *
+ * @param value - The value for one category.
+ * @returns The value for every offer category.
+ */
+const byOfferCategory = <T>(
+  value: (category: OfferCategory) => T
+): Record<OfferCategory, T> => {
+  return Object.fromEntries(
+    OFFER_CATEGORY_IDS.map((category) => {
+      return [category, value(category)];
+    })
+  ) as Record<OfferCategory, T>;
+};
+
+/**
+ * One entry per service of an offer category, e.g. its menu label or title.
+ *
+ * @param category - The offer category.
+ * @param value - The entry for one service.
+ * @returns `service → entry` for the category's services.
+ */
+const byService = <T>(
+  category: OfferCategory,
+  value: (service: OfferService) => T
+): Partial<Record<Group, T>> => {
+  return Object.fromEntries(
+    OFFER_CATEGORIES[category].map((service) => {
+      return [service, value(service)];
+    })
+  );
+};
+
+/** Geographic level options, one per {@link MapLevel}. */
+const LEVEL_OPTIONS: { value: MapLevel; label: string; icon: string }[] =
+  MAP_LEVEL_IDS.map((level) => {
+    return {
+      value: level,
+      label: MAP_LEVELS[level].label,
+      // Many small areas vs a few large ones.
+      icon: level === 'distrito' ? ICONS.squaresFour : ICONS.polygon,
+    };
+  });
 
 /** Age-group options available for each category (cascading menu). */
 export const GROUP_OPTIONS: Record<
@@ -62,6 +152,11 @@ export const GROUP_OPTIONS: Record<
     { value: '70-74', label: '70 a 74 anos' },
     { value: '75', label: '75 anos ou mais' },
   ],
+  ...byOfferCategory((category) => {
+    return OFFER_CATEGORIES[category].map((service) => {
+      return { value: service, label: OFFER_LABELS[service].menu };
+    });
+  }),
 };
 
 /**
@@ -75,6 +170,38 @@ const GROUP_ICONS: Record<Group, string> = {
   '75': ICONS.plusCircle,
   '65-69': ICONS.arrowsInLineHorizontal,
   '70-74': ICONS.arrowsInLineHorizontal,
+  ubs: ICONS.firstAidKit,
+  hospitais: ICONS.firstAid,
+  restaurantes: ICONS.forkKnife,
+  esporte: ICONS.soccerBall,
+};
+
+/**
+ * Title of an offer indicator in the legend, upper case like the others.
+ *
+ * @param service - The offer service.
+ * @returns E.g. `UBS POR 10 MIL IDOSOS (65+)`.
+ */
+const offerTitle = (service: OfferService): string => {
+  return `${OFFER_LABELS[service].title} POR 10 MIL IDOSOS (65+)`;
+};
+
+/**
+ * Legend subtitle of an offer indicator. Says outright that the facilities are
+ * today's and the population is the projection for {@link OFFER_YEAR}, so the
+ * rate is not read as a forecast of the network.
+ *
+ * @param service - The offer service.
+ * @returns The subtitle, with the `{area}` placeholder `mapDescription` fills.
+ */
+const offerDescription = (service: OfferService): string => {
+  const base = `${OFFER_LABELS[service].menu} {area} para cada 10 mil pessoas com 65 anos ou mais — rede atual mapeada pelo GeoSampa sobre a população projetada para ${OFFER_YEAR}.`;
+
+  // The hospital layer is not the city's full universe (see the catalogue's
+  // `hospitais_geosampa_incomplete_coverage`); a rate built on it undercounts.
+  return service === 'hospitais'
+    ? `${base} Só a rede pública e conveniada: hospitais privados não entram.`
+    : base;
 };
 
 export const MAP_TITLES: Record<Category, Partial<Record<Group, string>>> = {
@@ -92,6 +219,9 @@ export const MAP_TITLES: Record<Category, Partial<Record<Group, string>>> = {
     '70-74': '70–74 ANOS COMO % DA POPULAÇÃO 65+',
     '75': '75+ COMO % DA POPULAÇÃO 65+',
   },
+  ...byOfferCategory((category) => {
+    return byService(category, offerTitle);
+  }),
 };
 
 export const MAP_DESCRIPTIONS: Record<
@@ -99,9 +229,9 @@ export const MAP_DESCRIPTIONS: Record<
   Partial<Record<Group, string>>
 > = {
   'cumulative-total': {
-    '65': 'Proporção da população total do distrito com 65 anos ou mais.',
-    '70': 'Proporção da população total do distrito com 70 anos ou mais.',
-    '75': 'Proporção da população total do distrito com 75 anos ou mais.',
+    '65': 'Proporção da população total {area} com 65 anos ou mais.',
+    '70': 'Proporção da população total {area} com 70 anos ou mais.',
+    '75': 'Proporção da população total {area} com 75 anos ou mais.',
   },
   'cumulative-65plus': {
     '70': 'Proporção da população 65+ que tem 70 anos ou mais.',
@@ -112,6 +242,38 @@ export const MAP_DESCRIPTIONS: Record<
     '70-74': 'Parcela da população 65+ na faixa de 70 a 74 anos.',
     '75': 'Parcela da população 65+ com 75 anos ou mais.',
   },
+  ...byOfferCategory((category) => {
+    return byService(category, offerDescription);
+  }),
+};
+
+/**
+ * The legend subtitle for one series at one level. Descriptions that name the
+ * area carry an `{area}` placeholder, filled with the level's own wording.
+ *
+ * @param params.category - The indicator category.
+ * @param params.group - The age group within that category.
+ * @param params.level - The geographic level painted.
+ * @returns The subtitle, or `''` for a series with no description.
+ *
+ * @example
+ * mapDescription({ category: 'cumulative-total', group: '65', level: 'subprefeitura' });
+ * // 'Proporção da população total da subprefeitura com 65 anos ou mais.'
+ */
+export const mapDescription = ({
+  category,
+  group,
+  level,
+}: {
+  category: Category;
+  group: Group;
+  level: MapLevel;
+}): string => {
+  const template =
+    (MAP_DESCRIPTIONS[category] as Partial<Record<string, string>>)[group] ??
+    '';
+
+  return template.replace('{area}', MAP_LEVELS[level].ofArea);
 };
 
 /** Resolves the default age-group for a category (its first option). */
@@ -150,6 +312,11 @@ const buildYearSection = ({
     // one labels the tab, while `YEAR_MENU_ID` is the selection channel
     // `MapsView` reads. They were the same string until the tab needed a name.
     id: TIMELINE_SECTION_ID,
+    // The offer indicators are fixed to one year, so the timeline would move
+    // nothing on the map. Gating the tab (rather than leaving it live) also
+    // makes the workspace halt playback and freeze the year, which resumes
+    // where it was once a share indicator is picked again.
+    enabledWhen: { menuId: CATEGORY_MENU_ID, values: TIMELINE_CATEGORIES },
     // No `title`: with every section untitled the workspace drops the header
     // band altogether (geovis-workspace 0.13), so the tab bar heads the card.
     // The block below carries its own label.
@@ -193,8 +360,8 @@ const buildYearSection = ({
  * data sources live on the map itself, configured via the geovis spec (see
  * `buildSpec` in `MapsView.tsx`), so there is no right sidebar.
  *
- * Two tabs. The first holds both variation menus as blocks — indicator and age
- * band are read together, and the cascade between them is driven by React state
+ * Two tabs. The first holds the variation menus as blocks — geographic level,
+ * indicator and age band are read together, and the cascade between them is driven by React state
  * in `MapsView`, not by the sidebar's own navigation. The second is the
  * projection-year timeline, which stays in a tab of its own as the workspace
  * recommends: it is the only control with playback, and it publishes
@@ -207,6 +374,7 @@ const buildYearSection = ({
  * on hover and for assistive tech — is its section `id`, which is why those
  * ids read as labels (see their declaration).
  *
+ * @param params.level - The selected geographic level.
  * @param params.category - The selected demographic category.
  * @param params.group - The selected age group.
  * @param params.years - Projection years available, ascending and evenly
@@ -223,6 +391,7 @@ const buildYearSection = ({
  * @returns A GeovisWorkspaceConfig driving the left sidebar.
  */
 export const buildWorkspaceConfig = ({
+  level,
   category,
   group,
   years,
@@ -230,6 +399,7 @@ export const buildWorkspaceConfig = ({
   elderlyHistogram,
   sidebarInitiallyOpen,
 }: {
+  level: MapLevel;
   category: Category;
   group: Group;
   years: number[];
@@ -270,8 +440,8 @@ export const buildWorkspaceConfig = ({
           id: VARIATIONS_SECTION_ID,
           header: { icon: ICONS.layoutList },
           /*
-           * Both menus in one tab, as `variations` controls inside a `filters`
-           * body (geovis-workspace 0.12). They are read together — the age band
+           * All three menus in one tab, as `variations` controls inside a
+           * `filters` body (geovis-workspace 0.12). They are read together — the age band
            * only means something against a chosen indicator — and as separate
            * `variations` bodies each would claim a tab of its own, so crossing
            * from one to the other cost a tab switch.
@@ -284,6 +454,19 @@ export const buildWorkspaceConfig = ({
           body: {
             kind: 'filters',
             blocks: [
+              {
+                // First, because it frames the rest: it decides which areas
+                // are painted, before the indicator decides what they show.
+                id: LEVEL_MENU_ID,
+                title: 'Recorte',
+                icon: ICONS.mapTrifold,
+                control: {
+                  kind: 'variations',
+                  menuId: LEVEL_MENU_ID,
+                  variations: LEVEL_OPTIONS,
+                  defaultValue: level,
+                },
+              },
               {
                 id: CATEGORY_MENU_ID,
                 title: 'Indicador',
@@ -299,8 +482,12 @@ export const buildWorkspaceConfig = ({
               },
               {
                 id: GROUP_MENU_ID,
-                title: 'Faixa etária',
-                icon: ICONS.usersThree,
+                // The second menu lists age bands, or services for the offer
+                // indicator; its heading follows.
+                title: isOfferCategory(category) ? 'Serviço' : 'Faixa etária',
+                icon: isOfferCategory(category)
+                  ? ICONS.storefront
+                  : ICONS.usersThree,
                 control: {
                   kind: 'variations',
                   menuId: GROUP_MENU_ID,

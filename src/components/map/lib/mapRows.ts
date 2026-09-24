@@ -1,13 +1,21 @@
+import {
+  OFFER_CATEGORIES,
+  OFFER_CATEGORY_IDS,
+  OFFER_RATE_BASE,
+} from '@/config/offer';
 import type {
   Category,
   DistrictCounts,
   Group,
   MapDataRow,
+  OfferCategory,
+  OfferService,
 } from '@/data-gateway/schema';
 
 /**
- * The numerator and denominator one indicator series reads off a district's
- * counts. Every series the app offers is a ratio of two of those four figures.
+ * The numerator and denominator one indicator series reads off an area's
+ * counts: two of its four population figures, or a service's facilities over
+ * its 65+ residents.
  */
 type SeriesRatio = (counts: DistrictCounts) => {
   count: number;
@@ -29,10 +37,42 @@ const elderly70plus = (counts: DistrictCounts): number => {
  *
  * The category decides the denominator (the district's whole population, or its
  * own 65+ population) and the group decides the numerator, which is cumulative
- * for `65`/`70`/`75` and a closed band for `65-69`/`70-74`. Encoded as a table
- * so the map, the legend and the tooltip cannot drift apart: all three read the
- * same entry.
+ * for `65`/`70`/`75` and a closed band for `65-69`/`70-74`. For an offer
+ * category the group is one of its services, and the numerator its facilities
+ * in the area. Encoded as a table so the map, the legend and the tooltip cannot
+ * drift apart: all three read the same entry.
  */
+/**
+ * One ratio per service of an offer category: its facilities over the area's
+ * 65+ residents.
+ *
+ * @param services - The category's services.
+ * @returns The category's row of {@link SERIES_RATIOS}.
+ */
+const offerRatios = (
+  services: readonly OfferService[]
+): Partial<Record<Group, SeriesRatio>> => {
+  return Object.fromEntries(
+    services.map((service) => {
+      const ratio: SeriesRatio = (counts) => {
+        return { count: counts.services[service], totalCount: elderly(counts) };
+      };
+      return [service, ratio];
+    })
+  );
+};
+
+/** Builds a per-offer-category table from one value per category. */
+const byOfferCategory = <T>(
+  value: (category: OfferCategory) => T
+): Record<OfferCategory, T> => {
+  return Object.fromEntries(
+    OFFER_CATEGORY_IDS.map((category) => {
+      return [category, value(category)];
+    })
+  ) as Record<OfferCategory, T>;
+};
+
 const SERIES_RATIOS: Record<Category, Partial<Record<Group, SeriesRatio>>> = {
   'cumulative-total': {
     '65': (counts) => {
@@ -66,30 +106,56 @@ const SERIES_RATIOS: Record<Category, Partial<Record<Group, SeriesRatio>>> = {
       return { count: counts.count75plus, totalCount: elderly(counts) };
     },
   },
+  ...byOfferCategory((category) => {
+    return offerRatios(OFFER_CATEGORIES[category]);
+  }),
 };
 
 /**
- * Rate rounded to four decimals, guarding a zero denominator.
+ * How each category's ratio becomes the value painted: a fraction, rounded to
+ * four decimals (the shares, shown as percentages), or facilities per
+ * {@link OFFER_RATE_BASE} residents aged 65+, rounded to two.
+ */
+const SERIES_SCALE: Record<Category, { base: number; decimals: number }> = {
+  'cumulative-total': { base: 1, decimals: 4 },
+  'cumulative-65plus': { base: 1, decimals: 4 },
+  '5year-65plus': { base: 1, decimals: 4 },
+  ...byOfferCategory(() => {
+    return { base: OFFER_RATE_BASE, decimals: 2 };
+  }),
+};
+
+/**
+ * Rate on a base, rounded, guarding a zero denominator.
  *
- * The rounding is what the offline snapshot used to apply before the counts
- * moved to the client, so the values the map paints are unchanged.
+ * Four decimals on base 1 is what the offline snapshot used to apply before
+ * the counts moved to the client, so the shares the map paints are unchanged.
  *
- * @param params.numerator - Population in the band.
- * @param params.denominator - Population the band is a share of.
- * @returns The share, in `[0, 1]`, or `0` when there is nobody to divide by.
+ * @param params.numerator - Population in the band, or facilities.
+ * @param params.denominator - Population the numerator is set against.
+ * @param params.base - Units of denominator per value (`1` for a share).
+ * @param params.decimals - Decimals kept.
+ * @returns The rate, or `0` when there is nobody to divide by.
  *
  * @example
- * safeRate({ numerator: 15169, denominator: 81060 }); // 0.1871
+ * safeRate({ numerator: 15169, denominator: 81060, base: 1, decimals: 4 }); // 0.1871
+ * safeRate({ numerator: 3, denominator: 21380, base: 10000, decimals: 2 }); // 1.4
  */
 const safeRate = ({
   numerator,
   denominator,
+  base,
+  decimals,
 }: {
   numerator: number;
   denominator: number;
+  base: number;
+  decimals: number;
 }): number => {
+  const factor = 10 ** decimals;
+
   return denominator > 0
-    ? Math.round((numerator / denominator) * 10000) / 10000
+    ? Math.round(((numerator * base) / denominator) * factor) / factor
     : 0;
 };
 
@@ -103,8 +169,9 @@ const safeRate = ({
  * @param params.year - The projection year to paint.
  * @param params.category - The indicator category.
  * @param params.group - The age group within that category.
- * @returns One {@link MapDataRow} per district in that year, carrying the rate
- * plus the absolute figures the tooltip shows.
+ * @returns One {@link MapDataRow} per area in that year, carrying the rate
+ * plus the absolute figures the tooltip shows — for an offer series, the
+ * facilities and the 65+ population.
  * @throws If the category/group pair is not a series the app defines.
  *
  * @example
@@ -130,6 +197,7 @@ export const buildMapRows = ({
     );
   }
 
+  const scale = SERIES_SCALE[category];
   const rows: MapDataRow[] = [];
 
   for (const entry of counts) {
@@ -141,7 +209,7 @@ export const buildMapRows = ({
 
     rows.push({
       geometryId: entry.geometryId,
-      value: safeRate({ numerator: count, denominator: totalCount }),
+      value: safeRate({ numerator: count, denominator: totalCount, ...scale }),
       name: entry.name,
       count,
       totalCount,

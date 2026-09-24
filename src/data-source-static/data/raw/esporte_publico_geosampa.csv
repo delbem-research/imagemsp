@@ -1,0 +1,329 @@
+nome,categoria,tipo,esfera,endereco,bairro,cep,telefone,longitude,latitude,distrito
+CENTRO ESPORTIVO SANTO AMARO - CEE JOERG BRUDER,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"AVENIDA PADRE JOSE MARIA, 555",,,,-46.71235209,-23.65481653,Santo Amaro
+CENTRO ESPORTIVO IBIRAPUERA - CEE MANÉ GARRINCHA,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"RUA PEDRO DE TOLEDO, 1651",,,,-46.65541933,-23.59799455,Moema
+CENTRO ESPORTIVO VILA INDEPENDÊNCIA - CEE FLÁVIO CALABRESI CONTE,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"RUA DAS MUNICIPALIDADES, 10",,,,-46.59701051,-23.58805377,Ipiranga
+CENTRO ESPORTIVO JARDIM SABARÁ - MINI BALNEÁRIO ANTONIO CARLOS DE ABREU SODRÉ,CENTRO ESPORTIVO,Centro Esportivo/Mini-Balneário,Público - Municipal,"RUA CURIA, 149",,,,-46.6821805,-23.68596584,Campo Grande
+CENTRO ESPORTIVO IPIRANGA - BALNEÁRIO CARLOS JOEL NELLI,CENTRO ESPORTIVO,Centro Esportivo/Balneário,Público - Municipal,"PRACA NAMI JAFET, 45",,,,-46.60536006,-23.58039509,Ipiranga
+CENTRO ESPORTIVO VILA SANTA CATARINA - BALNEÁRIO JALISCO,CENTRO ESPORTIVO,Centro Esportivo/Balneário,Público - Municipal,"RUA RODES, 112",,,,-46.66748704,-23.64224177,Campo Belo
+CENTRO ESPORTIVO CAMPO LIMPO - MINI BALNEÁRIO SINÉSIO ROCHA,CENTRO ESPORTIVO,Centro Esportivo/Mini-Balneário,Público - Municipal,"RUA CIBAUMA, 54",,,,-46.75383789,-23.62004775,Campo Limpo
+CENTRO ESPORTIVO VILA CARIOCA - BALNEÁRIO PRINCESA ISABEL,CENTRO ESPORTIVO,Centro Esportivo/Balneário,Público - Municipal,"RUA CAMPANTE, 100",,,,-46.59518309,-23.59553864,Ipiranga
+CENTRO ESPORTIVO VILA GUARANI - CEE RIYUSO OGAWA,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"RUA LUSSANVIRA, 178",,,,-46.63775279,-23.64035885,Jabaquara
+MODELÓDROMO DO IBIRAPUERA,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"RUA CURITIBA, 290",,,,-46.6530278,-23.58258144,Moema
+CENTRO ESPORTIVO NÁUTICO GUARAPIRANGA,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"AV DOS FUNCIONARIOS PUBLICOS, 2501",,,,-46.7700293,-23.74671953,Jardim Ângela
+CENTRO ESPORTIVO PISTA DE SKATE DO PARQUE DO CHUVISCO,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"AV DR LINO DE MOARES LEME, 504",,,,-46.66151789,-23.63791711,Campo Belo
+CENTRO ESPORTIVO VILA MARIA - CEE THOMAZ MAZZONI,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"PRACA JANIO DA SILVA QUADROS, 150",,,,-46.57883847,-23.5012871,Vila Maria
+CENTRO ESPORTIVO JARDIM CABUÇU - MINI BALNEÁRIO IRMÃOS PAOLILLO,CENTRO ESPORTIVO,Centro Esportivo/Mini-Balneário,Público - Municipal,"RUA GENERAL JERONIMO FURTADO, 751",,,,-46.56950885,-23.4642152,Jaçanã
+CENTRO ESPORTIVO MANDAQUI - MINI BALNEÁRIO GASTÃO MOUTINHO,CENTRO ESPORTIVO,Centro Esportivo/Mini-Balneário,Público - Municipal,"RUA CORONEL JOAO DA SILVA FEIJO, 80",,,,-46.63938957,-23.46993831,Mandaqui
+CENTRO ESPORTIVO CASA VERDE - MINI BALNEÁRIO COMANDANTE GARCIA D'ÁVILA,CENTRO ESPORTIVO,Centro Esportivo/Mini-Balneário,Público - Municipal,"RUA ARMANDO COELHO E SILVA, 775",,,,-46.65533837,-23.49197554,Casa Verde
+CENTRO ESPORTIVO VILA BRASILÂNDIA - CEE OSWALDO BRANDÃO,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"RUA MICHIHISA MURATA, 120",,,,-46.69724505,-23.4759149,Freguesia do Ó
+CENTRO ESPORTIVO FREGUESIA DO Ó - CEE AURÉLIO CAMPOS,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"RUA JACUTIBA, 167",,,,-46.69376656,-23.48322291,Freguesia do Ó
+CENTRO ESPORTIVO VILA GUILHERME - GINÁSIO DARCY REIS,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"AVENIDA GUILHERME, 1819",,,,-46.59988001,-23.50795337,Vila Guilherme
+CENTRO ESPORTIVO JARDIM SÃO PAULO - CEE ALFREDO INÁCIO TRINDADE,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"RUA VIRI, 425",,,,-46.61280308,-23.49480427,Santana
+CENTRO ESPORTIVO CAMBUCI - CEE RUBENS PECCE LORDELLO,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"AVENIDA LINS DE VASCONCELOS, 804",,,,-46.62241359,-23.5699152,Cambuci
+CENTRO ESPORTIVO BARRA FUNDA - CEE RAUL TABAJARA,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"RUA ANHANGUERA, 484",,,,-46.65151833,-23.52351679,Santa Cecília
+ESTÁDIO MUNICIPAL DE BEISEBOL BOM RETIRO - ESTÁDIO MUNICIPAL MIE NISHI,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"AV PRESIDENTE CASTELO BRANCO, 5446",,,,-46.65450587,-23.51682161,Barra Funda
+CENTRO ESPORTIVO ACLIMAÇÃO - ESTÁDIO MUNICIPAL JACK MARIN,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"RUA MUNIZ DE SOUZA, 1119",,,,-46.62837819,-23.57194351,Liberdade
+CENTRO ESPORTIVO TIETÊ - CENTRO ESPORTIVO TIETÊ,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"AVENIDA SANTOS DUMONT, 843",,,,-46.63213415,-23.520518,Bom Retiro
+CENTRO DE ESPORTES RADICAIS,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"AV CASTELO BRANCO, 5700",,,,-46.65450587,-23.51682161,Barra Funda
+CENTRO ESPORTIVO JOSÉ BONIFÁCIO - CEL JOSÉ BONIFÁCIO,CENTRO ESPORTIVO,Centro Esportivo/Centro de Esporte e Lazer - CE/CEL,Público - Municipal,"RUA ANA PERENA, 110",,,,-46.43676437,-23.54727767,José Bonifácio
+CENTRO ESPORTIVO VILA MANCHESTER - CEE VICENTE ÍTALO FEOLA,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"PRACA HAROLDO DALTRO, S\/N",,,,-46.53278739,-23.54814094,Carrão
+CENTRO ESPORTIVO SÃO MATEUS - MINI BALNEÁRIO JOSÉ MARIA WHITAKER,CENTRO ESPORTIVO,Centro Esportivo/Mini-Balneário,Público - Municipal,"AVENIDA SATELITE, 756",,,,-46.46457257,-23.61073866,São Mateus
+CENTRO ESPORTIVO TIRADENTES - CEL ANDRÉ VITAL RIBEIRO SOARES,CENTRO ESPORTIVO,Centro Esportivo/Centro de Esporte e Lazer - CE/CEL,Público - Municipal,"AVENIDA DOS METALURGICOS, 2255",,,,-46.40224444,-23.59908114,Cidade Tiradentes
+CENTRO ESPORTIVO TEOTÔNIO VILELA - CEL TEOTÔNIO VILELA,CENTRO ESPORTIVO,Centro Esportivo/Centro de Esporte e Lazer - CE/CEL,Público - Municipal,"RUA CARLO CLAUSETTI, 19",,,,-46.50291699,-23.60449638,Sapopemba
+CENTRO ESPORTIVO VILA CURUÇÁ - CEE JOSÉ ERMÍRIO DE MORAES,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"RUA GRAPIRA, 537",,,,-46.41911721,-23.4983363,Vila Curuçá
+CENTRO ESPORTIVO MOOCA - CEE SALIM FARAH MALUF,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"RUA TAQUARI, 635",,,,-46.59721503,-23.55030333,Mooca
+CENTRO ESPORTIVO JOSÉ DE ANCHIETA - CEL PADRE JOSÉ DE ANCHIETA,CENTRO ESPORTIVO,Centro Esportivo/Centro de Esporte e Lazer - CE/CEL,Público - Municipal,"RUA JOSE BALANGIO, 188",,,,-46.48542706,-23.55099573,Artur Alvim
+CENTRO ESPORTIVO TIQUATIRA - CEE LUIZ MARTINEZ,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"AV GOVERNADOR CARVALHO PINTO, 02",,,,-46.52732722,-23.51414024,Penha
+CENTRO ESPORTIVO JUSCELINO KUBITSCHEK - CEL JUSCELINO KIBITSCHEK,CENTRO ESPORTIVO,Centro Esportivo/Centro de Esporte e Lazer - CE/CEL,Público - Municipal,"RUA INACIO MONTEIRO, 55",,,,-46.40727469,-23.56401876,Cidade Tiradentes
+CENTRO ESPORTIVO TATUAPÉ - CEE BRIGADEIRO EDUARDO GOMES,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"RUA MONTE SERRAT, 230",,,,-46.56358109,-23.5399865,Tatuapé
+"CENTRO ESPORTIVO, RECREATIVO E EDUCATIVO DO TRABALHADOR - CERET",CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"RUA CANUTO DE ABREU, S\/N",,,,-46.55750831,-23.55958466,Vila Formosa
+CENTRO ESPORTIVO VILA PRUDENTE/VILA ALPINA - CEE ARTHUR FRIEDENREICH,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"AVENIDA FRANCISCO FALCONI, 83",,,,-46.56846828,-23.58342359,Vila Prudente
+CENTRO ESPORTIVO JAGUARÉ - MINI BALNEÁRIO MARECHAL ESPIRIDIÃO ROSAS,CENTRO ESPORTIVO,Centro Esportivo/Mini-Balneário,Público - Municipal,"RUA GENERAL MAC ARTHUR, 1304",,,,-46.75275775,-23.55340931,Jaguaré
+CENTRO ESPORTIVO BUTANTÃ - CEE SOLANGE NUNES BIBAS,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"RUA DR ERNANI DA GAMA CORREA, 367",,,,-46.72401209,-23.57483228,Butantã
+CENTRO ESPORTIVO PIRITUBA - CEE GERALDO JOSÉ DE ALMEIDA,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"AV AGENOR COUTO DE MAGALHAES, 32",,,,-46.74063126,-23.47901727,Pirituba
+CENTRO ESPORTIVO LAPA - CEE EDSON ARANTES DO NASCIMENTO,CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"RUA BELMONTE, 957",,,,-46.7202201,-23.52781876,Vila Leopoldina
+CENTRO ESPORTIVO JARDIM CELESTE - BALNEÁRIO MÁRIO MORAES,CENTRO ESPORTIVO,Centro Esportivo/Balneário,Público - Municipal,"RUA EDWARD CARMILO, 840",,,,-46.75429112,-23.59765004,Vila Sônia
+CENTRO ESPORTIVO E DE LAZER PERUS - CEL PERUS,CENTRO ESPORTIVO,Centro Esportivo/Centro de Esporte e Lazer - CE/CEL,Público - Municipal,"ESTRADA SAO PAULO,",,,,-46.75641223,-23.41309892,Perus
+CENTRO OLÍMPICO DE TREINAMENTO E PESQUISA (COTP),CENTRO ESPORTIVO,Centro Esportivo/Centro Educacional e Esportivo - CE/CEE,Público - Municipal,"AVENIDA IBIRAPUERA, 1315",,04029-000,,-46.65626913,-23.5979513,Moema
+MOINHO VELHO,CLUBE DA COMUNIDADE,Clube da Comunidade - CDC,Público - Municipal,"RUA ELBA, 980",,04285-001,,-46.60393753,-23.61604228,Sacomã
+JARDIM SÃO VICENTE,CLUBE DA COMUNIDADE,Clube da Comunidade - CDC,Público - Municipal,"RUA MOHAMAD IBRAHIN SALEH, 321",,08042-130,,-46.43681567,-23.50563113,São Miguel
+AUGUSTO CUSTODIO NASCIMENTO,CLUBE DA COMUNIDADE,Clube da Comunidade - CDC,Público - Municipal,",",,,,-46.54890353,-23.53579163,Carrão
+PQ ECOLOGICO DA VILA PRUDENTE,CLUBE DA COMUNIDADE,Clube da Comunidade - CDC,Público - Municipal,",",,,,-46.56452653,-23.5880718,Vila Prudente
+SANTO ANTONIO,CLUBE DA COMUNIDADE,Clube da Comunidade - CDC,Público - Municipal,",",,,,-46.52648451,-23.6057049,São Lucas
+VL CALIFORNIA,CLUBE DA COMUNIDADE,Clube da Comunidade - CDC,Público - Municipal,",",,,,-46.55959013,-23.60523955,Vila Prudente
+PQ SANTA MADALENA,CLUBE DA COMUNIDADE,Clube da Comunidade - CDC,Público - Municipal,",",,,,-46.51057391,-23.61105547,Sapopemba
+CONJUNTO PRÓ MORAR,CLUBE DA COMUNIDADE,Clube da Comunidade - CDC,Público - Municipal,",",,,,-46.49862447,-23.60711565,Sapopemba
+JARDIM TEXTIL (OBRAS DO METRO),CLUBE DA COMUNIDADE,Clube da Comunidade - CDC,Público - Municipal,",",,,,-46.54595301,-23.55886791,Vila Formosa
+SIMÕES UNIDOS,CLUBE DA COMUNIDADE,Clube da Comunidade - CDC,Público - Municipal,"RUA JOAQUIM REZENDE, 421",,,,-46.70276147,-23.48293299,Freguesia do Ó
+DUQUE DE CAXIAS,CLUBE DA COMUNIDADE,Clube da Comunidade - CDC,Público - Municipal,"RUA SAMURAIS, 516",,,,-46.58182424,-23.50757775,Vila Maria
+CID DUTRA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ANGELINA REGOLIM C DE MENDONCA, 18",,04811-150,,-46.69194199,-23.71031822,Cidade Dutra
+DEMOCRATA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA JOSE BONIFACIO FILHO, 347",,04813-060,,-46.68598946,-23.71796306,Cidade Dutra
+JD MALIA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"TRAVESSA RUBENS TAVARES DA COSTA, 10",,04823-135,,-46.69237754,-23.72646508,Cidade Dutra
+JD MARINGA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ALFREDO CORTES, 0",,04814-070,,-46.6813771,-23.72147241,Cidade Dutra
+JOSÉ MOREIRA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA PEDRO ROSCHEL GOTTSFRITZ, 10",,04809-160,,-46.69167084,-23.71576052,Cidade Dutra
+JOSÉ ALEXANDRE DE FARIA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA GREGORIO BEZERRA, 451",,04812-200,,-46.68729156,-23.71130985,Cidade Dutra
+JD MIRNA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA JANDYRA NOGUEIRA MARTINS, 165",,04856-130,,-46.69690625,-23.76948251,Grajaú
+LOURENÇO CABREIRA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA LOURENCO CABREIRA, 504",,04812-010,,-46.69119288,-23.71740584,Cidade Dutra
+MOCIDADE ATIVA CRISTÃ,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA SANTO ANTONIO DO CANTARO, 100",,04829-090,,-46.70920758,-23.72728591,Cidade Dutra
+TANCREDO NEVES,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ROSALIA GRISI SANDOVAL, 0",,04841-060,,-46.69268866,-23.73611814,Grajaú
+VELEIROS,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA DAS PAINEIRAS, 500",,04771-080,,-46.71254196,-23.6835302,Socorro
+VL FRIBURGO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA BENTO RODRIGUES BASTOS, 0",,04782-040,,-46.70449665,-23.69182765,Socorro
+JD SÃO RAFAEL,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ILDA LAURA FRACAROLLI, 111",,04860-030,,-46.71813002,-23.76036453,Cidade Dutra
+CALDEIRÃO DO IPORANGA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA GREGORIO DE TORRES, 540",,04828-160,,-46.70539509,-23.72804398,Cidade Dutra
+JD ELIANA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ANTONIO LOPES DE MEDEIROS, 66",,04851-075,,-46.66963008,-23.75472768,Grajaú
+PETRONITA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA JOAO AMOS COMENIUS, 1673",,04844-420,,-46.69817683,-23.75460456,Grajaú
+JD REGIS,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA PIRAPOZINHO, 117",,05174-200,,-46.74284909,-23.4736838,Pirituba
+SANTOS DA CIDADE DUTRA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA JACINTO JULIO, 27",,04815-160,,-46.69126314,-23.70279816,Cidade Dutra
+GIGANTÃO DO ICARAÍ,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA MAESTRO MIGUEL ARQUERONS, 0",,04844-270,,-46.70443759,-23.75094882,Grajaú
+JD HERPLIN,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA CARLOS AUGUSTO BARROSO, 103",,04866-050,,-46.71576796,-23.78895228,Parelheiros
+SANTA FÉ,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA SANTA BARBARA DO SUL, 98",,08141-093,,-46.40080837,-23.51612298,Itaim Paulista
+VILA DA PAZ,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA RIO PARAGUACU, 39",,04777-048,,-46.69707007,-23.68911177,Cidade Dutra
+CLEUSA BUENO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA JARACATIA, 20",,,,-46.75682531,-23.61740221,Campo Limpo
+MARGARIDA BRITO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA MODELAR, 182",,,,-46.77917005,-23.66319854,Capão Redondo
+PORINGÁ,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA FRANCISCO SOARES, 28",,,,-46.74938709,-23.63869027,Campo Limpo
+PQ. FERNANDA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"PRACA DOUTOR RAUL BORGES DA ROCHA, 0",,,,-46.79210117,-23.67036718,Capão Redondo
+PQ. REGINA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA INACIO MANUEL TOURINHO, 8",,,,-46.75671682,-23.63375672,Campo Limpo
+DO SABÃO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA MANUEL FILX FERNANDES, 738",,,,-46.74795331,-23.6654857,Jardim São Luís
+JD. VERA CRUZ,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ANGELO TARCHI, 1897",,,,-46.77554291,-23.73697592,Jardim Ângela
+JOELMA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA JOSE RODRIGUES MACIEL, 23",,,,-46.75043558,-23.66298408,Jardim São Luís
+SÃO LOURENÇO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"ESTRADA DO JARARAU, 0",,,,-46.79285033,-23.70978871,Jardim Ângela
+SÃO LUIZ I,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ACEDIO JOSE FONTANETE, 26",,,,-46.73130882,-23.65945604,Jardim São Luís
+UNIÃO BRASILIENSE,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA AMANCIO PEDRO DE OLIVEIRA, 385",,,,-46.74747333,-23.65148021,Jardim São Luís
+IZALTINO SILVA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA CLODOMIRO DE OLIVEIRA, 30",,,,-46.74425864,-23.62871749,Campo Limpo
+JD MARTINICA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ROQUE DE MINGO, 550",,,,-46.76444482,-23.63181744,Campo Limpo
+JD ROSANA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA RAFAEL PORTANTE, 17",,,,-46.78012319,-23.64898545,Campo Limpo
+PAULO RAIMUNDO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA MATTEO RAVERTI, 0",,,,-46.75986552,-23.66248433,Capão Redondo
+PQ DO IPÊ,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA MANOEL GRANDINI CASQUEL, 20",,,,-46.76320283,-23.63773047,Campo Limpo
+PRIMEIRO DE MAIO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA GINGADINHO, 0",,,,-46.7939688,-23.68027975,Capão Redondo
+REGIONAL JD. PARIS,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"ESTRADA DO CAMPO LIMPO, 2586",,,,-46.7694919,-23.63522827,Campo Limpo
+SAJU,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA FRANKLIN TAVORA, 433",,,,-46.77154614,-23.64435873,Campo Limpo
+SÃO JANUARIO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA FRANCISCO DA CRUZ MELLAO, 27",,,,-46.76240026,-23.65023093,Campo Limpo
+UNIÃO ULEROMÃ,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA GUERREIRO, 31",,,,-46.77359793,-23.64578603,Campo Limpo
+CAVEIRINHA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA JORNALISTA MARCAL VERSIANI, 0",,,,-46.753765,-23.68253868,Jardim Ângela
+MARIA CAETANO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA COELHO LOUSADA, 21",,,,-46.78209296,-23.69484826,Jardim Ângela
+SÃO FRANCISCO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA VERDUN, 7",,,,-46.74053239,-23.68929565,Jardim São Luís
+BRASIMET PARENTES UNIDOS,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA HERBERT ALFRED LANDSBERGER, 330",,04662-020,,-46.7020514,-23.66162376,Campo Grande
+BOLA PRETA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA ENGENHEIRO EUSEBIO STEVAUX, 2229",,04696-000,,-46.69284545,-23.67892528,Campo Grande
+ESTRELA DO CAMPO GRANDE,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ALVARO AFONSO, 400",,04691-030,,-46.69187935,-23.67297984,Campo Grande
+MARIA FELIZARDA DA SILVA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA SALIM ANTONIO CURIATI, 225",,04690-050,,-46.6939183,-23.67259074,Campo Grande
+CASTULIO DO AMARAL,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA PIERRE CURIE, 286",,04290-050,,-46.61619063,-23.61619645,Cursino
+PROFESSOR FRANCISCO THEODORO MENDES,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ALVARO FRAGOSO, 580",,04223-000,,-46.59242433,-23.5976275,Ipiranga
+JARDIM SECKLER,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA COSME DE SOUZA, 408",,04243-100,,-46.5868733,-23.62389393,Sacomã
+PARQUE BRISTOL,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA JOAO JOSE DA SILVA, 59",,04191-140,,-46.60719823,-23.64722832,Sacomã
+PARQUE FONGARO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA PROFESSOR SYLAS BALTAZAR DE ARAUJO, 220",,04257-010,,-46.59290812,-23.63289699,Sacomã
+UCRA UNIÃO CULTURAL RECREATIVA AMIZADE,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA PRESIDENTE WILSON, 6851",,04220-002,,-46.58049037,-23.60567228,Ipiranga
+CIDADE ADEMAR,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA FRANCISCO LOPES PINTO, 557",,04649-110,,-46.67397515,-23.6556501,Cidade Ademar
+JARDIM MIRIAM,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA ANGELO CRISTIANINI, 520",,04424-000,,-46.63803759,-23.68562901,Cidade Ademar
+MAR PAULISTA E REPRESA NOVA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA GANDARA DE OLIVAIS, 17",,04469-110,,-46.6663552,-23.69106799,Pedreira
+NITERÓI,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA JURIMANAS, 82",,04434-060,,-46.66649849,-23.68054617,Cidade Ademar
+PARQUE DOROTEIA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA FRANCISCO JOSE DA COSTA, 110",,04474-290,,-46.64054662,-23.70112622,Pedreira
+VILA MISSIONARIA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA DOM FREDERICO COSTA, 71",,04430-300,,-46.6502458,-23.68554557,Cidade Ademar
+FERRADURA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ADELINO DA FONTOURA, 404",,04383-050,,-46.65989098,-23.65921391,Jabaquara
+BOLSA D AGUA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA SANTA CRUZ, 1350",,04122-000,,-46.62449353,-23.59928271,Vila Mariana
+JORGE TIBIRIÇÁ,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA JORGE TIBIRICA, 700",,04126-001,,-46.6281999,-23.59905596,Vila Mariana
+UNIÃO NORDESTE,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA PIRAQUARA, 201",,03688-000,,-46.48416367,-23.52886834,Artur Alvim
+VILA MATILDE,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA ITAQUERA, 1601",,03526-000,,-46.50986173,-23.55006586,Vila Matilde
+JD. COIMBRA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA NICOLO TARTAGLIA, 171",,03693-050,,-46.47970508,-23.53066682,Artur Alvim
+JD. JAU,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA NEWTON BRAGA, 24",,02120-020,,-46.59424299,-23.51385608,Vila Maria
+AREIÃO VL CISPER,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA BARRA DE SANTA ROSA, 0",,03817-010,,-46.49272093,-23.49589731,Ermelino Matarazzo
+BENEDITO RAMOS RODRIGUES,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA DOUTOR VENANCIO DE OLIVEIRA LISBOA, 242",,03804-160,,-46.48298635,-23.49710271,Ermelino Matarazzo
+DANUBIO JD MATARAZZO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"TRAVESSA DOM BOSCO DA POLINESIA, 0",,03810-045,,-46.47456434,-23.48890967,Ermelino Matarazzo
+DELIO DE CARVALHO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ANTONIO PEDRO CEARA, 18",,03678-120,,-46.48689571,-23.51809383,Ponte Rasa
+FLOR DA MOCIDADE B.P,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA SANTO ANTONIO DO CANTARO, 100",,04829-090,,-46.70920758,-23.72728591,Cidade Dutra
+JD. PENHA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA JACOME TELES DE MENEZES, 822",,03759-030,,-46.49115141,-23.49932168,Ermelino Matarazzo
+ISIDORO MATEUS,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA POXIM, 37",,08411-480,,-46.41368259,-23.55864345,Guaianases
+MARCILIO ALVES DO PRADO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA CARLO MANNELLI, 0",,08430-210,,-46.42895977,-23.52315765,Lajeado
+SERRA QUEIMADA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA SERRA DA QUEIMADA, 857",,08431-640,,-46.41184845,-23.52858728,Lajeado
+ARLINDO DE OLIVEIRA MIRAGAIA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA PEROBA ROSA, 65",,08161-310,,-46.41611905,-23.50087142,Vila Curuçá
+DOM JOÃO NERY,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA GOUVEIA DE PROENCA, 28",,08151-140,,-46.40359826,-23.52143625,Vila Curuçá
+JD DAS OLIVEIRAS,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA MOISES ALVES DOS SANTOS, 0",,08111-510,,-46.37831311,-23.48545967,Itaim Paulista
+JD. ST. ANTONIO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA MANDRAGORAS, 255",,08032-200,,-46.42939247,-23.51575852,Vila Curuçá
+PQ. VEREDAS II,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA MAGNOLIA AZUL, 94",,08141-640,,-46.38826657,-23.51134179,Itaim Paulista
+TOSSAN,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA JANDIA, 6",,08120-270,,-46.39301212,-23.50485545,Itaim Paulista
+UNIÃO DA FÉ,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA SANTA BARBARA DO SUL, 98",,08141-093,,-46.40080837,-23.51612298,Itaim Paulista
+VL CURUÇA VELHA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA LIRIO BRANCO, 71",,08030-650,,-46.41962072,-23.51159719,Vila Curuçá
+VL. NOVA CURUÇA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ARVORE DA CERA, 168",,08032-270,,-46.42805627,-23.51540112,Vila Curuçá
+PASSAGEM FUNDA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA DOUTOR GUILHERME DE ABREU SODRE, 50",,08490-010,,-46.40972464,-23.56841579,Cidade Tiradentes
+ALVORADA CONJUNTO PADRE MANOEL DA NOBREGA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA PADRE ESTANISLAU DE CAMPOS, 430",,03590-060,,-46.48068443,-23.54670974,Artur Alvim
+CIDADE PATRIARCA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA PROFESSOR TITO NOVAIS, 60",,03552-060,,-46.50406661,-23.53552509,Vila Matilde
+JULIO BOTELHO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ALVINOPOLIS, 453",,03644-070,,-46.5409326,-23.53263765,Penha
+NELSON GARCIA CABEÇA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA JUCIRI, 319",,08220-100,,-46.4762895,-23.54006408,Artur Alvim
+SAO LUIZ II,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA BOIPEVA, 27",,08220-030,,-46.47937939,-23.54163738,Artur Alvim
+COMUNIDADE SÓ ALEGRIA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA RAUL VALENCA, 69",,03589-130,,-46.48613701,-23.55218215,Artur Alvim
+UNILESTE DE ESPORTES ATLETICOS,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA DIAS PENTEADO, 200",,03524-020,,-46.51541246,-23.54693534,Vila Matilde
+VINTE E NOVE DE JUNHO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA DOUTOR SAUL DE CAMARGO NEVES, 49",,03755-100,,-46.49887088,-23.5100284,Ponte Rasa
+AYRTON SENNA DA SILVA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA JAIME TORRES, 850",,03670-000,,-46.50534683,-23.51627664,Ponte Rasa
+UNIÃO IMPERIAL,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA CALIM EID, 74",,03695-010,,-46.51174842,-23.51955248,Penha
+GREGORIO PEREIRA FALCONERES DE VILA CURUÇA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA MARAVILHAS, 200",,08030-780,,-46.42073233,-23.50733978,Vila Curuçá
+JOSÉ AMANCIO FERNANDES,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA GRAPIRA, 539",,08030-190,,-46.41911721,-23.4983363,Vila Curuçá
+ADMARDO ARMOUND,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA JARDIM TAMOIO, 1738",,08255-010,,-46.42615682,-23.55169653,José Bonifácio
+ARAUJO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA BERNARDINO PRUDENTI, 194",,08255-020,,-46.43427779,-23.55585606,José Bonifácio
+AREIÃO VL CARMOSINA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA FRANCISCO TRANCHESI, 0",,08270-460,,-46.46455336,-23.56355981,Parque do Carmo
+BONI 4,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ANDREAS AMON, 120",,08255-130,,-46.43433478,-23.55332205,José Bonifácio
+CIDADE LIDER,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA CASIMIRO NISSKINIZ, 157",,08285-200,,-46.47565836,-23.55456388,Cidade Líder
+ITAQUERA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA GUILHERME VALENCIA, 0",,08253-280,,-46.44107045,-23.55030746,José Bonifácio
+LA VAI BOLA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA JEAN MEYER, 157",,08275-640,,-46.4796732,-23.56669898,Cidade Líder
+PARQUE GUARANI,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA RAINHA DA NOITE, 1",,08235-000,,-46.45719525,-23.5185537,Itaquera
+PAULINO ALVES DA SILVA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA PEDRO DE MENA, 0",,03579-270,,-46.49556447,-23.56213208,Cidade Líder
+PROL LESTE,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA LANDIRANA, 335",,03575-140,,-46.50926942,-23.55611585,Cidade Líder
+RAUL ANTONIO MARQUES,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA BERNARDINO FRANCHESI, 0",,03580-140,,-46.49887506,-23.55230913,Cidade Líder
+UNIÃO DO MORRO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ASTOLFO MARQUES, 330",,03572-260,,-46.49392169,-23.57416523,Cidade Líder
+BOA ESPERANÇA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA JOAO CRISPINIANO SOARES, 0",,08341-010,,-46.45864207,-23.59941281,Iguatemi
+CANARINHO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA FORTE DOS FRANCESES, 195",,08340-150,,-46.46546221,-23.60371419,São Mateus
+CIDADE SÃO MATEUS,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA DOUTOR AURELIANO DA SILVA ARRUDA, 559",,03960-050,,-46.48416936,-23.59946353,São Mateus
+CIDADE SATÉLITE STA BARBARA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA SATELITE, 0",,08330-480,,-46.46449218,-23.61021867,São Mateus
+GUARANI DE SÃO MATHEUS,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA FORTE DE ARAXA, 570",,08340-170,,-46.46600621,-23.60179018,São Mateus
+JARDIM SANTA ADÉLIA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA MUNIZ GORDILHO, 0",,03971-000,,-46.48019097,-23.61421032,São Mateus
+RAGUEB CHOHFI,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA RAGUEB CHOHFI, 5423",,08371-435,,-46.43388105,-23.59516894,Iguatemi
+ABELINO SOARES ANDRADE,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA TORIXOREU, 200",,08020-010,,-46.44419344,-23.499376,São Miguel
+BAQUIRIVU JOSE ERMILIO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA IDA VANUSSI PUNTEL, 0",,08042-280,,-46.43277939,-23.50700426,São Miguel
+CENTRAL DE UNIÃO DA VL NOVA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA PRIMEIRO DE MAIO, 0",,08390-263,,-46.69178006,-23.44751425,Brasilândia
+JARDIM NOÊMIA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA FRANCISCO ANTONIO MEIRA, 447",,08180-270,,-46.41111976,-23.48925,Jardim Helena
+JD HELENA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA KUMAKI AOKI, 1140",,08090-370,,-46.41865945,-23.4795014,Jardim Helena
+JD SÃO CARLOS S.M. PAULISTA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA EL REY, 1",,08062-520,,-46.47303296,-23.51115875,Vila Jacuí
+JOÃO CALVACANTE LEAL,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA TRES MENINAS, 15",,08090-200,,-46.42719804,-23.47587824,Jardim Helena
+PEDRO JOSE NUNES,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA MARIO ALVES, 855",,08061-380,,-46.46651562,-23.5034876,Vila Jacuí
+SANTA INÊS,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA CORALINA, 122",,03813-120,,-46.46638938,-23.48905891,Vila Jacuí
+SAVIMAR,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA SAO GONCALO DO RIO DAS PEDRAS, 0",,08081-000,,-46.42079457,-23.48829251,Jardim Helena
+ANGELO ROSSELI,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,",",,,,-46.51605187,-23.58277078,Aricanduva
+ESTRELA VL FORMOSA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA FLORIZA, 150",,03472-140,,-46.52395661,-23.57556289,Aricanduva
+WALDEMAR MORENO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA AZEVEDO E BRITTO, 42",,03366-040,,-46.53529539,-23.5659765,Vila Formosa
+FLOR DE MAIO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA TRES PEDRAS, 835",,03209-010,,-46.55571988,-23.60260105,Vila Prudente
+FOGÃO DE VL BELA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA SARUMA, 347",,03143-080,,-46.56861226,-23.59249894,Vila Prudente
+KALIL ALLE MAMEDE,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA LEONIDIO PORCIONATO, 383",,03280-040,,-46.53798384,-23.58492963,São Lucas
+TRES ALIANÇAS,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ERVA IMPERIAL, 340",,03244-030,,-46.54018556,-23.60104059,São Lucas
+VENEZA INDEPENDENTE,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA PADRE RAIMUNDO DA SILVA, 598",,03214-000,,-46.55783801,-23.61029495,Vila Prudente
+JD PLANALTO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA QUILOMBOLAS, 178",,03983-070,,-46.51122262,-23.61012508,Sapopemba
+CHARLES GOODYEAR,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA DOS PRAZERES, 106",,03021-085,,-46.59716841,-23.53448894,Belém
+ESTRELA DO PARI,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA COMENDADOR NESTOR PEREIRA, 108",,03034-070,,-46.61896259,-23.5244079,Pari
+JD ITALIA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA FAROL PAULISTANO, 300",,03192-060,,-46.57517122,-23.57118364,Água Rasa
+MOOCA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA MARIA LUISA DE PINHO, 113",,03124-090,,-46.58952716,-23.57075985,Mooca
+SERRA MORENA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ARAGUAIA, 749",,03034-000,,-46.61725021,-23.52349039,Pari
+VIGOR,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AVENIDA CARLOS DE CAMPOS, 935",,03028-001,,-46.61208866,-23.52672173,Pari
+VL INVERNADA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA RAIMUNDO CORREIA, 131",,03351-050,,-46.56333982,-23.57058065,Água Rasa
+COPA 70,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA EDUARDO VICENTE NASSER, 352",,,,-46.61076369,-23.46844703,Tucuruvi
+TREM DAS 11,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AV ANTONIO CESAR NETO, 347",,,,-46.58302471,-23.46163021,Jaçanã
+NACIONAL BOM RETIRO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ANHAIA, 1239",,,,-46.64803478,-23.51977896,Bom Retiro
+ROBERTO RUSSO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA DOS ITALIANOS, 1261",,,,-46.64737261,-23.51904081,Bom Retiro
+31 DE MARÇO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AV MIN PETRONIO PORTEIA, 767",,,,-46.70077711,-23.49308511,Freguesia do Ó
+JD CACHOEIRA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA MONS PAULO FERNANDES DE BARROS, 28",,,,-46.67727287,-23.4821614,Freguesia do Ó
+JD. GUARAU,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA SALDANHA DE OLIVEIRA, 60",,,,-46.6987884,-23.47414967,Freguesia do Ó
+N.S. DO Ó,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA DR UBALDO DA COSTA LEITE, 55",,,,-46.7028253,-23.48985399,Freguesia do Ó
+PQ SÃO LUIZ,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA ENG ALBERTO MEIER, 318",,,,-46.6886378,-23.48033562,Freguesia do Ó
+SENHOR DO BONFIM,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA DR UBALDO DA COSTA LEITE, 55",,,,-46.7028253,-23.48985399,Freguesia do Ó
+TIÊTE,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA SEBASTIAO JOSE PEREIRA, 245",,,,-46.67660453,-23.46493309,Brasilândia
+VL. PENTEADO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA VER CARLOS WESLY, 336",,,,-46.6819165,-23.47341567,Brasilândia
+VL. RICA II,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA DEP FERNANDO FERRARI, 43",,,,-46.67093849,-23.47342,Brasilândia
+CECILIA MEIRELES,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA SOLD ANESIO ANTAO FERREIRA, 31",,,,-46.57659138,-23.51061462,Vila Maria
+CENTRO DA COROA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA JOAO VENTURA BATISTA, 907",,,,-46.60247925,-23.51747941,Vila Guilherme
+E.SILVA.TRINDADE,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA SOLD ANESIO ANTAO FERREIRA, 31",,,,-46.57659138,-23.51061462,Vila Maria
+LAURO MEGALE,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AL PRIM SARG OSMAR CORTES CLARO, 140",,,,-46.56868248,-23.49876315,Vila Medeiros
+VINOCA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA VICTOR ROGER, 35",,,,-46.66225191,-23.47354104,Cachoeirinha
+VL. PALMEIRAS,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AV INAJAR DE SOUZA, 1000",,,,-46.68465415,-23.49733992,Limão
+JAGUARÉ,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AV PRES ALTINO, 1309",,,,-46.75169961,-23.54431819,Jaguaré
+P.F,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,",",,,,-46.70808915,-23.51165575,Lapa
+CORONEL JOSÉ GLADIADOR,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"R HERCULANO JOSE DOS SANTOS, 40",,,,-46.78926892,-23.43946272,Anhanguera
+ANTONIO RODRIGUES FILHO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"R LUCAS DE LEYEDE, 16",,,,-46.76384836,-23.57877485,Rio Pequeno
+ANTONIO EVARISTO COSTA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AV DO RIO PEQUENO, 1850",,,,-46.76064588,-23.57221298,Rio Pequeno
+CORNELIO RODRIGUES DE ALMEIDA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"R PROF ANTONIO FILGUEIRAS DE LIMA, 358",,,,-46.74791399,-23.56828908,Rio Pequeno
+NAIR DE CAMPOS,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,",",,,,-46.74503712,-23.59116754,Vila Sônia
+PEQUENINOS DO JOCKEY,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"R FREI BONIFACIO DUX, 150",,,,-46.72905151,-23.60240322,Vila Sônia
+VICTOR MARQUES,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AV PIRAJUSSARA, 5000",,,,-46.74821286,-23.60054613,Vila Sônia
+JD. MANGALOT,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"R JANNART MOUTINHO RIBEIRO, 730",,,,-46.7477503,-23.49295102,São Domingos
+JARDIM REGINA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"R PIRAPOZINHO, 117",,,,-46.74284909,-23.4736838,Pirituba
+JD. SÃO JOSÉ,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"R D MANUEL DELBOUX, 30",,,,-46.71353897,-23.48784569,Pirituba
+LAZARO CORREIA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"ESTR DAS TAIPAS, 1940",,,,-46.73250872,-23.44080609,Jaraguá
+LIBANO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"R JOSE QUEIROZ DOS SANTOS, 163",,,,-46.7328013,-23.4863698,Pirituba
+LIDERANÇA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"R CORACAO DE BUGRE, 100",,,,-46.723876,-23.48309143,Pirituba
+PARADA DE TAIPAS,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"R FRAGATA CONSTITUICAO, 31",,,,-46.71235142,-23.43037644,Jaraguá
+VL. URSULINA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AV OTAVIANO ALVES DE LIMA, 1881",,,,-46.71421914,-23.50667551,Pirituba
+IBIRAPUERA,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"R SANSAO ALVES DOS SANTOS, 101",,,,-46.69535015,-23.60634453,Itaim Bibi
+VILA PIAUI,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"R BETIM PAIS LEME, 193",,,,-46.76021805,-23.50394744,Jaguara
+CLOVIS ALVES RODRIGUES,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"R RAFAEL BARBOSA, 198",,,,-46.75618258,-23.58303425,Rio Pequeno
+PÉS NO FUTURO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"R ALFREDO XAVIER DE ANDRADE, S/N",,,,-46.74846529,-23.58100983,Butantã
+PORTUGUESINHA DO RIO PEQUENO,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"R CDE LUIZ EDUARDO MATARAZZO, 255",,,,-46.75478884,-23.56371541,Rio Pequeno
+MAURO BEZERRA DE MENEZES,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"RUA MARINA CIUFULI ZANFELICE, 61",,,,-46.7040479,-23.51328409,Lapa
+JOÃO XIII,CLUBE DA COMUNIDADE,Clube da Comunidade com Campo de Futebol,Público - Municipal,"AV ENGEMHEIRO HEITOR ANTONIO EIRAS GARCIA, 6748",,,,-46.7878639,-23.60093401,Raposo Tavares
+SEBASTIÃO ZILLIG,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"PRACA JOSE BELO RESENDE , 0",,04841-010,,-46.68965691,-23.73487156,Grajaú
+EBANOS,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA SAO GUILHERME, 515",,04806-040,,-46.703491,-23.71076404,Cidade Dutra
+JD SUZANA,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA MADAGASCAR, 179",,04784-220,,-46.53082299,-23.57912831,Vila Formosa
+JD UNIVERSITARIO,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA SAO JOSE BENTO COTTOLENGO, 90",,04829-460,,-46.70974272,-23.73639507,Cidade Dutra
+PQ AMERICA,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"AVENIDA ROSALIA IANNINI CONDE, 272",,04841-150,,-46.68818893,-23.73856788,Grajaú
+JD CASTRO ALVES,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA DOMINGOS RINALDELLI, 17079",,04842-100,,-46.68351197,-23.74232394,Grajaú
+PQ. SANTO ANTONIO PSA,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA VALDOMIRO DOS SANTOS PEREIRA, 160",,,,-46.7523561,-23.66625328,Jardim São Luís
+ORESTES QUERCIA,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA GUIMARAES TAVARES, 411",,,,-46.72980864,-23.65197443,Jardim São Luís
+ISRAEL SARAIVA DE ALENCAR,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA GASPAR DO REGO FIGUEIREDO, 0",,,,-46.74975886,-23.67865204,Jardim São Luís
+MONTE AZUL,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"AVENIDA TOMAS DE SOUSA, 761",,,,-46.73741799,-23.64602876,Jardim São Luís
+MINI CENTRO CAMPO GRANDE,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA PROFESSORA HAIDEE SILVA MARTINS, 517",,04693-030,,-46.68997704,-23.67778207,Campo Grande
+JARDIM MARIA ESTELA,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA SEBASTIAO SARMENTO MENA, 58",,04176-180,,-46.60178864,-23.63525099,Sacomã
+JARDIM PATENTE,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA ANTONIO ANNUNZIATO, 57",,04243-220,,-46.58579686,-23.62890545,Sacomã
+VILA CLEMENTINO,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA DOUTOR DIOGO DE FARIA, 1084",,04037-003,,-46.64702707,-23.59497652,Vila Mariana
+AUCÍDIO BUENO,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA JOSE DE ARAUJO VIEIRA, 10",,08310-240,,-46.46418986,-23.62629001,São Rafael
+CONJUNTO SETUBAL,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA JOAQUIM LAGE, 409",,03266-110,,-46.5347659,-23.59875156,São Lucas
+FARIA LIMA,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"TRAVESSA MATICO, 276",,03245-050,,-46.53746868,-23.60458676,São Lucas
+FERNANDO ROMERA VAL,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA JOAO BATISTA MENDO, 150",,03227-040,,-46.56942256,-23.58766242,Vila Prudente
+UNIVERSO,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"PRACA HERENY DA COSTA, 98",,03286-160,,-46.53424034,-23.58981299,São Lucas
+VL. DARLY JD TEREZA,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA BARTOLOMEU CORREA BUENO, 178",,03261-040,,-46.55229548,-23.58769744,São Lucas
+ABAM,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA BENJAMIN REIS, 105",,03178-060,,-46.58769708,-23.55673662,Mooca
+BASILEIA,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA DOLORES DURAN, 285",,,,-46.65180102,-23.48168878,Mandaqui
+R. SANTA TERESINHA,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA CEL JOAQUIM FERREIRA DE SOUZA, 311",,,,-46.64029844,-23.47849317,Mandaqui
+ALVORADA,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA DOS SITIANTES, 131",,,,-46.69163007,-23.49129016,Freguesia do Ó
+CURTIBALL,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA PASCOAL DA COSTA, 04",,,,-46.69300117,-23.49974482,Freguesia do Ó
+VILA ALBERTINA,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA RIBEIRO DE MORAIS, 382",,,,-46.69032141,-23.50171162,Freguesia do Ó
+AGUIA DE OURO,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"AVENIDA PRESIDENTE CASTELO BRANCO, 7683",,,,-46.67955241,-23.51449919,Barra Funda
+JACENA,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"RUA DOM PEDRO HENRIQUE DE ORLEANS E BRAGANCA, 179",,,,-46.74043654,-23.51580377,Jaguara
+MORADA DO SOL,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"R ARTUR AZEVEDO, 55",,,,-46.67335377,-23.55774347,Jardim Paulista
+FRANCISCO PRESTES MAIA,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"R JOSE CAPOBIANCO, 232",,,,-46.73040243,-23.60109057,Vila Sônia
+VILA MIRIAM,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"R ANTONIO BIANCHI, 282",,,,-46.71110149,-23.48022538,Pirituba
+ARENA RADICAL,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"PCA AUGUSTO RADEMAKER GRUNEWALD, 37",,,,-46.69059008,-23.5965145,Itaim Bibi
+SÃO PAULO,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"R BAETINGA, 99",,,,-46.67962802,-23.60525557,Itaim Bibi
+VILA OLIMPIA,CLUBE DA COMUNIDADE,Clube da Comunidade com Quadra,Público - Municipal,"R HELION POVOA, 126",,,,-46.67516705,-23.59812193,Itaim Bibi
+CEU PARQUE VEREDAS - JOAO ANTONIO DA SILVA,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"DANIEL MULLER, 347",,08141-290,,-46.38977398,-23.51327898,Itaim Paulista
+CEU PERA MARMELO,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"PERAMARMELO, 226",,05185-420,,-46.75042776,-23.43706917,Jaraguá
+CEU PARQUE ANHANGUERA,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"PEDRO JOSE DE LIMA, 1020",,05267-174,,-46.78728057,-23.44061127,Anhanguera
+CEU JACANA,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"FRANCISCA ESPOSITO TONETTI, 105",,02276-010,,-46.5833597,-23.45740619,Tremembé
+CEU HELIOPOLIS - ARLETE PERSOLI PROFA,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"DAS LAGRIMAS, 2385",,04232-000,,-46.59411068,-23.6157278,Sacomã
+CEU CAMINHO DO MAR - DULCE SALLES CUNHA BRAGA PROFA,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"ENGENHEIRO ARMANDO DE ARRUDA PEREIRA, 5241",,04325-001,,-46.63640156,-23.66704275,Jabaquara
+CEU PERUS,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"BERNARDO JOSE DE LORENA, S/N",,05203-200,,-46.7519639,-23.40624369,Perus
+CEU INACIO MONTEIRO,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"BARAO BARROSO DO AMAZONAS, 115",,08472-721,,-46.41128293,-23.5692607,Cidade Tiradentes
+CEU PARQUE SAO CARLOS,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"CLAREAR, 643",,08062-590,,-46.47380768,-23.51251798,Vila Jacuí
+CEU LAJEADO,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"MANUEL DA MOTA COUTINHO, 293",,08451-420,,-46.39979692,-23.54339467,Lajeado
+CEU PARQUE BRISTOL,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"PROFESSOR ARTUR PRIMAVESI, S/N",,04177-070,,-46.60867715,-23.64363661,Sacomã
+CEU JAGUARE - HENRIQUE GAMBA PROF,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"KENKITI SIMOMOTO, 80",,05347-010,,-46.74249144,-23.55020112,Jaguaré
+CEU CIDADE DUTRA - ADIB SALOMAO DR,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"INTERLAGOS, 7350",,04777-000,,-46.70455502,-23.71088168,Cidade Dutra
+CEU CANTOS DO AMANHECER,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"CANTOS DO AMANHECER, S/N",,05856-020,,-46.78536287,-23.64965886,Campo Limpo
+CEU AGUA AZUL - PAULO RENATO COSTA SOUZA PROF,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"DOS METALURGICOS, 1262",,08471-000,,-46.40647777,-23.59394511,Cidade Tiradentes
+CEU CASA BLANCA - SOLON BORGES DOS REIS PROF,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"JOAO DAMASCENO, 85",,05841-160,,-46.74431756,-23.64628464,Jardim São Luís
+CEU FORMOSA - EDEN SILVERIO DE OLIVEIRA PROF,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"SARGENTO CLAUDINER EVARISTO DIAS, 10",,03385-150,,-46.52559853,-23.58110523,Aricanduva
+CEU AZUL DA COR DO MAR,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"ERNESTO SOUZA CRUZ, 2171",,08225-380,,-46.45738086,-23.52210484,Itaquera
+CEU VILA RUBI - ALEXANDRE KADUNC JORNALISTA,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"DOMINGOS TARROSO, 101",,04823-090,,-46.69809561,-23.72802766,Cidade Dutra
+CEU ALTO ALEGRE - PAULO SUYOSH MINAMI PROF,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"BENTO GUELFI, S/N",,08381-001,,-46.42694096,-23.60889977,Iguatemi
+CEU UIRAPURU,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"NAZIR MIGUEL, 849",,05570-030,,-46.79011693,-23.60113023,Raposo Tavares
+CEU ALVARENGA,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"DO ALVARENGA, 3752",,04474-340,,-46.64662842,-23.70598433,Pedreira
+CEU VILA ATLANTICA - JOAO SOARES FILHO PROF,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"CORONEL JOSE VENANCIO DIAS, 840",,05160-030,,-46.76261439,-23.48191893,São Domingos
+CEU TIQUATIRA,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"CONDESSA ELISABETH DE ROBIANO, 5280",,03074-000,,-46.55402633,-23.5131491,Penha
+CEU ROSA DA CHINA,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"CLARA PETRELA, 113",,03978-500,,-46.50189258,-23.62290017,Sapopemba
+CEU GUARAPIRANGA - FLORINDA LOTAIF SCHAHIN,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"DA BARONESA, 1120",,04941-175,,-46.76897126,-23.69875972,Jardim Ângela
+CEU PARELHEIROS - ENEIDA PALMA LEITE PROFA,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"TEREZINHA DO PRADO OLIVEIRA, 25",,04890-630,,-46.71973319,-23.82542485,Parelheiros
+CEU SAO RAFAEL,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"CINIRA POLONIO, 100",,08395-320,,-46.45642868,-23.62034305,São Rafael
+CEU BUTANTA - ELIZABETH GASPAR TUNALA PROFA,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"ENGENHEIRO HEITOR ANTONIO EIRAS GARCIA, 1870",,05588-001,,-46.75001142,-23.58184007,Rio Pequeno
+CEU NAVEGANTES - JOSE EVERARDO RODRIGUES COSME PROF,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"MARIA MOASSAB BARBOUR, S/N",,04849-503,,-46.66021381,-23.74379907,Grajaú
+CEU CAMPO LIMPO - DOM AGNELO ROSSI CARDEAL,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"CARLOS LACERDA, 678",,05789-000,,-46.78046952,-23.63790867,Campo Limpo
+CEU FEITICO DA VILA - JOSE FREITAS NOBRE DEP PROF,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"FEITICO DA VILA, 399",,05879-000,,-46.79462735,-23.68621436,Capão Redondo
+CEU MENINOS - ARTUR ALBERTO DE MOTA GONCALVES PROF DR,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"BARBINOS, 111",,04240-110,,-46.58462297,-23.62133273,Sacomã
+CEU CAPAO REDONDO - CELSO SEIXAS RIBEIRO BASTOS PROF E DR,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"DANIEL GRAN, S/N",,05867-380,,-46.77040566,-23.67439369,Capão Redondo
+CEU PAZ,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"DANIEL CERRI, 1549",,02876-170,,-46.68881992,-23.44802537,Brasilândia
+CEU JARDIM PAULISTANO,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"APARECIDA DO TABOADO, S/N",,02814-000,,-46.71181683,-23.46184932,Freguesia do Ó
+CEU TRES PONTES - NILZETE LETICIA BISPO DOS SANTOS LIMA PROFA,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"CAPACHOS, S/N",,08191-330,,-46.38108643,-23.47807109,Jardim Helena
+CEU VILA CURUCA - IRENE RAMALHO,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"MARECHAL TITO, 3452",,08115-000,,-46.41135153,-23.49536602,Vila Curuçá
+CEU PARAISOPOLIS,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"DOUTOR JOSE AUGUSTO DE SOUZA E SILVA, S/N",,05712-040,,-46.72751493,-23.62261943,Vila Andrade
+CEU TRES LAGOS,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"MARIA MOURA DA CONCEICAO, S/N",,04855-257,,-46.68042694,-23.76745796,Grajaú
+CEU VILA DO SOL,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"DOS FUNCIONARIOS PUBLICOS, 369",,04962-000,,-46.78057412,-23.73790694,Jardim Ângela
+CEU ARICANDUVA - IRENE GALVAO DE SOUZA PROFA,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"OLGA FADEL ABARCA, S/N",,03572-020,,-46.50353879,-23.56978546,Cidade Líder
+CEU JAMBEIRO - JOSE GUILHERME GIANETTI,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"JOSE PINHEIRO BORGES, 60",,08420-092,,-46.42404792,-23.53897086,José Bonifácio
+CEU QUINTA DO SOL,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"LUIZ IMPARATO, 564",,03819-160,,-46.49653091,-23.4985251,Cangaíba
+CEU SAO MATEUS,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"CURUMATIM, 201",,08341-240,,-46.44953796,-23.60248705,Iguatemi
+CEU SAPOPEMBA,CLUBE DA COMUNIDADE,Clube da Comunidade dos CEUs,Público - Municipal,"MANUEL QUIRINO DE MATTOS, S/N",,03969-000,,-46.49399709,-23.6093692,Sapopemba
+IPASURE,CLUBE DA COMUNIDADE,Clube da Comunidade com Ginásio,Público - Municipal,"AVENIDA IPANEMA, 841",,04773-010,,-46.71135673,-23.68548313,Socorro
+DÉCIO DA SILVA,CLUBE DA COMUNIDADE,Clube da Comunidade com Ginásio,Público - Municipal,"RUA AGOSTINHO GUALDA MARTIN, 125",,04688-010,,-46.69232207,-23.66575059,Campo Grande
+JARDIM MANACÁ,CLUBE DA COMUNIDADE,Clube da Comunidade com Ginásio,Público - Municipal,"RUA JAIME RODRIGUES, 417",,04446-230,,-46.68437468,-23.68533519,Campo Grande

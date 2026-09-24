@@ -1,11 +1,55 @@
+import { OFFER_SERVICES } from '@/config/offer';
+import { isPointOverlayId, type OverlayId } from '@/config/overlays';
+
 import { readStaticMapsData } from '../data-source-static/readStaticMapsData';
-import type { MapsDataContract } from './schema';
-import { toAppMapsData } from './transformers/toAppMapsData';
+import { readStaticParks } from '../data-source-static/readStaticParks';
+import { readStaticPoints } from '../data-source-static/readStaticPoints';
+import { readStaticSubprefeituras } from '../data-source-static/readStaticSubprefeituras';
+import type { MapsDataContract, OverlayContract } from './schema';
+import {
+  type ServiceCounts,
+  toAppMapsData,
+} from './transformers/toAppMapsData';
+import { toAppParks } from './transformers/toAppParks';
+import { toAppPoints } from './transformers/toAppPoints';
 
 /** Gateway interface exposing canonical read functions. */
 export type DataGateway = {
   /** Returns the canonical maps data. */
   getMapsData: () => Promise<MapsDataContract>;
+  /** Returns one map overlay (points or parks) as a GeoJSON FeatureCollection. */
+  getOverlay: (layer: OverlayId) => Promise<OverlayContract>;
+};
+
+/**
+ * Counts each offer service's facilities per district, from the point
+ * snapshots' `distrito` column. Only the four offer services are read — the
+ * 5 MB bus-stop snapshot is never loaded for this.
+ *
+ * @returns Facilities per service, keyed by district name.
+ *
+ * @example
+ * const counts = await countStaticServices();
+ * counts.ubs.get('Sé'); // 4
+ */
+const countStaticServices = async (): Promise<ServiceCounts> => {
+  const entries = await Promise.all(
+    OFFER_SERVICES.map(async (service) => {
+      const { points } = await readStaticPoints(service);
+      const byDistrict = new Map<string, number>();
+
+      for (const point of points) {
+        byDistrict.set(
+          point.distrito,
+          (byDistrict.get(point.distrito) ?? 0) + 1
+        );
+      }
+
+      return [service, byDistrict] as const;
+    })
+  );
+
+  return Object.fromEntries(entries) as ServiceCounts;
 };
 
 const KNOWN_SOURCES = ['static'] as const;
@@ -39,8 +83,20 @@ export const createDataGateway = (): DataGateway => {
   if (raw === 'static') {
     return {
       getMapsData: async () => {
-        const source = await readStaticMapsData();
-        return toAppMapsData(source);
+        const [source, subprefeituras, serviceCounts] = await Promise.all([
+          readStaticMapsData(),
+          readStaticSubprefeituras(),
+          countStaticServices(),
+        ]);
+        return toAppMapsData(source, subprefeituras, serviceCounts);
+      },
+      getOverlay: async (layer) => {
+        if (isPointOverlayId(layer)) {
+          const source = await readStaticPoints(layer);
+          return toAppPoints({ layer, source });
+        }
+
+        return toAppParks(await readStaticParks());
       },
     };
   }
