@@ -33,8 +33,8 @@ const RAW_DIR = path.join(ROOT, 'src/data-source-static/data/raw');
 const OUT_DIR = path.join(ROOT, 'src/data-source-static/data/points');
 
 /**
- * Source CSV and descriptive columns per layer. Mirrors `POINT_LAYER_IDS` in
- * `src/config/pointLayers.ts`, which this script cannot import (it runs under
+ * Source CSV and descriptive columns per layer. Mirrors `POINT_OVERLAY_IDS` in
+ * `src/config/overlays.ts`, which this script cannot import (it runs under
  * plain `node`, outside the app's path aliases).
  */
 const LAYERS: Record<string, { csv: string; columns: string[] }> = {
@@ -65,6 +65,19 @@ const LAYERS: Record<string, { csv: string; columns: string[] }> = {
   restaurantes: {
     csv: 'restaurantes_publicos_geosampa.csv',
     columns: ['nome', 'programa', 'esfera', 'endereco'],
+  },
+  esporte: {
+    csv: 'esporte_publico_geosampa.csv',
+    columns: [
+      'nome',
+      'categoria',
+      'tipo',
+      'esfera',
+      'endereco',
+      'bairro',
+      'cep',
+      'telefone',
+    ],
   },
   estacoes: {
     csv: 'estacoes_metro_trem_geosampa.csv',

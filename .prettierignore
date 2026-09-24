@@ -1,4 +1,5 @@
 pnpm-lock.yaml
-# Generated compact by scripts/generatePointsData.ts; pretty-printing would
-# grow the bus-stop snapshot by ~40% and break the catalogue checksums.
+# Generated compact by scripts/generatePointsData.ts and generateParksData.ts;
+# pretty-printing would grow them by ~40% and break the catalogue checksums.
 src/data-source-static/data/points/
+src/data-source-static/data/polygons/

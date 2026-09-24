@@ -1,0 +1,260 @@
+{
+  "subprefeituras": [
+    {
+      "id": 1,
+      "codigo": "02",
+      "sigla": "PJ",
+      "nome": "Pirituba-Jaraguá",
+      "regiao": "Norte",
+      "distritos": [42, 63, 95]
+    },
+    {
+      "id": 2,
+      "codigo": "03",
+      "sigla": "FO",
+      "nome": "Freguesia-Brasilândia",
+      "regiao": "Norte",
+      "distritos": [11, 29]
+    },
+    {
+      "id": 3,
+      "codigo": "04",
+      "sigla": "CV",
+      "nome": "Casa Verde-Limão-Cachoeirinha",
+      "regiao": "Norte",
+      "distritos": [13, 21, 50]
+    },
+    {
+      "id": 4,
+      "codigo": "05",
+      "sigla": "ST",
+      "nome": "Santana-Tucuruvi",
+      "regiao": "Norte",
+      "distritos": [51, 70, 82]
+    },
+    {
+      "id": 5,
+      "codigo": "06",
+      "sigla": "JT",
+      "nome": "Jaçanã-Tremembé",
+      "regiao": "Norte",
+      "distritos": [39, 81]
+    },
+    {
+      "id": 6,
+      "codigo": "07",
+      "sigla": "MG",
+      "nome": "Vila Maria-Vila Guilherme",
+      "regiao": "Norte",
+      "distritos": [86, 89, 92]
+    },
+    {
+      "id": 7,
+      "codigo": "21",
+      "sigla": "PE",
+      "nome": "Penha",
+      "regiao": "Leste",
+      "distritos": [5, 18, 59, 91]
+    },
+    {
+      "id": 8,
+      "codigo": "22",
+      "sigla": "EM",
+      "nome": "Ermelino Matarazzo",
+      "regiao": "Leste",
+      "distritos": [28, 64]
+    },
+    {
+      "id": 9,
+      "codigo": "23",
+      "sigla": "MP",
+      "nome": "São Miguel",
+      "regiao": "Leste",
+      "distritos": [44, 74, 87]
+    },
+    {
+      "id": 10,
+      "codigo": "24",
+      "sigla": "IT",
+      "nome": "Itaim Paulista",
+      "regiao": "Leste",
+      "distritos": [36, 84]
+    },
+    {
+      "id": 11,
+      "codigo": "27",
+      "sigla": "IQ",
+      "nome": "Itaquera",
+      "regiao": "Leste",
+      "distritos": [24, 37, 47, 57]
+    },
+    {
+      "id": 12,
+      "codigo": "28",
+      "sigla": "GU",
+      "nome": "Guaianases",
+      "regiao": "Leste",
+      "distritos": [31, 96]
+    },
+    {
+      "id": 13,
+      "codigo": "08",
+      "sigla": "LA",
+      "nome": "Lapa",
+      "regiao": "Oeste",
+      "distritos": [6, 40, 41, 48, 60, 88]
+    },
+    {
+      "id": 14,
+      "codigo": "09",
+      "sigla": "SE",
+      "nome": "Sé",
+      "regiao": "Centro",
+      "distritos": [7, 9, 14, 26, 49, 66, 69, 78]
+    },
+    {
+      "id": 15,
+      "codigo": "25",
+      "sigla": "MO",
+      "nome": "Mooca",
+      "regiao": "Leste",
+      "distritos": [1, 8, 10, 53, 56, 80]
+    },
+    {
+      "id": 16,
+      "codigo": "26",
+      "sigla": "AF",
+      "nome": "Aricanduva-Formosa-Carrão",
+      "regiao": "Leste",
+      "distritos": [4, 20, 85]
+    },
+    {
+      "id": 17,
+      "codigo": "30",
+      "sigla": "SM",
+      "nome": "São Mateus",
+      "regiao": "Leste",
+      "distritos": [33, 73, 75]
+    },
+    {
+      "id": 18,
+      "codigo": "29",
+      "sigla": "VP",
+      "nome": "Vila Prudente",
+      "regiao": "Leste",
+      "distritos": [72, 93]
+    },
+    {
+      "id": 19,
+      "codigo": "13",
+      "sigla": "IP",
+      "nome": "Ipiranga",
+      "regiao": "Sul",
+      "distritos": [27, 34, 68]
+    },
+    {
+      "id": 20,
+      "codigo": "12",
+      "sigla": "VM",
+      "nome": "Vila Mariana",
+      "regiao": "Sul",
+      "distritos": [32, 77, 90]
+    },
+    {
+      "id": 21,
+      "codigo": "10",
+      "sigla": "BT",
+      "nome": "Butantã",
+      "regiao": "Oeste",
+      "distritos": [12, 54, 65, 67, 94]
+    },
+    {
+      "id": 22,
+      "codigo": "11",
+      "sigla": "PI",
+      "nome": "Pinheiros",
+      "regiao": "Oeste",
+      "distritos": [2, 35, 45, 62]
+    },
+    {
+      "id": 23,
+      "codigo": "17",
+      "sigla": "CL",
+      "nome": "Campo Limpo",
+      "regiao": "Sul",
+      "distritos": [17, 19, 83]
+    },
+    {
+      "id": 24,
+      "codigo": "18",
+      "sigla": "MB",
+      "nome": "M'Boi Mirim",
+      "regiao": "Sul",
+      "distritos": [43, 46]
+    },
+    {
+      "id": 25,
+      "codigo": "19",
+      "sigla": "CS",
+      "nome": "Capela do Socorro",
+      "regiao": "Sul",
+      "distritos": [23, 30, 79]
+    },
+    {
+      "id": 26,
+      "codigo": "16",
+      "sigla": "AD",
+      "nome": "Cidade Ademar",
+      "regiao": "Sul",
+      "distritos": [22, 58]
+    },
+    {
+      "id": 27,
+      "codigo": "20",
+      "sigla": "PA",
+      "nome": "Parelheiros",
+      "regiao": "Sul",
+      "distritos": [52, 55]
+    },
+    {
+      "id": 28,
+      "codigo": "15",
+      "sigla": "JA",
+      "nome": "Jabaquara",
+      "regiao": "Sul",
+      "distritos": [38]
+    },
+    {
+      "id": 29,
+      "codigo": "14",
+      "sigla": "SA",
+      "nome": "Santo Amaro",
+      "regiao": "Sul",
+      "distritos": [15, 16, 71]
+    },
+    {
+      "id": 30,
+      "codigo": "31",
+      "sigla": "CT",
+      "nome": "Cidade Tiradentes",
+      "regiao": "Leste",
+      "distritos": [25]
+    },
+    {
+      "id": 31,
+      "codigo": "01",
+      "sigla": "PR",
+      "nome": "Perus-Anhanguera",
+      "regiao": "Norte",
+      "distritos": [3, 61]
+    },
+    {
+      "id": 32,
+      "codigo": "32",
+      "sigla": "SB",
+      "nome": "Sapopemba",
+      "regiao": "Leste",
+      "distritos": [76]
+    }
+  ]
+}

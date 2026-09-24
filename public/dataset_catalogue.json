@@ -31,9 +31,14 @@
         "message": "`hospitais_geosampa.csv` não é o universo de hospitais da cidade: a camada do GeoSampa é centrada na rede pública e conveniada (só 17 dos 98 são privados, e hospitais privados grandes como Einstein e Sírio-Libanês não aparecem). Para cobertura completa, a fonte seria o CNES/DataSUS."
       },
       {
-        "id": "distritos_malha_frestas",
+        "id": "distritos_malha_oficial",
         "severity": "low",
-        "message": "A malha `distrito-municipal-v2.geojson` tem frestas de até ~25 m entre distritos vizinhos (é uma geometria simplificada), e pontos sobre divisas — como as estações Trianon-MASP e Brigadeiro, na Av. Paulista — não caem em nenhum polígono. Os CSVs de equipamentos atribuem esses pontos ao distrito mais próximo quando estão a até 30 m de uma borda; a mais de 30 m, são tratados como fora do município (os casos conferidos de outras cidades, como Presidente Altino em Osasco, ficam a 70 m ou mais)."
+        "message": "A malha desenhada pelo mapa, `distrito-municipal-v2.geojson`, é simplificada (2.228 vértices, contra ~135 mil da `distrito_municipal` oficial do GeoSampa): tem frestas entre distritos vizinhos, em alguns trechos de mais de 60 m, e bordas deslocadas das reais. Ela serve para desenhar, não para medir. Por isso o distrito de cada ponto dos CSVs de equipamentos é calculado contra a malha oficial (`scripts/assignDistricts.ts`, que a baixa na hora e não a versiona). Na troca da malha simplificada pela oficial, 743 pontos mudaram de distrito — quase todos sobre divisas, como estações ao longo da linha do trem ou da Radial Leste — e 34 pontos de ônibus em avenidas de divisa passaram a cair fora do município."
+      },
+      {
+        "id": "parques_somente_municipais",
+        "severity": "medium",
+        "message": "A camada de parques só traz os parques municipais (`pde_parque_municipal`). Parques estaduais como Villa-Lobos, Água Branca e Parque da Juventude, e as unidades de conservação, estão na camada `GEOSAMPA_cadparcs_parque_unidade_conservacao`, que estava fora do ar (503 no servidor de origem) quando os dados foram gerados. Trocar de fonte é mudar `scripts/generateParksData.ts` e regenerar."
       }
     ]
   },
@@ -290,7 +295,7 @@
       "format": "CSV",
       "source": {
         "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&typeNames=geoportal:equipamento_saude_hospital&outputFormat=application/json&srsName=EPSG:4326",
-        "notes": "Camada WFS `geoportal:equipamento_saude_hospital` do GeoSampa, baixada em WGS84 (EPSG:4326) e reduzida às colunas úteis. Delimitador `,` e encoding UTF-8. A camada não traz o distrito: a coluna `distrito` foi calculada por ponto-em-polígono contra `distrito-municipal-v2.geojson`."
+        "notes": "Camada WFS `geoportal:equipamento_saude_hospital` do GeoSampa, baixada em WGS84 (EPSG:4326) e reduzida às colunas úteis. Delimitador `,` e encoding UTF-8. A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`)."
       },
       "temporal": {
         "reference_period": null,
@@ -354,7 +359,7 @@
           },
           {
             "name": "distrito",
-            "description": "Distrito municipal onde o ponto cai, calculado contra a malha do projeto (não vem da fonte)",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
             "role": "identifier"
           }
         ]
@@ -370,7 +375,7 @@
       "format": "CSV",
       "source": {
         "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_ubs_posto_centro",
-        "notes": "Camada WFS `geoportal:equipamento_saude_ubs_posto_centro` do GeoSampa, com os mesmos campos da camada de hospitais, reduzida às colunas úteis. 479 são \"Unidade Básica de Saúde\" e 4 vêm \"SEM TIPO\" na fonte. A camada não traz o distrito: a coluna `distrito` foi calculada por ponto-em-polígono contra `distrito-municipal-v2.geojson`, com tolerância de 30 m para pontos que caem nas frestas da malha (ver `distritos_malha_frestas`). Pontos a mais de 30 m de qualquer distrito foram descartados como fora do município. Delimitador `,` e encoding UTF-8."
+        "notes": "Camada WFS `geoportal:equipamento_saude_ubs_posto_centro` do GeoSampa, com os mesmos campos da camada de hospitais, reduzida às colunas úteis. 479 são \"Unidade Básica de Saúde\" e 4 vêm \"SEM TIPO\" na fonte. A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`). Delimitador `,` e encoding UTF-8."
       },
       "temporal": {
         "reference_period": null,
@@ -387,8 +392,8 @@
       },
       "stats": {
         "rows": 483,
-        "size_bytes": 79595,
-        "checkSum": "sha256:a9eb2373bdfee2f2bdcef2fc7a82113c6085285e849c949a44339f45caee0765"
+        "size_bytes": 79601,
+        "checkSum": "sha256:eb3dd5f2f4fd51bbd226397474e74db468ae1ba2fd1d68b21472db509ce6023c"
       },
       "schema": {
         "fields": [
@@ -434,7 +439,7 @@
           },
           {
             "name": "distrito",
-            "description": "Distrito municipal onde o ponto cai, calculado contra a malha do projeto (não vem da fonte)",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
             "role": "identifier"
           }
         ]
@@ -450,7 +455,7 @@
       "format": "CSV",
       "source": {
         "url": null,
-        "notes": "União das camadas WFS `geoportal:estacao_metro` e `geoportal:estacao_trem` do GeoSampa. A camada de trem cobre a região metropolitana inteira: as estações de outros municípios (Mauá, Osasco, Guarulhos, Jundiaí…) foram descartadas. Uma linha exatamente duplicada na fonte (Vila Mariana, linha Azul) foi removida. A camada não traz o distrito: a coluna `distrito` foi calculada por ponto-em-polígono contra `distrito-municipal-v2.geojson`, com tolerância de 30 m para pontos que caem nas frestas da malha (ver `distritos_malha_frestas`). Pontos a mais de 30 m de qualquer distrito foram descartados como fora do município. Delimitador `,` e encoding UTF-8.",
+        "notes": "União das camadas WFS `geoportal:estacao_metro` e `geoportal:estacao_trem` do GeoSampa. A camada de trem cobre a região metropolitana inteira: as estações de outros municípios (Mauá, Osasco, Guarulhos, Jundiaí…) foram descartadas. Uma linha exatamente duplicada na fonte (Vila Mariana, linha Azul) foi removida. A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`). Delimitador `,` e encoding UTF-8.",
         "urls": [
           "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:estacao_metro",
           "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:estacao_trem"
@@ -471,8 +476,8 @@
       },
       "stats": {
         "rows": 150,
-        "size_bytes": 12099,
-        "checkSum": "sha256:51ecc45e1a42d4882ad265d8e9d7d95f88e71b346b30a2e66992893808077dcc"
+        "size_bytes": 12121,
+        "checkSum": "sha256:20cc46955080ec19aac5a7c7493cf52d558ed65a49c9110397a2e31bfc29a1df"
       },
       "schema": {
         "fields": [
@@ -510,7 +515,7 @@
           },
           {
             "name": "distrito",
-            "description": "Distrito municipal onde o ponto cai, calculado contra a malha do projeto (não vem da fonte)",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
             "role": "identifier"
           }
         ]
@@ -526,7 +531,7 @@
       "format": "CSV",
       "source": {
         "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:terminal_onibus",
-        "notes": "Camada WFS `geoportal:terminal_onibus` do GeoSampa. Ela inclui terminais metropolitanos de outros municípios (Cotia, Diadema, São Bernardo…), que foram descartados: 35 dos 50 ficam na capital. A camada não traz o distrito: a coluna `distrito` foi calculada por ponto-em-polígono contra `distrito-municipal-v2.geojson`, com tolerância de 30 m para pontos que caem nas frestas da malha (ver `distritos_malha_frestas`). Pontos a mais de 30 m de qualquer distrito foram descartados como fora do município. Delimitador `,` e encoding UTF-8."
+        "notes": "Camada WFS `geoportal:terminal_onibus` do GeoSampa. Ela inclui terminais metropolitanos de outros municípios (Cotia, Diadema, São Bernardo…), que foram descartados: 35 dos 50 ficam na capital. A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`). Delimitador `,` e encoding UTF-8."
       },
       "temporal": {
         "reference_period": null,
@@ -578,7 +583,7 @@
           },
           {
             "name": "distrito",
-            "description": "Distrito municipal onde o ponto cai, calculado contra a malha do projeto (não vem da fonte)",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
             "role": "identifier"
           }
         ]
@@ -594,7 +599,7 @@
       "format": "CSV",
       "source": {
         "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:ponto_onibus",
-        "notes": "Camada WFS `geoportal:ponto_onibus` do GeoSampa (SPTrans). 97 pontos fora do município foram descartados. A camada não traz o distrito: a coluna `distrito` foi calculada por ponto-em-polígono contra `distrito-municipal-v2.geojson`, com tolerância de 30 m para pontos que caem nas frestas da malha (ver `distritos_malha_frestas`). Pontos a mais de 30 m de qualquer distrito foram descartados como fora do município. Delimitador `,` e encoding UTF-8."
+        "notes": "Camada WFS `geoportal:ponto_onibus` do GeoSampa (SPTrans). 120 pontos fora do município foram descartados: em geral pontos ligados a trechos de trem em outras cidades (\"C10 CAPUAVA - MAUÁ\", \"C08 ANTÔNIO JOÃO - BARUERI\") e pontos em avenidas de divisa do lado do município vizinho (Av. dos Remédios, Av. Alda, Av. Intercontinental). A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`). Delimitador `,` e encoding UTF-8."
       },
       "temporal": {
         "reference_period": null,
@@ -610,9 +615,9 @@
         "contains_personal_data": false
       },
       "stats": {
-        "rows": 22462,
-        "size_bytes": 3071959,
-        "checkSum": "sha256:d2f762ac14a42501b9446d82addc5b2fb8431dbb05f25445fa62b8d19c4e222c"
+        "rows": 22439,
+        "size_bytes": 3069219,
+        "checkSum": "sha256:1a3686c09e09065a01d3dd8dd2c68aee39123e414d1fd98e1f49f6641d18d135"
       },
       "schema": {
         "fields": [
@@ -647,7 +652,7 @@
           },
           {
             "name": "distrito",
-            "description": "Distrito municipal onde o ponto cai, calculado contra a malha do projeto (não vem da fonte)",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
             "role": "identifier"
           }
         ]
@@ -663,7 +668,7 @@
       "format": "CSV",
       "source": {
         "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:seguranca_alimentar",
-        "notes": "Camada WFS `geoportal:seguranca_alimentar` do GeoSampa. Os 7 Armazéns Solidários da camada foram excluídos, por não servirem refeições. Um registro sem nome (\"-\"), a 52 m da malha, ficou de fora como fora do município. Bairro, CEP, telefone e distrito vêm nulos na fonte. A camada não traz o distrito: a coluna `distrito` foi calculada por ponto-em-polígono contra `distrito-municipal-v2.geojson`, com tolerância de 30 m para pontos que caem nas frestas da malha (ver `distritos_malha_frestas`). Pontos a mais de 30 m de qualquer distrito foram descartados como fora do município. Delimitador `,` e encoding UTF-8."
+        "notes": "Camada WFS `geoportal:seguranca_alimentar` do GeoSampa. Os 7 Armazéns Solidários da camada foram excluídos, por não servirem refeições. Um registro sem nome (\"-\"), a 52 m da malha, ficou de fora como fora do município. Bairro, CEP, telefone e distrito vêm nulos na fonte. A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`). Delimitador `,` e encoding UTF-8."
       },
       "temporal": {
         "reference_period": null,
@@ -680,8 +685,8 @@
       },
       "stats": {
         "rows": 70,
-        "size_bytes": 8597,
-        "checkSum": "sha256:13a787aa27794d2488915f548182932943ee0efe5ae02b9f031cd060bce61817"
+        "size_bytes": 8594,
+        "checkSum": "sha256:f0b842d5c72c68dadefda73121e32d5a6b0fbb4fdef365a8b5e12f12d10b5146"
       },
       "schema": {
         "fields": [
@@ -715,7 +720,7 @@
           },
           {
             "name": "distrito",
-            "description": "Distrito municipal onde o ponto cai, calculado contra a malha do projeto (não vem da fonte)",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
             "role": "identifier"
           }
         ]
@@ -811,8 +816,8 @@
       },
       "stats": {
         "rows": 483,
-        "size_bytes": 143181,
-        "checkSum": "sha256:ad667a2a62e2914bcb7fedbe81cecb1631da739c76a110f950482592e3d9a950"
+        "size_bytes": 143187,
+        "checkSum": "sha256:f20f7c98e8eb4ff8f7681e021162769c3c0202ffac9b07d5b9d590c144822339"
       },
       "schema": {
         "fields": [
@@ -873,8 +878,8 @@
       },
       "stats": {
         "rows": 70,
-        "size_bytes": 15752,
-        "checkSum": "sha256:5cc4b7509e78844106a4f817e201edf06d58498c05121309f3755bd1c9fde156"
+        "size_bytes": 15749,
+        "checkSum": "sha256:af9286b2512fe0e3bb19524224be2df789ade30ee6606b263b1550bd17dcc144"
       },
       "schema": {
         "fields": [
@@ -935,8 +940,8 @@
       },
       "stats": {
         "rows": 150,
-        "size_bytes": 29041,
-        "checkSum": "sha256:ad1e35c6d31816fe49c1a7d9a67237be806ba29673314f67439723e50c2dec71"
+        "size_bytes": 29063,
+        "checkSum": "sha256:3ace579d4a3c404b3d19e9bf74bec1c6fa49a22b5ba70c3578cf7ab416e6591e"
       },
       "schema": {
         "fields": [
@@ -1058,15 +1063,15 @@
         "contains_personal_data": false
       },
       "stats": {
-        "rows": 22462,
-        "size_bytes": 5464032,
-        "checkSum": "sha256:a0a21d034ae47fbaa1ff7067b8ab1237cbf2ebbbbb1739f3cf8069c50e119821"
+        "rows": 22439,
+        "size_bytes": 5458831,
+        "checkSum": "sha256:79d055437f02f15d136b2ba8448f0aab859042cc4265722509fa7f380fc8318e"
       },
       "schema": {
         "fields": [
           {
             "name": "id",
-            "description": "Id sequencial (1–22462) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "description": "Id sequencial (1–22439) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
             "role": "identifier"
           },
           {
@@ -1092,6 +1097,331 @@
         ]
       },
       "derived_from": ["distritos_pontos_onibus"]
+    },
+    "subprefeituras_distritos": {
+      "id": "subprefeituras_distritos",
+      "collection_id": "geosampa",
+      "slug": "subprefeituras-distritos",
+      "title": "Subprefeituras de São Paulo e seus distritos municipais",
+      "description": "As 32 subprefeituras da cidade, com código, sigla, região e os distritos do projeto (por `geometry_id`) que cada uma agrupa. É a correspondência que o gateway usa para somar as contagens dos distritos no recorte por subprefeitura.",
+      "file": "src/data-source-static/data/subprefeituras.json",
+      "format": "JSON",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:distrito_municipal",
+        "urls": [
+          "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:distrito_municipal",
+          "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:subprefeitura"
+        ],
+        "notes": "Gerado por `scripts/generateSubprefeituras.ts`. A correspondência é oficial: a camada `distrito_municipal` do GeoSampa informa a subprefeitura de cada distrito. A ligação com os distritos do projeto é feita pelo nome, sem acento nem caixa, e o script falha se algum dos 96 não casar exatamente uma vez. Os nomes das subprefeituras vêm sem acento na fonte (`BUTANTA`, `SE`) e são substituídos por uma tabela de nomes de exibição no script."
+      },
+      "generated_by": "scripts/generateSubprefeituras.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-23"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "subprefeitura",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 32,
+        "size_bytes": 5116,
+        "checkSum": "sha256:218534f4c035f10a75bf208b408a4d524b780eac2cf9726c6511971a6accbd45"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "`cd_identificador_subprefeitura` do GeoSampa (1–32); também o id da feição em `subprefeituras.geojson`",
+            "role": "identifier"
+          },
+          {
+            "name": "codigo",
+            "description": "Código de dois dígitos da subprefeitura (`cd_subprefeitura`)"
+          },
+          {
+            "name": "sigla",
+            "description": "Sigla (`sg_subprefeitura`)"
+          },
+          {
+            "name": "nome",
+            "description": "Nome de exibição, acentuado"
+          },
+          {
+            "name": "regiao",
+            "description": "Região da cidade (`nm_regiao_05`): Norte, Sul, Leste, Oeste ou Centro"
+          },
+          {
+            "name": "distritos",
+            "description": "`geometry_id`s dos distritos que a subprefeitura agrupa (a chave do join com `maps-data.json`)"
+          }
+        ]
+      },
+      "derived_from": ["distritos_populacao_idosa"]
+    },
+    "subprefeituras_contorno": {
+      "id": "subprefeituras_contorno",
+      "collection_id": "geosampa",
+      "slug": "subprefeituras-contorno",
+      "title": "Contornos das subprefeituras de São Paulo",
+      "description": "Malha (polígonos) das 32 subprefeituras, usada pelo mapa no recorte por subprefeitura. Join pelo `id` nativo da feição, igual ao `id` de `subprefeituras.json`.",
+      "file": "public/subprefeituras.geojson",
+      "format": "GeoJSON",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:subprefeitura",
+        "notes": "Camada `geoportal:subprefeitura` do GeoSampa (escala 1:5.000, ~84 mil vértices), simplificada por Douglas-Peucker com tolerância de 40 m e coordenadas arredondadas a 5 casas (~1 m) por `scripts/generateSubprefeituras.ts`, para ficar com peso e detalhe próximos da malha de distritos. Cada polígono é simplificado isoladamente, então divisas compartilhadas podem diferir alguns metros de um lado para o outro."
+      },
+      "generated_by": "scripts/generateSubprefeituras.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-23"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "subprefeitura (polígono)",
+        "key": "id (nativo da feição)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "features": 32,
+        "size_bytes": 66263,
+        "checkSum": "sha256:eef97df33b7634dce6fcad6da8fac7d8ad00e42c09a8d244141ce6e9635b8eb7"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id nativo da feição (1–32) — a chave do join com `subprefeituras.json`",
+            "role": "identifier"
+          },
+          {
+            "name": "properties",
+            "description": "Nulo em todas as feições; os atributos ficam em `subprefeituras.json`"
+          },
+          {
+            "name": "geometry",
+            "description": "Polígono da subprefeitura",
+            "role": "geometry"
+          }
+        ]
+      }
+    },
+    "camada_parques": {
+      "id": "camada_parques",
+      "collection_id": "geosampa",
+      "slug": "camada-parques",
+      "title": "Parques municipais de São Paulo — camada do mapa",
+      "description": "Os 116 parques municipais existentes, como polígonos, servidos à camada \"Parques municipais\" do botão \"Camadas\" do mapa (`/api/camadas/parques`), desenhada acima das demais. Categorias: Parque Urbano (74), Parque Linear (22), Parque Orla (10), Parque de Conservação (5), Parque Natural (5).",
+      "file": "src/data-source-static/data/polygons/parques.json",
+      "format": "JSON",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:pde_parque_municipal",
+        "notes": "Camada `geoportal:pde_parque_municipal` do GeoSampa (parques do Plano Diretor), só com os de situação `Existente` — os 164 `Proposto` ficam de fora. Geometria simplificada por Douglas-Peucker com tolerância de 8 m e coordenadas arredondadas a 5 casas por `scripts/generateParksData.ts`. Só parques municipais: a camada mais completa, `GEOSAMPA_cadparcs_parque_unidade_conservacao`, que inclui os parques estaduais (Villa-Lobos, Água Branca, Juventude…) e unidades de conservação, respondia 503 do servidor de origem na geração (2026-09-24)."
+      },
+      "generated_by": "scripts/generateParksData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-24"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "parque (polígono)",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 116,
+        "size_bytes": 110012,
+        "checkSum": "sha256:53033e829da2f48a7c2030575afa539de675d66fd3e41e05bf00e6bf2a5c3215"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–116) — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "nome",
+            "description": "Nome do parque (`nm_parque`)"
+          },
+          {
+            "name": "categoria",
+            "description": "Categoria (`tx_tipo_categoria_parque_unidade_conservacao`): Parque Urbano, Linear, Orla, de Conservação ou Natural"
+          },
+          {
+            "name": "cadparc",
+            "description": "Código do parque no cadastro municipal (`cd_cadparc`)",
+            "role": "identifier"
+          },
+          {
+            "name": "geometry",
+            "description": "Polígono do parque (WGS84)",
+            "role": "geometry"
+          }
+        ]
+      }
+    },
+    "distritos_esporte_publico": {
+      "id": "distritos_esporte_publico",
+      "collection_id": "geosampa",
+      "slug": "distritos-esporte-publico",
+      "title": "Locais de esporte públicos da cidade de São Paulo por distrito municipal",
+      "description": "Os equipamentos esportivos municipais: 282 Clubes da Comunidade (CDC — campos de futebol, quadras, ginásios e os CDCs dos CEUs) e 46 Centros Esportivos (centros educacionais e esportivos, centros de esporte e lazer, balneários). Cobre 85 dos 96 distritos.",
+      "file": "src/data-source-static/data/raw/esporte_publico_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": null,
+        "urls": [
+          "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_esporte_clubesdacomunidade",
+          "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_esporte_centro_esportivo"
+        ],
+        "notes": "União das camadas WFS `geoportal:equipamento_esporte_clubesdacomunidade` e `geoportal:equipamento_esporte_centro_esportivo` do GeoSampa, ambas de esfera `Público - Municipal`. Ficaram de fora as camadas `equipamento_esporte_clubes` (231 clubes particulares), `equipamento_esporte_estadios` (14 estádios, particulares na fonte) e `equipamento_esporte_outros` (o Autódromo de Interlagos). A coluna `distrito` é calculada contra a malha oficial `distrito_municipal` por `scripts/assignDistricts.ts` (ver `distritos_malha_oficial`); todos os 328 pontos caem dentro do município. Quebras de linha nos nomes foram normalizadas para espaços. Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-24"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 328,
+        "size_bytes": 58486,
+        "checkSum": "sha256:29e702fb590b9ee59fa0e0d1f7e2e68ead20a134af9386ed7f572a75f7dab87b"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome do equipamento (`nm_equipamento`)"
+          },
+          {
+            "name": "categoria",
+            "description": "CLUBE DA COMUNIDADE ou CENTRO ESPORTIVO (`nm_classe_equipamento`)"
+          },
+          {
+            "name": "tipo",
+            "description": "Tipo (`nm_tipo_equipamento`), ex.: \"Clube da Comunidade com Campo de Futebol\", \"Centro Esportivo/Balneário\""
+          },
+          {
+            "name": "esfera",
+            "description": "Esfera administrativa (`nm_esfera_administrativa_equipamento`); todos `Público - Municipal`"
+          },
+          {
+            "name": "endereco",
+            "description": "Endereço (`tx_endereco_equipamento`)"
+          },
+          {
+            "name": "bairro",
+            "description": "Bairro (`nm_bairro_equipamento`); vazio nos centros esportivos"
+          },
+          {
+            "name": "cep",
+            "description": "CEP (`cd_cep_equipamento`); frequentemente vazio"
+          },
+          {
+            "name": "telefone",
+            "description": "Telefone (`tx_numero_telefone`); frequentemente vazio"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_esporte": {
+      "id": "camada_esporte",
+      "collection_id": "dados_processados",
+      "slug": "camada-esporte",
+      "title": "Camada de locais de esporte públicos do mapa — snapshot",
+      "description": "Snapshot servido à camada \"Locais de esporte públicos\" do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/esporte` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/esporte.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_esporte_publico` por `scripts/generatePointsData.ts`, versionado neste repositório. A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-24"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 328,
+        "size_bytes": 106194,
+        "checkSum": "sha256:b67c21ee5284b27ad55903f883b6847f209a221382853cce13cde2db9e7419d6"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–328) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_esporte_publico`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_esporte_publico"]
     }
   }
 }
