@@ -9,6 +9,7 @@ import type {
 
 import {
   type OverlayConfig,
+  overlayDrawOrder,
   type OverlayId,
   OVERLAYS,
 } from '@/config/overlays';
@@ -46,7 +47,7 @@ const THUMB_GROUND = "<rect width='64' height='64' fill='rgb(234,238,227)'/>";
 /**
  * Thumbnail of a control item, inline so it needs no request: for a point
  * overlay a few dots in its colour, like the kitchens' in cozsolidarias; for a
- * polygon overlay two tinted, outlined patches, like it draws on the map.
+ * polygon overlay two filled, outlined patches, like it draws on the map.
  *
  * @param config - The overlay.
  * @returns An SVG data URI.
@@ -104,8 +105,8 @@ const renderOverlayTooltip = (feature: OverlayProperties | undefined) => {
  * the choropleth — in the overlay's own fixed colour. `click: {}` is what gives
  * them a tooltip at all: geovis only hover-tracks point layers that declare it.
  *
- * Polygons are a tint plus an outline in the overlay's colour, light enough for
- * the choropleth to show through. `hoverPaint` does for them what `click` does
+ * Polygons are a fill plus an outline in the overlay's colour, at the
+ * overlay's own opacity. `hoverPaint` does for them what `click` does
  * for points: geovis hover-tracks a polygon layer that declares it (or a
  * legend), and it thickens the outline of the park under the cursor.
  */
@@ -179,10 +180,8 @@ const buildLayer = ({
 /**
  * Builds the sources and layers of every overlay.
  *
- * Layers are returned in reverse control order, so the first toggle draws on
- * top: the parks, first in the control, cover everything else, and the 22
- * thousand bus stops, last, end up at the bottom instead of burying the
- * hospitals.
+ * Layers are returned in {@link overlayDrawOrder}: polygons beneath points,
+ * and within each kind the control's first item on top.
  *
  * @param params.layers - The store's snapshot: toggles and loaded data.
  * @param params.tooltipStyle - Card style shared with the area tooltip.
@@ -207,7 +206,7 @@ export const buildOverlays = ({
     };
   });
 
-  const mapLayers = [...OVERLAYS].reverse().map((config) => {
+  const mapLayers = overlayDrawOrder(OVERLAYS).map((config) => {
     return buildLayer({
       config,
       collection: layers.data[config.id] ?? EMPTY_COLLECTION,

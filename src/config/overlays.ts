@@ -56,7 +56,7 @@ export const isPointOverlayId = (id: OverlayId): id is PointOverlayId => {
 type OverlayBase = {
   /** Text of the overlay's toggle in the "Camadas" control. */
   label: string;
-  /** Fixed colour: a point's fill, or a polygon's outline and tint. */
+  /** Fixed colour: a point's fill, or a polygon's fill and outline. */
   color: string;
 };
 
@@ -72,20 +72,19 @@ export type PointOverlayConfig = OverlayBase & {
 export type PolygonOverlayConfig = OverlayBase & {
   id: Exclude<OverlayId, PointOverlayId>;
   kind: 'polygon';
-  /** Fill opacity; low, so the choropleth and the points stay readable. */
+  /** Fill opacity, from `0` (outline only) to `1` (solid). */
   fillOpacity: number;
 };
 
 export type OverlayConfig = PointOverlayConfig | PolygonOverlayConfig;
 
 /**
- * The overlays, in the order their toggles appear in the control — and, read
- * backwards, the order they are drawn: the first one ends up on top.
+ * The overlays, in the order their toggles appear in the control. How they
+ * stack on the map is {@link overlayDrawOrder}'s call, not this order's.
  *
- * The parks come first so they draw above everything else. They are tinted,
- * not filled, so the choropleth shows through them and a point inside a park
- * stays visible (and keeps its own tooltip: points win the hover over
- * polygons).
+ * The parks are solid: a tint let the choropleth wash them out until they were
+ * hard to tell apart. That is safe because polygons always draw beneath the
+ * points, so a facility inside a park stays on top of it.
  *
  * Colours are one distinct hue per overlay and deliberately none of them blue:
  * the choropleth underneath is a blue ramp (`LEGEND_COLORS`), and a blue mark
@@ -101,7 +100,7 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     kind: 'polygon',
     label: 'Parques municipais',
     color: '#2F6B2F',
-    fillOpacity: 0.35,
+    fillOpacity: 1,
   },
   {
     id: 'hospitais',
@@ -114,7 +113,7 @@ export const OVERLAYS: readonly OverlayConfig[] = [
   {
     id: 'ubs',
     kind: 'point',
-    label: 'Unidades Básicas de Saúde (UBS)',
+    label: 'UBS',
     color: '#2E9E5B',
     radius: 4,
     strokeWidth: 1.2,
@@ -160,3 +159,32 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     strokeWidth: 0.6,
   },
 ];
+
+/**
+ * The order the overlays are drawn in, bottom first: every polygon beneath
+ * every point, so a solid park never covers a facility inside it. Within each
+ * kind the control's order holds, read backwards — its first item draws on top
+ * — which leaves the 22 thousand bus stops, last in the control, beneath the
+ * other points instead of burying the hospitals.
+ *
+ * @param overlays - The overlays, in control order.
+ * @returns The same overlays, in draw order.
+ *
+ * @example
+ * overlayDrawOrder(OVERLAYS).map((overlay) => overlay.id);
+ * // ['parques', 'pontos-onibus', 'terminais', ..., 'hospitais']
+ */
+export const overlayDrawOrder = (
+  overlays: readonly OverlayConfig[]
+): OverlayConfig[] => {
+  const bottomFirst = [...overlays].reverse();
+
+  return [
+    ...bottomFirst.filter((overlay) => {
+      return overlay.kind === 'polygon';
+    }),
+    ...bottomFirst.filter((overlay) => {
+      return overlay.kind === 'point';
+    }),
+  ];
+};

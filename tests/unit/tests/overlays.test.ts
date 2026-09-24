@@ -6,6 +6,7 @@ import {
   isOverlayId,
   isPointOverlayId,
   OVERLAY_IDS,
+  overlayDrawOrder,
   OVERLAYS,
   POINT_OVERLAY_IDS,
 } from '@/config/overlays';
@@ -61,9 +62,23 @@ describe('overlay registry', () => {
     expect(isPointOverlayId('parques')).toBe(false);
   });
 
-  test('lists the parks first, so they draw on top of every other overlay', () => {
-    expect(OVERLAYS[0]?.id).toBe('parques');
-    expect(OVERLAYS[0]?.kind).toBe('polygon');
+  test('draws every polygon beneath every point', () => {
+    const kinds = overlayDrawOrder(OVERLAYS).map((overlay) => {
+      return overlay.kind;
+    });
+    const firstPoint = kinds.indexOf('point');
+
+    expect(kinds.slice(firstPoint)).not.toContain('polygon');
+  });
+
+  test('keeps the control order within each kind, first item on top', () => {
+    const ids = overlayDrawOrder(OVERLAYS).map((overlay) => {
+      return overlay.id;
+    });
+
+    expect(ids[0]).toBe('parques');
+    expect(ids[1]).toBe('pontos-onibus');
+    expect(ids[ids.length - 1]).toBe('hospitais');
   });
 });
 
