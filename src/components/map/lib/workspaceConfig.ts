@@ -62,17 +62,17 @@ const CATEGORY_OPTIONS: { value: Category; label: string; icon: string }[] = [
   // Facilities rather than people, one category per kind of service.
   {
     value: 'health-65plus',
-    label: 'serviços de saúde (por 10 mil idosos)',
+    label: 'saúde (por 10 mil idosos)',
     icon: ICONS.heartbeat,
   },
   {
     value: 'food-65plus',
-    label: 'serviços de alimentação (por 10 mil idosos)',
+    label: 'alimentação (por 10 mil idosos)',
     icon: ICONS.forkKnife,
   },
   {
     value: 'leisure-65plus',
-    label: 'serviços de lazer (por 10 mil idosos)',
+    label: 'lazer (por 10 mil idosos)',
     icon: ICONS.soccerBall,
   },
 ];
