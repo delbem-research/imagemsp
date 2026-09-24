@@ -1,9 +1,15 @@
-import { OFFER_RATE_BASE, OFFER_SERVICES } from '@/config/offer';
+import {
+  OFFER_CATEGORIES,
+  OFFER_CATEGORY_IDS,
+  OFFER_RATE_BASE,
+} from '@/config/offer';
 import type {
   Category,
   DistrictCounts,
   Group,
   MapDataRow,
+  OfferCategory,
+  OfferService,
 } from '@/data-gateway/schema';
 
 /**
@@ -31,11 +37,42 @@ const elderly70plus = (counts: DistrictCounts): number => {
  *
  * The category decides the denominator (the district's whole population, or its
  * own 65+ population) and the group decides the numerator, which is cumulative
- * for `65`/`70`/`75` and a closed band for `65-69`/`70-74`. For
- * `offer-65plus` the group is a service, and the numerator its facilities in
- * the area. Encoded as a table so the map, the legend and the tooltip cannot
+ * for `65`/`70`/`75` and a closed band for `65-69`/`70-74`. For an offer
+ * category the group is one of its services, and the numerator its facilities
+ * in the area. Encoded as a table so the map, the legend and the tooltip cannot
  * drift apart: all three read the same entry.
  */
+/**
+ * One ratio per service of an offer category: its facilities over the area's
+ * 65+ residents.
+ *
+ * @param services - The category's services.
+ * @returns The category's row of {@link SERIES_RATIOS}.
+ */
+const offerRatios = (
+  services: readonly OfferService[]
+): Partial<Record<Group, SeriesRatio>> => {
+  return Object.fromEntries(
+    services.map((service) => {
+      const ratio: SeriesRatio = (counts) => {
+        return { count: counts.services[service], totalCount: elderly(counts) };
+      };
+      return [service, ratio];
+    })
+  );
+};
+
+/** Builds a per-offer-category table from one value per category. */
+const byOfferCategory = <T>(
+  value: (category: OfferCategory) => T
+): Record<OfferCategory, T> => {
+  return Object.fromEntries(
+    OFFER_CATEGORY_IDS.map((category) => {
+      return [category, value(category)];
+    })
+  ) as Record<OfferCategory, T>;
+};
+
 const SERIES_RATIOS: Record<Category, Partial<Record<Group, SeriesRatio>>> = {
   'cumulative-total': {
     '65': (counts) => {
@@ -69,14 +106,9 @@ const SERIES_RATIOS: Record<Category, Partial<Record<Group, SeriesRatio>>> = {
       return { count: counts.count75plus, totalCount: elderly(counts) };
     },
   },
-  'offer-65plus': Object.fromEntries(
-    OFFER_SERVICES.map((service) => {
-      const ratio: SeriesRatio = (counts) => {
-        return { count: counts.services[service], totalCount: elderly(counts) };
-      };
-      return [service, ratio];
-    })
-  ),
+  ...byOfferCategory((category) => {
+    return offerRatios(OFFER_CATEGORIES[category]);
+  }),
 };
 
 /**
@@ -88,7 +120,9 @@ const SERIES_SCALE: Record<Category, { base: number; decimals: number }> = {
   'cumulative-total': { base: 1, decimals: 4 },
   'cumulative-65plus': { base: 1, decimals: 4 },
   '5year-65plus': { base: 1, decimals: 4 },
-  'offer-65plus': { base: OFFER_RATE_BASE, decimals: 2 },
+  ...byOfferCategory(() => {
+    return { base: OFFER_RATE_BASE, decimals: 2 };
+  }),
 };
 
 /**

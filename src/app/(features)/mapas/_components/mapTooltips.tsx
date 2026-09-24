@@ -5,9 +5,10 @@ import type {
   Category,
   Group,
   OfferService,
+  ShareCategory,
 } from '@/components/map/lib/indicators';
 import { getBandIndex, LEGEND_COLORS } from '@/components/map/lib/mapConfig';
-import { OFFER_LABELS } from '@/config/offer';
+import { isOfferCategory, OFFER_LABELS } from '@/config/offer';
 import type { MapDataRow } from '@/data-gateway/schema';
 
 import { formatRate } from './mapLegend';
@@ -30,7 +31,7 @@ export const TOOLTIP_STYLE = {
  * @param group - The age group.
  * @returns Descriptive text for the tooltip value line.
  */
-const getTooltipText = (category: Category, group: AgeGroup): string => {
+const getTooltipText = (category: ShareCategory, group: AgeGroup): string => {
   const ageLabels: Record<AgeGroup, string> = {
     '65': '65+',
     '70': '70+',
@@ -39,15 +40,11 @@ const getTooltipText = (category: Category, group: AgeGroup): string => {
     '70-74': '70 a 74 anos',
   };
 
-  const contextLabels: Record<Exclude<Category, 'offer-65plus'>, string> = {
+  const contextLabels: Record<ShareCategory, string> = {
     'cumulative-total': 'do total',
     'cumulative-65plus': 'da pop 65+',
     '5year-65plus': 'da pop 65+',
   };
-
-  if (category === 'offer-65plus') {
-    return '';
-  }
 
   return `População com idade ${ageLabels[group]} ${contextLabels[category]}`;
 };
@@ -73,7 +70,7 @@ const tooltipLines = ({
 }): { value: string; counts: string | null } => {
   const hasCounts = row.count != null && row.totalCount != null;
 
-  if (category === 'offer-65plus') {
+  if (isOfferCategory(category)) {
     const labels = OFFER_LABELS[group as OfferService];
     const count = row.count ?? 0;
 

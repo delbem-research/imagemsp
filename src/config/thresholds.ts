@@ -66,7 +66,8 @@ export const SERIES_THRESHOLDS: Record<
     '75': [0.25, 0.3, 0.35, 0.4, 0.45, 0.5],
   },
   /**
-   * Public facilities per 10 thousand residents aged 65+ (2025), not a share.
+   * The offer categories (health, food, leisure): public facilities per 10
+   * thousand residents aged 65+ (2025), not a share.
    *
    * The first break is a hair above zero, so the lightest class holds exactly
    * the areas with none of the service — a real finding here, not an artefact:
@@ -74,13 +75,17 @@ export const SERIES_THRESHOLDS: Record<
    * restaurant. The legend names that class "nenhum". The rest follow each
    * service's observed spread across districts.
    */
-  'offer-65plus': {
+  'health-65plus': {
     /** UBS. Districts 0–31.5 (median 3.0); subprefeituras 0.8–14.2. */
     ubs: [0.001, 1, 2, 3, 5, 8],
     /** Hospitals. Districts 0–4.3 (median 0.55); subprefeituras 0–1.2. */
     hospitais: [0.001, 0.25, 0.5, 1, 1.5, 2.5],
+  },
+  'food-65plus': {
     /** Public restaurants. Districts 0–8.2 (median 0); subprefeituras 0–1.6. */
     restaurantes: [0.001, 0.25, 0.5, 1, 2, 4],
+  },
+  'leisure-65plus': {
     /** Public sports venues. Districts 0–12.0 (median 1.8); subprefeituras 0.8–4.8. */
     esporte: [0.001, 1, 2, 3, 5, 8],
   },

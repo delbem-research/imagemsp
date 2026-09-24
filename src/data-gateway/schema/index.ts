@@ -5,7 +5,9 @@ export type {
   Group,
   MapDataRow,
   MapsDataContract,
+  OfferCategory,
   OfferService,
+  ShareCategory,
   Subprefeitura,
 } from './mapsData';
 export type {

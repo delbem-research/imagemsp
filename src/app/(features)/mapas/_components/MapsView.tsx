@@ -41,7 +41,7 @@ import {
   YEAR_MENU_ID,
 } from '@/components/map/lib/workspaceConfig';
 import LoadingIndicator from '@/components/ui/LoadingIndicator';
-import { OFFER_YEAR } from '@/config/offer';
+import { isOfferCategory, OFFER_YEAR } from '@/config/offer';
 import { thresholdsFor } from '@/config/thresholds';
 import type { MapsDataContract } from '@/data-gateway/schema';
 
@@ -149,7 +149,7 @@ const buildSpec = ({
   // The year belongs in the legend's own heading: during playback it is the
   // only thing on screen that changes, and a title that omits it leaves the
   // reader watching colours shift with no idea which year they are looking at.
-  const offer = category === 'offer-65plus';
+  const offer = isOfferCategory(category);
   // An offer title already reads "… POR 10 MIL IDOSOS", so the level follows
   // as "EM CADA …" rather than a second "POR".
   const levelPhrase = `${offer ? 'EM CADA' : 'POR'} ${areas.titleNoun}`;
@@ -383,8 +383,8 @@ type Selection = {
  * @returns The next selection.
  *
  * @example
- * nextSelection({ prev, next: { category: 'offer-65plus' }, years });
- * // { ...prev, category: 'offer-65plus', group: 'ubs' }
+ * nextSelection({ prev, next: { category: 'health-65plus' }, years });
+ * // { ...prev, category: 'health-65plus', group: 'ubs' }
  */
 const nextSelection = ({
   prev,
@@ -425,7 +425,7 @@ const nextSelection = ({
  * @returns The year to paint.
  *
  * @example
- * paintedYearFor({ category: 'offer-65plus', year: 2050, years }); // 2025
+ * paintedYearFor({ category: 'food-65plus', year: 2050, years }); // 2025
  */
 const paintedYearFor = ({
   category,
@@ -436,7 +436,7 @@ const paintedYearFor = ({
   year: number;
   years: number[];
 }): number => {
-  if (category !== 'offer-65plus') {
+  if (!isOfferCategory(category)) {
     return year;
   }
 

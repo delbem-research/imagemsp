@@ -33,7 +33,6 @@ import lucideZoomIn from '@iconify/icons-lucide/zoom-in';
 // Phosphor — double caret (bold for toggle buttons)
 // Phosphor — variacoes de faixa etaria na sidebar do mapa
 import phArrowsInLineHorizontal from '@iconify/icons-ph/arrows-in-line-horizontal';
-import phBuildings from '@iconify/icons-ph/buildings';
 import phCalendarBlank from '@iconify/icons-ph/calendar-blank';
 import phCaretDoubleLeftBold from '@iconify/icons-ph/caret-double-left-bold';
 import phCaretDoubleRightBold from '@iconify/icons-ph/caret-double-right-bold';
@@ -52,6 +51,7 @@ import phFirstAid from '@iconify/icons-ph/first-aid';
 import phFirstAidKit from '@iconify/icons-ph/first-aid-kit';
 import phForkKnife from '@iconify/icons-ph/fork-knife';
 import phGauge from '@iconify/icons-ph/gauge';
+import phHeartbeat from '@iconify/icons-ph/heartbeat';
 import phMapTrifold from '@iconify/icons-ph/map-trifold';
 import phPlusCircle from '@iconify/icons-ph/plus-circle';
 import phPolygon from '@iconify/icons-ph/polygon';
@@ -80,7 +80,7 @@ addIcon('ph:clock', phClock);
 addIcon('ph:map-trifold', phMapTrifold);
 addIcon('ph:squares-four', phSquaresFour);
 addIcon('ph:polygon', phPolygon);
-addIcon('ph:buildings', phBuildings);
+addIcon('ph:heartbeat', phHeartbeat);
 addIcon('ph:storefront', phStorefront);
 addIcon('ph:first-aid-kit', phFirstAidKit);
 addIcon('ph:first-aid', phFirstAid);
@@ -141,8 +141,8 @@ export const ICONS = {
   squaresFour: 'ph:squares-four',
   polygon: 'ph:polygon',
 
-  // Map sidebar — offer indicator and its services
-  buildings: 'ph:buildings',
+  // Map sidebar — offer indicators and their services
+  heartbeat: 'ph:heartbeat',
   storefront: 'ph:storefront',
   firstAidKit: 'ph:first-aid-kit',
   firstAid: 'ph:first-aid',

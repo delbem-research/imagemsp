@@ -7,7 +7,11 @@ import {
   buildWorkspaceConfig,
   GROUP_OPTIONS,
 } from '@/components/map/lib/workspaceConfig';
-import { OFFER_SERVICES } from '@/config/offer';
+import {
+  isOfferCategory,
+  OFFER_CATEGORIES,
+  OFFER_CATEGORY_IDS,
+} from '@/config/offer';
 import { thresholdsFor } from '@/config/thresholds';
 import type { DistrictCounts } from '@/data-gateway/schema';
 import {
@@ -48,7 +52,7 @@ describe('offer indicators — rates', () => {
     const [row] = buildMapRows({
       counts: [AREA],
       year: 2025,
-      category: 'offer-65plus',
+      category: 'health-65plus',
       group: 'ubs',
     });
 
@@ -65,7 +69,7 @@ describe('offer indicators — rates', () => {
     const [row] = buildMapRows({
       counts: [AREA],
       year: 2025,
-      category: 'offer-65plus',
+      category: 'health-65plus',
       group: 'hospitais',
     });
 
@@ -73,16 +77,26 @@ describe('offer indicators — rates', () => {
   });
 
   test('every service has class breaks whose first class holds only zero', () => {
-    for (const service of OFFER_SERVICES) {
-      const breaks = thresholdsFor({
-        category: 'offer-65plus',
-        group: service,
-      });
+    for (const category of OFFER_CATEGORY_IDS) {
+      for (const service of OFFER_CATEGORIES[category]) {
+        const breaks = thresholdsFor({ category, group: service });
 
-      expect(breaks).toHaveLength(6);
-      expect(breaks[0]).toBeGreaterThan(0);
-      expect(breaks[0]).toBeLessThan(0.01);
+        expect(breaks).toHaveLength(6);
+        expect(breaks[0]).toBeGreaterThan(0);
+        expect(breaks[0]).toBeLessThan(0.01);
+      }
     }
+  });
+
+  test('a service is painted only under its own category', () => {
+    expect(() => {
+      return buildMapRows({
+        counts: [AREA],
+        year: 2025,
+        category: 'food-65plus',
+        group: 'ubs',
+      });
+    }).toThrow('[mapRows]');
   });
 });
 
@@ -145,11 +159,11 @@ describe('offer indicators — contract', () => {
 });
 
 describe('offer indicators — sidebar and legend', () => {
-  const config = (category: 'offer-65plus' | 'cumulative-total') => {
+  const config = (category: 'health-65plus' | 'cumulative-total') => {
     return buildWorkspaceConfig({
       level: 'distrito',
       category,
-      group: category === 'offer-65plus' ? 'ubs' : '65',
+      group: category === 'health-65plus' ? 'ubs' : '65',
       years: [2000, 2025, 2050],
       defaultYear: 2025,
       elderlyHistogram: [],
@@ -171,16 +185,25 @@ describe('offer indicators — sidebar and legend', () => {
     ]);
   });
 
-  test('the offer category lists the four services in its second menu', () => {
-    expect(
-      GROUP_OPTIONS['offer-65plus'].map((option) => {
+  test('each offer category lists its own services in the second menu', () => {
+    const services = (category: keyof typeof GROUP_OPTIONS) => {
+      return GROUP_OPTIONS[category].map((option) => {
         return option.value;
-      })
-    ).toEqual(['ubs', 'hospitais', 'restaurantes', 'esporte']);
+      });
+    };
+
+    expect(services('health-65plus')).toEqual(['ubs', 'hospitais']);
+    expect(services('food-65plus')).toEqual(['restaurantes']);
+    expect(services('leisure-65plus')).toEqual(['esporte']);
+  });
+
+  test('tells the offer categories from the share ones', () => {
+    expect(OFFER_CATEGORY_IDS.every(isOfferCategory)).toBe(true);
+    expect(isOfferCategory('cumulative-total')).toBe(false);
   });
 
   test('the offer legend labels plain numbers and names the zero class', () => {
-    const format = legendLabelFormat('offer-65plus');
+    const format = legendLabelFormat('leisure-65plus');
 
     if (format.type !== 'custom') {
       throw new Error('expected a custom label format');

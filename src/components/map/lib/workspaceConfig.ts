@@ -4,6 +4,7 @@ import { ICONS } from '@/components/map/lib/icons';
 import type {
   Category,
   Group,
+  OfferCategory,
   OfferService,
 } from '@/components/map/lib/indicators';
 import {
@@ -11,7 +12,13 @@ import {
   MAP_LEVELS,
   type MapLevel,
 } from '@/components/map/lib/mapLevels';
-import { OFFER_LABELS, OFFER_SERVICES, OFFER_YEAR } from '@/config/offer';
+import {
+  isOfferCategory,
+  OFFER_CATEGORIES,
+  OFFER_CATEGORY_IDS,
+  OFFER_LABELS,
+  OFFER_YEAR,
+} from '@/config/offer';
 
 /** Menu ids used by the GeovisWorkspace left sidebar and selection record. */
 export const LEVEL_MENU_ID = 'level';
@@ -52,11 +59,21 @@ const CATEGORY_OPTIONS: { value: Category; label: string; icon: string }[] = [
     // A closed band rather than a cumulative total.
     icon: ICONS.chartBar,
   },
+  // Facilities rather than people, one category per kind of service.
   {
-    value: 'offer-65plus',
-    label: 'oferta de serviços (por 10 mil idosos)',
-    // Facilities rather than people.
-    icon: ICONS.buildings,
+    value: 'health-65plus',
+    label: 'serviços de saúde (por 10 mil idosos)',
+    icon: ICONS.heartbeat,
+  },
+  {
+    value: 'food-65plus',
+    label: 'serviços de alimentação (por 10 mil idosos)',
+    icon: ICONS.forkKnife,
+  },
+  {
+    value: 'leisure-65plus',
+    label: 'serviços de lazer (por 10 mil idosos)',
+    icon: ICONS.soccerBall,
   },
 ];
 
@@ -68,8 +85,42 @@ const CATEGORY_OPTIONS: { value: Category; label: string; icon: string }[] = [
 const TIMELINE_CATEGORIES: Category[] = CATEGORY_OPTIONS.map((option) => {
   return option.value;
 }).filter((category) => {
-  return category !== 'offer-65plus';
+  return !isOfferCategory(category);
 });
+
+/**
+ * Builds a per-offer-category table from one value per category.
+ *
+ * @param value - The value for one category.
+ * @returns The value for every offer category.
+ */
+const byOfferCategory = <T>(
+  value: (category: OfferCategory) => T
+): Record<OfferCategory, T> => {
+  return Object.fromEntries(
+    OFFER_CATEGORY_IDS.map((category) => {
+      return [category, value(category)];
+    })
+  ) as Record<OfferCategory, T>;
+};
+
+/**
+ * One entry per service of an offer category, e.g. its menu label or title.
+ *
+ * @param category - The offer category.
+ * @param value - The entry for one service.
+ * @returns `service → entry` for the category's services.
+ */
+const byService = <T>(
+  category: OfferCategory,
+  value: (service: OfferService) => T
+): Partial<Record<Group, T>> => {
+  return Object.fromEntries(
+    OFFER_CATEGORIES[category].map((service) => {
+      return [service, value(service)];
+    })
+  );
+};
 
 /** Geographic level options, one per {@link MapLevel}. */
 const LEVEL_OPTIONS: { value: MapLevel; label: string; icon: string }[] =
@@ -101,8 +152,10 @@ export const GROUP_OPTIONS: Record<
     { value: '70-74', label: '70 a 74 anos' },
     { value: '75', label: '75 anos ou mais' },
   ],
-  'offer-65plus': OFFER_SERVICES.map((service) => {
-    return { value: service, label: OFFER_LABELS[service].menu };
+  ...byOfferCategory((category) => {
+    return OFFER_CATEGORIES[category].map((service) => {
+      return { value: service, label: OFFER_LABELS[service].menu };
+    });
   }),
 };
 
@@ -166,11 +219,9 @@ export const MAP_TITLES: Record<Category, Partial<Record<Group, string>>> = {
     '70-74': '70–74 ANOS COMO % DA POPULAÇÃO 65+',
     '75': '75+ COMO % DA POPULAÇÃO 65+',
   },
-  'offer-65plus': Object.fromEntries(
-    OFFER_SERVICES.map((service) => {
-      return [service, offerTitle(service)];
-    })
-  ),
+  ...byOfferCategory((category) => {
+    return byService(category, offerTitle);
+  }),
 };
 
 export const MAP_DESCRIPTIONS: Record<
@@ -191,11 +242,9 @@ export const MAP_DESCRIPTIONS: Record<
     '70-74': 'Parcela da população 65+ na faixa de 70 a 74 anos.',
     '75': 'Parcela da população 65+ com 75 anos ou mais.',
   },
-  'offer-65plus': Object.fromEntries(
-    OFFER_SERVICES.map((service) => {
-      return [service, offerDescription(service)];
-    })
-  ),
+  ...byOfferCategory((category) => {
+    return byService(category, offerDescription);
+  }),
 };
 
 /**
@@ -435,11 +484,10 @@ export const buildWorkspaceConfig = ({
                 id: GROUP_MENU_ID,
                 // The second menu lists age bands, or services for the offer
                 // indicator; its heading follows.
-                title: category === 'offer-65plus' ? 'Serviço' : 'Faixa etária',
-                icon:
-                  category === 'offer-65plus'
-                    ? ICONS.storefront
-                    : ICONS.usersThree,
+                title: isOfferCategory(category) ? 'Serviço' : 'Faixa etária',
+                icon: isOfferCategory(category)
+                  ? ICONS.storefront
+                  : ICONS.usersThree,
                 control: {
                   kind: 'variations',
                   menuId: GROUP_MENU_ID,

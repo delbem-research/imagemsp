@@ -1,21 +1,29 @@
-export type Category =
+/** The categories that paint a population share, along the timeline. */
+export type ShareCategory =
   | 'cumulative-total'
   | 'cumulative-65plus'
-  | '5year-65plus'
-  | 'offer-65plus';
+  | '5year-65plus';
+
+/**
+ * The categories that paint public facilities per 10 thousand residents aged
+ * 65+ — health, food and leisure — for one year (see `config/offer`).
+ */
+export type OfferCategory = 'health-65plus' | 'food-65plus' | 'leisure-65plus';
+
+export type Category = ShareCategory | OfferCategory;
 
 /** The age bands of the three population-share categories. */
 export type AgeGroup = '65' | '70' | '75' | '65-69' | '70-74';
 
 /**
- * The services of the `offer-65plus` category: public facilities counted per
- * area and set against its 65+ population. Each is also a point overlay.
+ * The services of the offer categories: public facilities counted per area and
+ * set against its 65+ population. Each is also a point overlay.
  */
 export type OfferService = 'ubs' | 'hospitais' | 'restaurantes' | 'esporte';
 
 /**
  * The second menu's value: an age band for the share categories, a service for
- * `offer-65plus`.
+ * the offer ones.
  */
 export type Group = AgeGroup | OfferService;
 
@@ -60,7 +68,7 @@ export type DistrictCounts = {
   /** Residents of every age — the denominator of the `cumulative-total` series. */
   total: number;
   /**
-   * Public facilities of each `offer-65plus` service in the area, as mapped
+   * Public facilities of each offer service in the area, as mapped
    * today. The same in every year of the series: only the population is
    * projected, which is why the offer indicators are painted for one year.
    */

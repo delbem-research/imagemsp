@@ -2,6 +2,7 @@ import type { LabelFormatSpec } from '@ttoss/geovis';
 
 import type { Category } from '@/components/map/lib/indicators';
 import { MAP_LEVELS, type MapLevel } from '@/components/map/lib/mapLevels';
+import { isOfferCategory } from '@/config/offer';
 
 /** A number as the legend and tooltip print it: pt-BR, at most two decimals. */
 export const formatRate = (value: number): string => {
@@ -19,10 +20,10 @@ export const formatRate = (value: number): string => {
  * @returns The legend's `labelFormat`.
  *
  * @example
- * legendLabelFormat('offer-65plus'); // labels: 'nenhum', '< 1', '1 – 2', …, '> 8'
+ * legendLabelFormat('health-65plus'); // labels: 'nenhum', '< 1', '1 – 2', …, '> 8'
  */
 export const legendLabelFormat = (category: Category): LabelFormatSpec => {
-  if (category !== 'offer-65plus') {
+  if (!isOfferCategory(category)) {
     return { type: 'percentage', decimals: 0 };
   }
 
