@@ -52,7 +52,8 @@ export const MAP_LEVELS: Record<MapLevel, MapLevelConfig> = {
     geometryCredit: 'Distritos Municipais de São Paulo',
   },
   subprefeitura: {
-    label: 'Subprefeituras (32)',
+    // No count: it depends on the year (31 until 2012, 32 since).
+    label: 'Subprefeituras',
     sourceId: 'sp-subprefeituras',
     layerId: 'sp-subprefeituras-fill',
     mapDataId: 'pop-data-subprefeituras',

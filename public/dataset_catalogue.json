@@ -1103,7 +1103,7 @@
       "collection_id": "geosampa",
       "slug": "subprefeituras-distritos",
       "title": "Subprefeituras de São Paulo e seus distritos municipais",
-      "description": "As 32 subprefeituras da cidade, com código, sigla, região e os distritos do projeto (por `geometry_id`) que cada uma agrupa. É a correspondência que o gateway usa para somar as contagens dos distritos no recorte por subprefeitura.",
+      "description": "Todas as subprefeituras que a cidade teve desde a criação da divisão, em 2002 — as 32 atuais e as extintas —, com código, sigla, região, os distritos do projeto (por `geometry_id`) que cada uma agrupa e os anos em que vigorou. É a correspondência que o gateway usa para somar as contagens dos distritos no recorte por subprefeitura, ano a ano, na divisão em vigor em cada ano.",
       "file": "src/data-source-static/data/subprefeituras.json",
       "format": "JSON",
       "source": {
@@ -1112,12 +1112,12 @@
           "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:distrito_municipal",
           "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:subprefeitura"
         ],
-        "notes": "Gerado por `scripts/generateSubprefeituras.ts`. A correspondência é oficial: a camada `distrito_municipal` do GeoSampa informa a subprefeitura de cada distrito. A ligação com os distritos do projeto é feita pelo nome, sem acento nem caixa, e o script falha se algum dos 96 não casar exatamente uma vez. Os nomes das subprefeituras vêm sem acento na fonte (`BUTANTA`, `SE`) e são substituídos por uma tabela de nomes de exibição no script."
+        "notes": "Gerado por `scripts/generateSubprefeituras.ts`. A correspondência é oficial: a camada `distrito_municipal` do GeoSampa informa a subprefeitura de cada distrito. A ligação com os distritos do projeto é feita pelo nome, sem acento nem caixa, e o script falha se algum dos 96 não casar exatamente uma vez. Os nomes das subprefeituras vêm sem acento na fonte (`BUTANTA`, `SE`) e são substituídos por uma tabela de nomes de exibição no script. A divisão é versionada: cada subprefeitura tem `validFrom` e `validTo` (nulo enquanto vigora). O GeoSampa só tem a divisão atual; uma subprefeitura extinta é reconstruída no script a partir das atuais em que foi dividida — hoje só Vila Prudente-Sapopemba (id 33), que agrupou Vila Prudente, São Lucas e Sapopemba de 2002 (Lei 13.399/2002) até a criação da Subprefeitura de Sapopemba (Lei 15.764/2013). As renomeações desde 2002 (Pirituba/Jaraguá em 2005, Perus/Anhanguera em 2019, Casa Verde/Limão/Cachoeirinha em 2023) não mudaram distritos de lugar e não são versionadas. Antes de 2002 não havia subprefeituras, e nenhuma vigora nesses anos."
       },
       "generated_by": "scripts/generateSubprefeituras.ts",
       "temporal": {
         "reference_period": null,
-        "retrieved_at": "2026-09-23"
+        "retrieved_at": "2026-09-25"
       },
       "spatial": {
         "coverage": "Município de São Paulo",
@@ -1129,15 +1129,15 @@
         "contains_personal_data": false
       },
       "stats": {
-        "rows": 32,
-        "size_bytes": 5116,
-        "checkSum": "sha256:218534f4c035f10a75bf208b408a4d524b780eac2cf9726c6511971a6accbd45"
+        "rows": 33,
+        "size_bytes": 6870,
+        "checkSum": "sha256:ea95ac42145215a7b42f11a0db92215964401ac8b614b3f0f304eac984cf1ac0"
       },
       "schema": {
         "fields": [
           {
             "name": "id",
-            "description": "`cd_identificador_subprefeitura` do GeoSampa (1–32); também o id da feição em `subprefeituras.geojson`",
+            "description": "`cd_identificador_subprefeitura` do GeoSampa (1–32) para as atuais; 33 em diante para as extintas. Também o id da feição em `subprefeituras.geojson`",
             "role": "identifier"
           },
           {
@@ -1159,6 +1159,14 @@
           {
             "name": "distritos",
             "description": "`geometry_id`s dos distritos que a subprefeitura agrupa (a chave do join com `maps-data.json`)"
+          },
+          {
+            "name": "validFrom",
+            "description": "Primeiro ano em que a subprefeitura vigorou"
+          },
+          {
+            "name": "validTo",
+            "description": "Último ano em que vigorou, ou nulo enquanto ainda vigora"
           }
         ]
       },
@@ -1169,17 +1177,17 @@
       "collection_id": "geosampa",
       "slug": "subprefeituras-contorno",
       "title": "Contornos das subprefeituras de São Paulo",
-      "description": "Malha (polígonos) das 32 subprefeituras, usada pelo mapa no recorte por subprefeitura. Join pelo `id` nativo da feição, igual ao `id` de `subprefeituras.json`.",
+      "description": "Malha (polígonos) de todas as subprefeituras desde 2002 — as 32 atuais e as extintas —, usada pelo mapa no recorte por subprefeitura. Cada feição traz os anos em que vigorou, e o mapa filtra a camada pelas que estão em vigor no ano da linha do tempo. Join pelo `id` nativo da feição, igual ao `id` de `subprefeituras.json`.",
       "file": "public/subprefeituras.geojson",
       "format": "GeoJSON",
       "source": {
         "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:subprefeitura",
-        "notes": "Camada `geoportal:subprefeitura` do GeoSampa (escala 1:5.000, ~84 mil vértices), simplificada por Douglas-Peucker com tolerância de 40 m e coordenadas arredondadas a 5 casas (~1 m) por `scripts/generateSubprefeituras.ts`, para ficar com peso e detalhe próximos da malha de distritos. Cada polígono é simplificado isoladamente, então divisas compartilhadas podem diferir alguns metros de um lado para o outro."
+        "notes": "Camada `geoportal:subprefeitura` do GeoSampa (escala 1:5.000, ~84 mil vértices), simplificada por Douglas-Peucker com tolerância de 40 m e coordenadas arredondadas a 5 casas (~1 m) por `scripts/generateSubprefeituras.ts`, para ficar com peso e detalhe próximos da malha de distritos. Cada polígono é simplificado isoladamente, então divisas compartilhadas podem diferir alguns metros de um lado para o outro. O polígono de uma subprefeitura extinta é a união (`polygon-clipping`) dos polígonos das atuais em que foi dividida, feita no detalhe original do GeoSampa e só depois simplificada, para a divisa interna não sobrar como costura."
       },
       "generated_by": "scripts/generateSubprefeituras.ts",
       "temporal": {
         "reference_period": null,
-        "retrieved_at": "2026-09-23"
+        "retrieved_at": "2026-09-25"
       },
       "spatial": {
         "coverage": "Município de São Paulo",
@@ -1191,20 +1199,20 @@
         "contains_personal_data": false
       },
       "stats": {
-        "features": 32,
-        "size_bytes": 66263,
-        "checkSum": "sha256:eef97df33b7634dce6fcad6da8fac7d8ad00e42c09a8d244141ce6e9635b8eb7"
+        "features": 33,
+        "size_bytes": 70130,
+        "checkSum": "sha256:2a15ee7f7dbb89f22f9887abeee525bfc4373b0517802b8f326cd0c234ae9c29"
       },
       "schema": {
         "fields": [
           {
             "name": "id",
-            "description": "Id nativo da feição (1–32) — a chave do join com `subprefeituras.json`",
+            "description": "Id nativo da feição (1–32 para as atuais, 33 em diante para as extintas) — a chave do join com `subprefeituras.json`",
             "role": "identifier"
           },
           {
             "name": "properties",
-            "description": "Nulo em todas as feições; os atributos ficam em `subprefeituras.json`"
+            "description": "`id` (o mesmo id da feição, repetido porque os filtros do MapLibre só leem propriedades), `nome`, `validFrom` e `validTo` — os mesmos anos de `subprefeituras.json`, que tem os demais atributos"
           },
           {
             "name": "geometry",

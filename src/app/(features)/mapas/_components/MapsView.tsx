@@ -31,6 +31,10 @@ import {
   buildMapRows,
 } from '@/components/map/lib/mapRows';
 import {
+  areaLayerFilter,
+  paintedLevelFor,
+} from '@/components/map/lib/subprefeituraDivision';
+import {
   buildWorkspaceConfig,
   CATEGORY_MENU_ID,
   getDefaultGroup,
@@ -100,9 +104,16 @@ const LEGEND_ID = 'pop-legend';
  * since summing districts smooths out their extremes.
  *
  * @param params.data - Canonical maps data from the gateway.
- * @param params.level - The geographic level to paint.
+ * @param params.level - The geographic level selected. A year with no
+ * subprefeitura division paints the districts instead, with a note in the
+ * legend subtitle (see `paintedLevelFor`).
  * @param params.category - The demographic category to visualize.
  * @param params.group - The age group to visualize.
+ * The subprefeitura level is versioned — the division changed over the
+ * series — so its layer is filtered to the subprefeituras in force in the year
+ * painted: one GeoJSON holds every version, and a year change only swaps the
+ * filter, never the geometry.
+ *
  * @param params.year - The projection year to visualize — for an offer
  * indicator, the fixed year it is painted for, whatever the timeline says.
  * @param params.overlays - The overlays' toggles and loaded data.
@@ -110,7 +121,7 @@ const LEGEND_ID = 'pop-legend';
  */
 const buildSpec = ({
   data,
-  level,
+  level: selectedLevel,
   category,
   group,
   year,
@@ -125,6 +136,7 @@ const buildSpec = ({
   zoom: number;
   overlays: OverlaysSnapshot;
 }): VisualizationSpec => {
+  const { level, note } = paintedLevelFor({ data, level: selectedLevel, year });
   const areas = MAP_LEVELS[level];
   const rows = buildMapRows({
     counts: level === 'distrito' ? data.counts : data.subprefeituraCounts,
@@ -156,7 +168,9 @@ const buildSpec = ({
   const title = indicator
     ? `${indicator} ${levelPhrase} — ${year}`
     : String(year);
-  const description = mapDescription({ category, group, level });
+  const description = [mapDescription({ category, group, level }), note]
+    .filter(Boolean)
+    .join(' ');
 
   // Lookup used by the spec-driven hover tooltip to resolve a feature's row.
   const rowLookup = new Map(
@@ -218,6 +232,7 @@ const buildSpec = ({
         id: areas.layerId,
         sourceId: areas.sourceId,
         geometry: 'polygon',
+        ...areaLayerFilter({ data, level, year }),
         mapDataId: areas.mapDataId,
         activeLegendId: LEGEND_ID,
         legends: [

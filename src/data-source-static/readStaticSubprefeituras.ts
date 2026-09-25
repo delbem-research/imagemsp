@@ -1,13 +1,40 @@
 import subprefeiturasData from './data/subprefeituras.json';
 import type { StaticSubprefeiturasDataSource } from './types';
 
+/**
+ * Whether a first and last year in force are usable: whole years, and a last
+ * one (`null` while still in force) no earlier than the first.
+ */
+const isValidity = (validFrom: unknown, validTo: unknown): boolean => {
+  if (!Number.isInteger(validFrom)) {
+    return false;
+  }
+
+  return (
+    validTo === null ||
+    (Number.isInteger(validTo) && (validTo as number) >= (validFrom as number))
+  );
+};
+
+/** Whether a district list is non-empty and all whole-number ids. */
+const isDistrictList = (distritos: unknown): boolean => {
+  return (
+    Array.isArray(distritos) &&
+    distritos.length > 0 &&
+    distritos.every((id) => {
+      return Number.isInteger(id);
+    })
+  );
+};
+
 const isSubprefeituraData = (value: unknown): boolean => {
   if (typeof value !== 'object' || value === null) {
     return false;
   }
 
   const row = value as Record<string, unknown>;
-  const distritos = row['distritos'];
+  const validFrom = row['validFrom'];
+  const validTo = row['validTo'];
 
   return (
     Number.isInteger(row['id']) &&
@@ -15,11 +42,8 @@ const isSubprefeituraData = (value: unknown): boolean => {
     typeof row['sigla'] === 'string' &&
     typeof row['nome'] === 'string' &&
     typeof row['regiao'] === 'string' &&
-    Array.isArray(distritos) &&
-    distritos.length > 0 &&
-    distritos.every((id) => {
-      return Number.isInteger(id);
-    })
+    isDistrictList(row['distritos']) &&
+    isValidity(validFrom, validTo)
   );
 };
 
@@ -31,6 +55,7 @@ const isSubprefeituraData = (value: unknown): boolean => {
  * @remarks
  * An empty `distritos` list is rejected: a subprefeitura grouping nothing would
  * paint with no population behind it, which the map would show as a 0% rate.
+ * So is a `validTo` before `validFrom`, a subprefeitura in force in no year.
  */
 const isStaticSubprefeiturasDataSource = (
   value: unknown

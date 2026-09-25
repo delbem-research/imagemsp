@@ -101,9 +101,17 @@ export type MapsDataContract = {
    * One entry per subprefeitura per year: the sums of its districts' counts.
    * Summed counts, not averaged rates — a rate is re-derived from these, so a
    * populous district weighs in proportion to its population.
+   *
+   * Each year is summed into the division in force that year, so a former
+   * subprefeitura has entries for its own years only. A year before the
+   * division existed (2000) has none.
    */
   subprefeituraCounts: DistrictCounts[];
-  /** The 32 subprefeituras, with the districts each one groups. */
+  /**
+   * Every subprefeitura in force at some point of the series, current and
+   * former, with the districts each one groups and the years it was in force.
+   * Pick the ones of a year with {@link isInForce}.
+   */
   subprefeituras: Subprefeitura[];
 };
 
@@ -114,4 +122,31 @@ export type Subprefeitura = {
   name: string;
   /** Names of the districts it groups, alphabetically. */
   districtNames: string[];
+  /** First year it was in force. */
+  validFrom: number;
+  /** Last year it was in force, or `null` while it still is. */
+  validTo: number | null;
+};
+
+/**
+ * Whether a versioned area — a subprefeitura, current or former — was in force
+ * in a year. The one rule for it: the map filters polygons by it and the
+ * gateway sums counts by it, so the two cannot disagree on a year.
+ *
+ * @param area - The area's first and last year in force (`validTo: null` while
+ * it still is).
+ * @param year - The year asked about.
+ * @returns `true` when `validFrom ≤ year ≤ validTo`.
+ *
+ * @example
+ * isInForce({ validFrom: 2002, validTo: 2012 }, 2010); // true
+ * isInForce({ validFrom: 2013, validTo: null }, 2010); // false
+ */
+export const isInForce = (
+  area: { validFrom: number; validTo: number | null },
+  year: number
+): boolean => {
+  return (
+    area.validFrom <= year && (area.validTo === null || year <= area.validTo)
+  );
 };
