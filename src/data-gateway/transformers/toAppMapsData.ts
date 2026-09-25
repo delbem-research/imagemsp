@@ -5,11 +5,12 @@ import type {
   StaticMapsDataSource,
   StaticSubprefeiturasDataSource,
 } from '../../data-source-static/types';
-import type {
-  DistrictCounts,
-  MapsDataContract,
-  OfferService,
-  Subprefeitura,
+import {
+  type DistrictCounts,
+  isInForce,
+  type MapsDataContract,
+  type OfferService,
+  type Subprefeitura,
 } from '../schema';
 
 /** Facilities per service, keyed by district name as the point CSVs spell it. */
@@ -128,44 +129,53 @@ const validateYears = (counts: DistrictCounts[]): number[] => {
 };
 
 /**
- * Maps each district to its subprefeitura, asserting the two match one to one.
+ * Maps each district to its subprefeitura in one year, asserting the two match
+ * one to one among the subprefeituras in force that year.
  *
- * @param params.counts - District counts for every year.
- * @param params.subprefeituras - The subprefeituras and their districts.
- * @returns `district geometryId → subprefeitura id`.
- * @throws Unless every district belongs to exactly one subprefeitura, and every
- * district a subprefeitura names has counts — a district left out would drop
- * its population from the totals without any visible sign.
+ * @param params.districtNames - `geometryId → name` of every district with
+ * counts.
+ * @param params.subprefeituras - Every subprefeitura, current and former.
+ * @param params.year - The year whose division is matched.
+ * @returns `district geometryId → subprefeitura id`, empty for a year before
+ * the division existed (no subprefeitura in force).
+ * @throws Unless every district belongs to exactly one subprefeitura in force,
+ * and every district such a subprefeitura names has counts — a district left
+ * out would drop its population from the totals without any visible sign, and
+ * one counted twice would inflate two.
  */
 const matchSubprefeituras = ({
-  counts,
+  districtNames,
   subprefeituras,
+  year,
 }: {
-  counts: DistrictCounts[];
+  districtNames: Map<number, string>;
   subprefeituras: StaticSubprefeiturasDataSource['subprefeituras'];
+  year: number;
 }): Map<number, number> => {
   const subByDistrict = new Map<number, number>();
+  const inForce = subprefeituras.filter((sub) => {
+    return isInForce(sub, year);
+  });
 
-  for (const sub of subprefeituras) {
+  if (inForce.length === 0) {
+    return subByDistrict;
+  }
+
+  for (const sub of inForce) {
     for (const districtId of sub.distritos) {
       if (subByDistrict.has(districtId)) {
         throw new Error(
-          `[data-gateway] district ${districtId} belongs to more than one subprefeitura`
+          `[data-gateway] district ${districtId} belongs to more than one subprefeitura in ${year}`
         );
       }
       subByDistrict.set(districtId, sub.id);
     }
   }
 
-  const districtNames = new Map<number, string>();
-  for (const entry of counts) {
-    districtNames.set(entry.geometryId, entry.name);
-  }
-
   for (const [districtId, name] of districtNames) {
     if (!subByDistrict.has(districtId)) {
       throw new Error(
-        `[data-gateway] district ${districtId} (${name}) belongs to no subprefeitura; its population would be left out`
+        `[data-gateway] district ${districtId} (${name}) belongs to no subprefeitura in ${year}; its population would be left out`
       );
     }
   }
@@ -179,6 +189,28 @@ const matchSubprefeituras = ({
   }
 
   return subByDistrict;
+};
+
+/**
+ * Asserts no two subprefeituras share an id. The id is the polygon's feature
+ * id, so a shared one would paint two areas from one row.
+ *
+ * @param subprefeituras - Every subprefeitura, current and former.
+ * @throws On the first repeated id.
+ */
+const assertUniqueIds = (
+  subprefeituras: StaticSubprefeiturasDataSource['subprefeituras']
+): void => {
+  const seen = new Set<number>();
+
+  for (const sub of subprefeituras) {
+    if (seen.has(sub.id)) {
+      throw new Error(
+        `[data-gateway] two subprefeituras share the id ${sub.id}; one polygon would paint both`
+      );
+    }
+    seen.add(sub.id);
+  }
 };
 
 /**
@@ -198,7 +230,10 @@ const addCounts = (sum: DistrictCounts, entry: DistrictCounts): void => {
 };
 
 /**
- * Sums district counts into subprefeitura counts, year by year.
+ * Sums district counts into subprefeitura counts, year by year, each year into
+ * the division in force that year — so 2010 sums Vila Prudente, São Lucas and
+ * Sapopemba into the one subprefeitura they formed then, and 2000, before the
+ * division existed, sums into none.
  *
  * Counts are summed and nothing is averaged: the map re-derives every rate from
  * these sums, so a subprefeitura's 65+ share is its districts' 65+ residents
@@ -209,7 +244,8 @@ const addCounts = (sum: DistrictCounts, entry: DistrictCounts): void => {
  * @param params.counts - District counts for every year.
  * @param params.subprefeituras - The subprefeituras and their districts.
  * @returns The subprefeitura counts and the tooltip's district lists.
- * @throws If districts and subprefeituras do not match one to one (see
+ * @throws If two subprefeituras share an id, or districts and the
+ * subprefeituras in force do not match one to one in some year (see
  * {@link matchSubprefeituras}).
  *
  * @example
@@ -226,10 +262,19 @@ const aggregateSubprefeituras = ({
   subprefeituraCounts: DistrictCounts[];
   subprefeituras: Subprefeitura[];
 } => {
-  const subByDistrict = matchSubprefeituras({ counts, subprefeituras });
+  assertUniqueIds(subprefeituras);
+
   const districtNames = new Map(
     counts.map((entry) => {
       return [entry.geometryId, entry.name] as const;
+    })
+  );
+  const subByDistrictPerYear = new Map(
+    yearsOf(counts).map((year) => {
+      return [
+        year,
+        matchSubprefeituras({ districtNames, subprefeituras, year }),
+      ] as const;
     })
   );
 
@@ -241,7 +286,13 @@ const aggregateSubprefeituras = ({
   const sums = new Map<string, DistrictCounts>();
 
   for (const entry of counts) {
-    const subId = subByDistrict.get(entry.geometryId) as number;
+    const subId = subByDistrictPerYear.get(entry.year)?.get(entry.geometryId);
+
+    // A year before the division existed: nothing to sum into.
+    if (subId === undefined) {
+      continue;
+    }
+
     const key = `${entry.year}|${subId}`;
     const sum = sums.get(key) ?? {
       geometryId: subId,
@@ -273,6 +324,8 @@ const aggregateSubprefeituras = ({
           .sort((a, b) => {
             return a.localeCompare(b, 'pt-BR');
           }),
+        validFrom: sub.validFrom,
+        validTo: sub.validTo,
       };
     }),
   };

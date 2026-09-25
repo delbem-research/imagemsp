@@ -47,6 +47,7 @@
     "husky": "^9.1.7",
     "jest": "^30.4.2",
     "lint-staged": "^17.0.5",
+    "polygon-clipping": "0.15.7",
     "prettier": "^3.8.3",
     "typescript": "~6.0.3"
   },

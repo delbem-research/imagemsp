@@ -35,6 +35,8 @@ const MOCK_SUBPREFEITURAS = {
       nome: 'Mooca',
       regiao: 'Leste',
       distritos: [8],
+      validFrom: 2002,
+      validTo: null,
     },
   ],
 };
@@ -157,7 +159,19 @@ describe('createDataGateway', () => {
         count70to74: 1100,
         count75plus: 2100,
         total: 47000,
-        services: { ubs: 2, hospitais: 0, restaurantes: 0, esporte: 0 },
+        services: {
+          ubs: 2,
+          hospitais: 0,
+          urgencia: 0,
+          samu: 0,
+          ambulatorios: 0,
+          'saude-mental': 0,
+          'dst-aids': 0,
+          vigilancia: 0,
+          animais: 0,
+          restaurantes: 0,
+          esporte: 0,
+        },
       });
       expect(mockReadStaticMapsData).toHaveBeenCalledTimes(1);
     });
@@ -168,7 +182,13 @@ describe('createDataGateway', () => {
       const data = await gateway.getMapsData();
 
       expect(data.subprefeituras).toEqual([
-        { geometryId: 24, name: 'Mooca', districtNames: ['Belém'] },
+        {
+          geometryId: 24,
+          name: 'Mooca',
+          districtNames: ['Belém'],
+          validFrom: 2002,
+          validTo: null,
+        },
       ]);
       expect(data.subprefeituraCounts[0]).toEqual({
         geometryId: 24,
@@ -178,7 +198,19 @@ describe('createDataGateway', () => {
         count70to74: 1100,
         count75plus: 2100,
         total: 47000,
-        services: { ubs: 2, hospitais: 0, restaurantes: 0, esporte: 0 },
+        services: {
+          ubs: 2,
+          hospitais: 0,
+          urgencia: 0,
+          samu: 0,
+          ambulatorios: 0,
+          'saude-mental': 0,
+          'dst-aids': 0,
+          vigilancia: 0,
+          animais: 0,
+          restaurantes: 0,
+          esporte: 0,
+        },
       });
     });
 
@@ -190,10 +222,17 @@ describe('createDataGateway', () => {
         return layer;
       });
       expect(layers.sort()).toEqual([
+        'ambulatorios',
+        'animais',
+        'dst-aids',
         'esporte',
         'hospitais',
         'restaurantes',
+        'samu',
+        'saude-mental',
         'ubs',
+        'urgencia',
+        'vigilancia',
       ]);
     });
 

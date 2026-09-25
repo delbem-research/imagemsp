@@ -33,6 +33,8 @@ import lucideZoomIn from '@iconify/icons-lucide/zoom-in';
 // Phosphor — double caret (bold for toggle buttons)
 // Phosphor — variacoes de faixa etaria na sidebar do mapa
 import phArrowsInLineHorizontal from '@iconify/icons-ph/arrows-in-line-horizontal';
+// Phosphor — sidebar do mapa (cabecalhos de secao e variacoes de indicador)
+import phBrain from '@iconify/icons-ph/brain';
 import phCalendarBlank from '@iconify/icons-ph/calendar-blank';
 import phCaretDoubleLeftBold from '@iconify/icons-ph/caret-double-left-bold';
 import phCaretDoubleRightBold from '@iconify/icons-ph/caret-double-right-bold';
@@ -42,7 +44,6 @@ import phCaretLeft from '@iconify/icons-ph/caret-left';
 import phCaretLeftBold from '@iconify/icons-ph/caret-left-bold';
 import phCaretRight from '@iconify/icons-ph/caret-right';
 import phCaretRightBold from '@iconify/icons-ph/caret-right-bold';
-// Phosphor — sidebar do mapa (cabecalhos de secao e variacoes de indicador)
 import phChartBar from '@iconify/icons-ph/chart-bar';
 import phChartDonut from '@iconify/icons-ph/chart-donut';
 import phChartPieSlice from '@iconify/icons-ph/chart-pie-slice';
@@ -53,11 +54,17 @@ import phForkKnife from '@iconify/icons-ph/fork-knife';
 import phGauge from '@iconify/icons-ph/gauge';
 import phHeartbeat from '@iconify/icons-ph/heartbeat';
 import phMapTrifold from '@iconify/icons-ph/map-trifold';
+import phPawPrint from '@iconify/icons-ph/paw-print';
 import phPlusCircle from '@iconify/icons-ph/plus-circle';
 import phPolygon from '@iconify/icons-ph/polygon';
+import phPulse from '@iconify/icons-ph/pulse';
+import phShieldCheck from '@iconify/icons-ph/shield-check';
+import phSiren from '@iconify/icons-ph/siren';
 import phSoccerBall from '@iconify/icons-ph/soccer-ball';
 import phSquaresFour from '@iconify/icons-ph/squares-four';
+import phStethoscope from '@iconify/icons-ph/stethoscope';
 import phStorefront from '@iconify/icons-ph/storefront';
+import phTestTube from '@iconify/icons-ph/test-tube';
 import phUsersThree from '@iconify/icons-ph/users-three';
 import { addIcon, Icon } from '@ttoss/react-icons';
 
@@ -86,6 +93,13 @@ addIcon('ph:first-aid-kit', phFirstAidKit);
 addIcon('ph:first-aid', phFirstAid);
 addIcon('ph:fork-knife', phForkKnife);
 addIcon('ph:soccer-ball', phSoccerBall);
+addIcon('ph:brain', phBrain);
+addIcon('ph:paw-print', phPawPrint);
+addIcon('ph:pulse', phPulse);
+addIcon('ph:shield-check', phShieldCheck);
+addIcon('ph:siren', phSiren);
+addIcon('ph:stethoscope', phStethoscope);
+addIcon('ph:test-tube', phTestTube);
 
 // Register the Lucide icons @ttoss/geovis-workspace renders by name
 addIcon('lucide:circle', lucideCircle);
@@ -148,6 +162,13 @@ export const ICONS = {
   firstAid: 'ph:first-aid',
   forkKnife: 'ph:fork-knife',
   soccerBall: 'ph:soccer-ball',
+  pulse: 'ph:pulse',
+  siren: 'ph:siren',
+  stethoscope: 'ph:stethoscope',
+  brain: 'ph:brain',
+  testTube: 'ph:test-tube',
+  shieldCheck: 'ph:shield-check',
+  pawPrint: 'ph:paw-print',
 
   // Map sidebar — age-group variations
   plusCircle: 'ph:plus-circle',
