@@ -11,7 +11,14 @@
 /** Overlays drawn as points, each built from a CSV in `data/raw/`. */
 export const POINT_OVERLAY_IDS = [
   'hospitais',
+  'urgencia',
+  'samu',
   'ubs',
+  'ambulatorios',
+  'saude-mental',
+  'dst-aids',
+  'vigilancia',
+  'animais',
   'restaurantes',
   'esporte',
   'estacoes',
@@ -86,10 +93,13 @@ export type OverlayConfig = PointOverlayConfig | PolygonOverlayConfig;
  * hard to tell apart. That is safe because polygons always draw beneath the
  * points, so a facility inside a park stays on top of it.
  *
- * Colours are one distinct hue per overlay and deliberately none of them blue:
- * the choropleth underneath is a blue ramp (`LEGEND_COLORS`), and a blue mark
- * would vanish into the darker districts. The parks' green is darker and less
- * saturated than the UBS points' so the two read apart.
+ * Colours are one hue per overlay and deliberately none of them blue: the
+ * choropleth underneath is a blue ramp (`LEGEND_COLORS`), and a blue mark would
+ * vanish into the darker districts. With this many overlays some hues sit
+ * close; the ones meant to be read together are the ones kept apart — the
+ * emergency care (hospitals, urgência, SAMU) in the red family, the rest of
+ * the health network in distinct hues around it. The parks' green is darker and
+ * less saturated than the UBS points' so the two read apart.
  *
  * Bus stops are smaller and thinner-haloed than the other points: there are 22
  * thousand of them, and at the size of the others they would pave the city over.
@@ -111,10 +121,66 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     strokeWidth: 1.2,
   },
   {
+    id: 'urgencia',
+    kind: 'point',
+    label: 'Urgência/emergência',
+    color: '#9C1C1C',
+    radius: 4,
+    strokeWidth: 1.2,
+  },
+  {
+    id: 'samu',
+    kind: 'point',
+    label: 'Bases do SAMU',
+    color: '#00897B',
+    radius: 4,
+    strokeWidth: 1.2,
+  },
+  {
     id: 'ubs',
     kind: 'point',
     label: 'UBS',
     color: '#2E9E5B',
+    radius: 4,
+    strokeWidth: 1.2,
+  },
+  {
+    id: 'ambulatorios',
+    kind: 'point',
+    label: 'Ambulatórios especializados',
+    color: '#F28E2B',
+    radius: 4,
+    strokeWidth: 1.2,
+  },
+  {
+    id: 'saude-mental',
+    kind: 'point',
+    label: 'Saúde mental',
+    color: '#B279A2',
+    radius: 4,
+    strokeWidth: 1.2,
+  },
+  {
+    id: 'dst-aids',
+    kind: 'point',
+    label: 'Unidades DST/AIDS',
+    color: '#FF9DA7',
+    radius: 4,
+    strokeWidth: 1.2,
+  },
+  {
+    id: 'vigilancia',
+    kind: 'point',
+    label: 'Vigilância em saúde',
+    color: '#4D4D00',
+    radius: 4,
+    strokeWidth: 1.2,
+  },
+  {
+    id: 'animais',
+    kind: 'point',
+    label: 'Animais (zoonoses e hospitais veterinários)',
+    color: '#9BBB2F',
     radius: 4,
     strokeWidth: 1.2,
   },

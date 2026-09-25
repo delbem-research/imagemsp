@@ -7,7 +7,7 @@
     "language": "pt-BR",
     "status": "draft",
     "created_at": "2026-07-08",
-    "updated_at": "2026-09-23",
+    "updated_at": "2026-09-25",
     "typing_reference": "src/data-source-static/types.ts",
     "quality_notes": [
       {
@@ -1422,6 +1422,1000 @@
         ]
       },
       "derived_from": ["distritos_esporte_publico"]
+    },
+    "distritos_urgencia": {
+      "id": "distritos_urgencia",
+      "collection_id": "geosampa",
+      "slug": "distritos-urgencia",
+      "title": "Unidades de urgência e emergência da cidade de São Paulo por distrito municipal",
+      "description": "Pronto Atendimento, AMA 24h e Pronto-Socorros municipais. Um por linha, com coordenadas e distrito. 53 registros em 45 dos 96 distritos. Tipos mais frequentes: Pronto Atendimento (36), Assistência Médica Ambulatorial (11), Pronto Socorro Geral (6).",
+      "file": "src/data-source-static/data/raw/urgencia_emergencia_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_urgencia_emergencia",
+        "notes": "Camada WFS `geoportal:equipamento_saude_urgencia_emergencia` do GeoSampa, baixada em WGS84 (EPSG:4326) e reduzida às colunas úteis. A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`); todos os pontos desta camada caem dentro dele. Espaços e quebras de linha nos textos foram normalizados. Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-25"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 53,
+        "size_bytes": 8514,
+        "checkSum": "sha256:fff5d924952df38e834b6723b0204d7e730ebd36d1f411f04fd068abc3894d8b"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome do equipamento (`nm_equipamento`)"
+          },
+          {
+            "name": "tipo",
+            "description": "Tipo do equipamento (`nm_tipo_equipamento`); `SEM TIPO` quando a fonte não informa"
+          },
+          {
+            "name": "esfera",
+            "description": "Esfera administrativa (`nm_esfera_administrativa_equipamento`)"
+          },
+          {
+            "name": "endereco",
+            "description": "Logradouro e número (`tx_endereco_equipamento`)"
+          },
+          {
+            "name": "bairro",
+            "description": "Bairro (`nm_bairro_equipamento`)"
+          },
+          {
+            "name": "cep",
+            "description": "CEP (`cd_cep_equipamento`)"
+          },
+          {
+            "name": "telefone",
+            "description": "Telefone(s) (`tx_numero_telefone`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_urgencia": {
+      "id": "camada_urgencia",
+      "collection_id": "dados_processados",
+      "slug": "camada-urgencia",
+      "title": "Camada de unidades de urgência e emergência do mapa — snapshot",
+      "description": "Snapshot servido à camada correspondente do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/urgencia` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/urgencia.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_urgencia` por `scripts/generatePointsData.ts`, versionado neste repositório. A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-25"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 53,
+        "size_bytes": 15386,
+        "checkSum": "sha256:eb4f863cbb25bcecc2f77beed1246424bb86f6420e25ac966a3c79f50ed5a69b"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–53) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_urgencia`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_urgencia"]
+    },
+    "distritos_ambulatorios": {
+      "id": "distritos_ambulatorios",
+      "collection_id": "geosampa",
+      "slug": "distritos-ambulatorios",
+      "title": "Ambulatórios especializados da cidade de São Paulo por distrito municipal",
+      "description": "Centros de especialidades odontológicas, centros de reabilitação, ambulatórios de especialidades, AMA Especialidades, Unidades de Referência à Saúde do Idoso (URSI) e Casas do Parto. Um por linha, com coordenadas e distrito. 149 registros em 66 dos 96 distritos. Tipos mais frequentes: Centro/Clínica de Especialidades Odontológicas (37), Centro de Reabilitação (34), Ambulatório de Especialidades (28), SEM TIPO (16).",
+      "file": "src/data-source-static/data/raw/ambulatorios_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_ambulatorios_especializados",
+        "notes": "Camada WFS `geoportal:equipamento_saude_ambulatorios_especializados` do GeoSampa, baixada em WGS84 (EPSG:4326) e reduzida às colunas úteis. A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`); todos os pontos desta camada caem dentro dele. Espaços e quebras de linha nos textos foram normalizados. Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-25"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 149,
+        "size_bytes": 25855,
+        "checkSum": "sha256:61ed1852b386d813d327f852dd2ac782839444ab38441d1b82daf0c5dec60445"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome do equipamento (`nm_equipamento`)"
+          },
+          {
+            "name": "tipo",
+            "description": "Tipo do equipamento (`nm_tipo_equipamento`); `SEM TIPO` quando a fonte não informa"
+          },
+          {
+            "name": "esfera",
+            "description": "Esfera administrativa (`nm_esfera_administrativa_equipamento`)"
+          },
+          {
+            "name": "endereco",
+            "description": "Logradouro e número (`tx_endereco_equipamento`)"
+          },
+          {
+            "name": "bairro",
+            "description": "Bairro (`nm_bairro_equipamento`)"
+          },
+          {
+            "name": "cep",
+            "description": "CEP (`cd_cep_equipamento`)"
+          },
+          {
+            "name": "telefone",
+            "description": "Telefone(s) (`tx_numero_telefone`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_ambulatorios": {
+      "id": "camada_ambulatorios",
+      "collection_id": "dados_processados",
+      "slug": "camada-ambulatorios",
+      "title": "Camada de ambulatórios especializados do mapa — snapshot",
+      "description": "Snapshot servido à camada correspondente do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/ambulatorios` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/ambulatorios.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_ambulatorios` por `scripts/generatePointsData.ts`, versionado neste repositório. A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-25"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 149,
+        "size_bytes": 45351,
+        "checkSum": "sha256:43611e3015a8e671c6a36d48be335c63686d5d4e2c07677ad07bf0b43dadc0bc"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–149) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_ambulatorios`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_ambulatorios"]
+    },
+    "distritos_saude_mental": {
+      "id": "distritos_saude_mental",
+      "collection_id": "geosampa",
+      "slug": "distritos-saude-mental",
+      "title": "Equipamentos de saúde mental da cidade de São Paulo por distrito municipal",
+      "description": "CAPS Álcool e Drogas, Adulto e Infantojuvenil, e Centros de Convivência e Cooperativa (CECCO). Um por linha, com coordenadas e distrito. 131 registros em 63 dos 96 distritos. Tipos mais frequentes: Centro de Atenção Psicossocial Álcool e Drogas (35), Centro de Atenção Psicossocial Adulto (35), Centro de Atenção Psicossocial Infanto Juvenil (34), Centro de Convivência e Cooperativa (CECCO) (23).",
+      "file": "src/data-source-static/data/raw/saude_mental_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_saude_mental",
+        "notes": "Camada WFS `geoportal:equipamento_saude_saude_mental` do GeoSampa, baixada em WGS84 (EPSG:4326) e reduzida às colunas úteis. A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`); todos os pontos desta camada caem dentro dele. Espaços e quebras de linha nos textos foram normalizados. Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-25"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 131,
+        "size_bytes": 24169,
+        "checkSum": "sha256:8a970465ee7cafa23efa74d3a8b0d624fd3c95f5e470998ea88d93a96db8968e"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome do equipamento (`nm_equipamento`)"
+          },
+          {
+            "name": "tipo",
+            "description": "Tipo do equipamento (`nm_tipo_equipamento`); `SEM TIPO` quando a fonte não informa"
+          },
+          {
+            "name": "esfera",
+            "description": "Esfera administrativa (`nm_esfera_administrativa_equipamento`)"
+          },
+          {
+            "name": "endereco",
+            "description": "Logradouro e número (`tx_endereco_equipamento`)"
+          },
+          {
+            "name": "bairro",
+            "description": "Bairro (`nm_bairro_equipamento`)"
+          },
+          {
+            "name": "cep",
+            "description": "CEP (`cd_cep_equipamento`)"
+          },
+          {
+            "name": "telefone",
+            "description": "Telefone(s) (`tx_numero_telefone`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_saude_mental": {
+      "id": "camada_saude_mental",
+      "collection_id": "dados_processados",
+      "slug": "camada-saude-mental",
+      "title": "Camada de equipamentos de saúde mental do mapa — snapshot",
+      "description": "Snapshot servido à camada correspondente do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/saude-mental` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/saude-mental.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_saude_mental` por `scripts/generatePointsData.ts`, versionado neste repositório. A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-25"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 131,
+        "size_bytes": 41291,
+        "checkSum": "sha256:7da25538769dbc9344ab888874e31587d362008d602c3a3d7dd6fca72e5bf8ce"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–131) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_saude_mental`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_saude_mental"]
+    },
+    "distritos_dst_aids": {
+      "id": "distritos_dst_aids",
+      "collection_id": "geosampa",
+      "slug": "distritos-dst-aids",
+      "title": "Unidades DST/AIDS da cidade de São Paulo por distrito municipal",
+      "description": "Serviços de Atendimento Especializado (SAE) e Centros de Testagem e Acompanhamento (CTA) em IST/AIDS. Um por linha, com coordenadas e distrito. 28 registros em 26 dos 96 distritos. Tipos mais frequentes: Serviço de Atendimento Especializado em DST/AIDS (SAE) (17), Centro de Testagem e Acompanhamento DST/AIDS (10), SEM TIPO (1).",
+      "file": "src/data-source-static/data/raw/dst_aids_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_unidades_dst-aids",
+        "notes": "Camada WFS `geoportal:equipamento_saude_unidades_dst-aids` do GeoSampa, baixada em WGS84 (EPSG:4326) e reduzida às colunas úteis. A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`); todos os pontos desta camada caem dentro dele. Espaços e quebras de linha nos textos foram normalizados. Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-25"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 28,
+        "size_bytes": 5445,
+        "checkSum": "sha256:90a528b887d282022f9acd3d7f35b75fe538355ec01e5e4e5d371fa3ec338255"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome do equipamento (`nm_equipamento`)"
+          },
+          {
+            "name": "tipo",
+            "description": "Tipo do equipamento (`nm_tipo_equipamento`); `SEM TIPO` quando a fonte não informa"
+          },
+          {
+            "name": "esfera",
+            "description": "Esfera administrativa (`nm_esfera_administrativa_equipamento`)"
+          },
+          {
+            "name": "endereco",
+            "description": "Logradouro e número (`tx_endereco_equipamento`)"
+          },
+          {
+            "name": "bairro",
+            "description": "Bairro (`nm_bairro_equipamento`)"
+          },
+          {
+            "name": "cep",
+            "description": "CEP (`cd_cep_equipamento`)"
+          },
+          {
+            "name": "telefone",
+            "description": "Telefone(s) (`tx_numero_telefone`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_dst_aids": {
+      "id": "camada_dst_aids",
+      "collection_id": "dados_processados",
+      "slug": "camada-dst-aids",
+      "title": "Camada de unidades DST/AIDS do mapa — snapshot",
+      "description": "Snapshot servido à camada correspondente do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/dst-aids` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/dst-aids.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_dst_aids` por `scripts/generatePointsData.ts`, versionado neste repositório. A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-25"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 28,
+        "size_bytes": 9042,
+        "checkSum": "sha256:148aa95fccdef0bc3a6e767393804e1fffc710ac6c5111f930df7bed77347ea1"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–28) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_dst_aids`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_dst_aids"]
+    },
+    "distritos_vigilancia": {
+      "id": "distritos_vigilancia",
+      "collection_id": "geosampa",
+      "slug": "distritos-vigilancia",
+      "title": "Equipamentos de vigilância em saúde da cidade de São Paulo por distrito municipal",
+      "description": "Supervisões de Vigilância em Saúde, Centros de Referência em Saúde do Trabalhador e laboratórios de zoonoses. Um por linha, com coordenadas e distrito. 39 registros em 32 dos 96 distritos. Tipos mais frequentes: Supervisão de Vigilância em Saúde (29), Centro de Referência de Sáude do Trabalhador (6), Laboratório de Zoonoses (2), SEM TIPO (2).",
+      "file": "src/data-source-static/data/raw/vigilancia_saude_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_vigilancia_saude",
+        "notes": "Camada WFS `geoportal:equipamento_saude_vigilancia_saude` do GeoSampa, baixada em WGS84 (EPSG:4326) e reduzida às colunas úteis. A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`); todos os pontos desta camada caem dentro dele. Espaços e quebras de linha nos textos foram normalizados. Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-25"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 39,
+        "size_bytes": 6841,
+        "checkSum": "sha256:68c55e444f047e382367b4f60e0d8fe4cf25f22f535d931ad9597d9ddaf960e9"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome do equipamento (`nm_equipamento`)"
+          },
+          {
+            "name": "tipo",
+            "description": "Tipo do equipamento (`nm_tipo_equipamento`); `SEM TIPO` quando a fonte não informa"
+          },
+          {
+            "name": "esfera",
+            "description": "Esfera administrativa (`nm_esfera_administrativa_equipamento`)"
+          },
+          {
+            "name": "endereco",
+            "description": "Logradouro e número (`tx_endereco_equipamento`)"
+          },
+          {
+            "name": "bairro",
+            "description": "Bairro (`nm_bairro_equipamento`)"
+          },
+          {
+            "name": "cep",
+            "description": "CEP (`cd_cep_equipamento`)"
+          },
+          {
+            "name": "telefone",
+            "description": "Telefone(s) (`tx_numero_telefone`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_vigilancia": {
+      "id": "camada_vigilancia",
+      "collection_id": "dados_processados",
+      "slug": "camada-vigilancia",
+      "title": "Camada de equipamentos de vigilância em saúde do mapa — snapshot",
+      "description": "Snapshot servido à camada correspondente do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/vigilancia` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/vigilancia.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_vigilancia` por `scripts/generatePointsData.ts`, versionado neste repositório. A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-25"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 39,
+        "size_bytes": 11879,
+        "checkSum": "sha256:750bfb09d146f0aaf268d8eb4cf6d746e3a38f66246777587f944c08757f4339"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–39) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_vigilancia`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_vigilancia"]
+    },
+    "distritos_animais": {
+      "id": "distritos_animais",
+      "collection_id": "geosampa",
+      "slug": "distritos-animais",
+      "title": "Serviços públicos para animais da cidade de São Paulo por distrito municipal",
+      "description": "Os hospitais veterinários públicos e o Centro de Controle de Zoonoses. Tipo e esfera vêm vazios na fonte (`SEM TIPO`, `SEM ESFERA`). Um por linha, com coordenadas e distrito. 4 registros em 4 dos 96 distritos. Tipos mais frequentes: SEM TIPO (4).",
+      "file": "src/data-source-static/data/raw/animais_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_ccz",
+        "notes": "Camada WFS `geoportal:equipamento_ccz` do GeoSampa, baixada em WGS84 (EPSG:4326) e reduzida às colunas úteis. A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`); todos os pontos desta camada caem dentro dele. Espaços e quebras de linha nos textos foram normalizados. Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-25"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 4,
+        "size_bytes": 743,
+        "checkSum": "sha256:56dc7f3d52cb56eaa16c6a02aa2d6fd245911366da8b97528595b5b6b582c168"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome do equipamento (`nm_equipamento`)"
+          },
+          {
+            "name": "tipo",
+            "description": "Tipo do equipamento (`nm_tipo_equipamento`); `SEM TIPO` quando a fonte não informa"
+          },
+          {
+            "name": "esfera",
+            "description": "Esfera administrativa (`nm_esfera_administrativa_equipamento`)"
+          },
+          {
+            "name": "endereco",
+            "description": "Logradouro e número (`tx_endereco_equipamento`)"
+          },
+          {
+            "name": "bairro",
+            "description": "Bairro (`nm_bairro_equipamento`)"
+          },
+          {
+            "name": "cep",
+            "description": "CEP (`cd_cep_equipamento`)"
+          },
+          {
+            "name": "telefone",
+            "description": "Telefone(s) (`tx_numero_telefone`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_animais": {
+      "id": "camada_animais",
+      "collection_id": "dados_processados",
+      "slug": "camada-animais",
+      "title": "Camada de serviços públicos para animais do mapa — snapshot",
+      "description": "Snapshot servido à camada correspondente do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/animais` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/animais.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_animais` por `scripts/generatePointsData.ts`, versionado neste repositório. A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-25"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 4,
+        "size_bytes": 1203,
+        "checkSum": "sha256:5bbc0d198c390318671d3f0545b6885ae1bba0a0591185d0d99262879fa0edc2"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–4) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_animais`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_animais"]
+    },
+    "distritos_samu": {
+      "id": "distritos_samu",
+      "collection_id": "geosampa",
+      "slug": "distritos-samu",
+      "title": "Bases do SAMU da cidade de São Paulo por distrito municipal",
+      "description": "Bases do Serviço de Atendimento Móvel de Urgência, com região e as modalidades de atendimento de cada uma. Um por linha, com coordenadas e distrito. 80 registros em 57 dos 96 distritos.",
+      "file": "src/data-source-static/data/raw/samu_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:base_samu",
+        "notes": "Camada WFS `geoportal:base_samu` do GeoSampa, baixada em WGS84 (EPSG:4326) e reduzida às colunas úteis. A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`); todos os pontos desta camada caem dentro dele. Espaços e quebras de linha nos textos foram normalizados. Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-25"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 80,
+        "size_bytes": 8998,
+        "checkSum": "sha256:50db3bb695cc3d646408d4dc148aaab92c319e64195d2d745be90e1e280970c7"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome da base (`nm_base_samu`)"
+          },
+          {
+            "name": "regiao",
+            "description": "Região do SAMU (`nm_regiao_base_samu`): NORTE, SUL, LESTE, OESTE ou SUDESTE"
+          },
+          {
+            "name": "endereco",
+            "description": "Endereço (`tx_endereco_base_samu`)"
+          },
+          {
+            "name": "suporte_basico",
+            "description": "Opera suporte básico de vida (`in_modalidade_suporte_basico_vida`): Sim/Não"
+          },
+          {
+            "name": "suporte_basico_enfermeiro",
+            "description": "Opera suporte básico com enfermeiro (`in_modalidade_suporte_basico_vida_enfermeiro`): Sim/Não"
+          },
+          {
+            "name": "suporte_avancado",
+            "description": "Opera suporte avançado de vida (`in_modalidade_suporte_avancado_vida`): Sim/Não"
+          },
+          {
+            "name": "motolancia",
+            "description": "Opera motolância (`in_modalidade_unidade_rapida_atendimento_motociclista`): Sim/Não"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_samu": {
+      "id": "camada_samu",
+      "collection_id": "dados_processados",
+      "slug": "camada-samu",
+      "title": "Camada de bases do SAMU do mapa — snapshot",
+      "description": "Snapshot servido à camada correspondente do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/samu` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/samu.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_samu` por `scripts/generatePointsData.ts`, versionado neste repositório. A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-25"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 80,
+        "size_bytes": 22883,
+        "checkSum": "sha256:8cb61ff40c07123d447a842cc2f5ebd5e7e9b18b1927dd3dd01aff9862615ca6"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–80) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_samu`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_samu"]
     }
   }
 }
