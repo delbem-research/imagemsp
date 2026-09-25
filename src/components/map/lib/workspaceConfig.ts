@@ -172,6 +172,13 @@ const GROUP_ICONS: Record<Group, string> = {
   '70-74': ICONS.arrowsInLineHorizontal,
   ubs: ICONS.firstAidKit,
   hospitais: ICONS.firstAid,
+  urgencia: ICONS.pulse,
+  samu: ICONS.siren,
+  ambulatorios: ICONS.stethoscope,
+  'saude-mental': ICONS.brain,
+  'dst-aids': ICONS.testTube,
+  vigilancia: ICONS.shieldCheck,
+  animais: ICONS.pawPrint,
   restaurantes: ICONS.forkKnife,
   esporte: ICONS.soccerBall,
 };

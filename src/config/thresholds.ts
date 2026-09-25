@@ -80,6 +80,23 @@ export const SERIES_THRESHOLDS: Record<
     ubs: [0.001, 1, 2, 3, 5, 8],
     /** Hospitals. Districts 0–4.3 (median 0.55); subprefeituras 0–1.2. */
     hospitais: [0.001, 0.25, 0.5, 1, 1.5, 2.5],
+    /** Urgência/emergência. Districts 0–4.1 (median 0); subprefeituras 0–1.5. */
+    urgencia: [0.001, 0.25, 0.5, 0.75, 1, 1.5],
+    /** SAMU bases. Districts 0–10.5 (median 0.51); subprefeituras 0.13–1.5. */
+    samu: [0.001, 0.25, 0.5, 0.75, 1, 1.5],
+    /** Specialised outpatient clinics. Districts 0–12.4 (median 0.71); subprefeituras 0.22–2.8. */
+    ambulatorios: [0.001, 0.5, 1, 1.5, 2, 3],
+    /** Mental health. Districts 0–4.2 (median 0.72); subprefeituras 0.35–2.1. */
+    'saude-mental': [0.001, 0.5, 1, 1.5, 2, 3],
+    /** DST/AIDS units. Districts 0–4.1 (median 0); subprefeituras 0–0.5. */
+    'dst-aids': [0.001, 0.2, 0.4, 0.6, 0.8, 1.5],
+    /** Health surveillance. Districts 0–8.2 (median 0); subprefeituras 0–0.96. */
+    vigilancia: [0.001, 0.2, 0.4, 0.6, 0.8, 1.5],
+    /**
+     * Animal care. Only 4 facilities, so 92 of the 96 districts sit in the
+     * "nenhum" class. Districts 0–1.4; subprefeituras 0–0.35.
+     */
+    animais: [0.001, 0.1, 0.2, 0.3, 0.5, 1],
   },
   'food-65plus': {
     /** Public restaurants. Districts 0–8.2 (median 0); subprefeituras 0–1.6. */

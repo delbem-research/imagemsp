@@ -24,7 +24,17 @@ export const OFFER_RATE_BASE = 10_000;
 /** The services of each offer category, in menu order. */
 export const OFFER_CATEGORIES: Record<OfferCategory, readonly OfferService[]> =
   {
-    'health-65plus': ['ubs', 'hospitais'],
+    'health-65plus': [
+      'ubs',
+      'hospitais',
+      'urgencia',
+      'samu',
+      'ambulatorios',
+      'saude-mental',
+      'dst-aids',
+      'vigilancia',
+      'animais',
+    ],
     'food-65plus': ['restaurantes'],
     'leisure-65plus': ['esporte'],
   };
@@ -75,6 +85,48 @@ export const OFFER_LABELS: Record<
     title: 'HOSPITAIS',
     one: 'hospital',
     many: 'hospitais',
+  },
+  urgencia: {
+    menu: 'Urgência/emergência',
+    title: 'UNIDADES DE URGÊNCIA/EMERGÊNCIA',
+    one: 'unidade de urgência/emergência',
+    many: 'unidades de urgência/emergência',
+  },
+  samu: {
+    menu: 'Bases do SAMU',
+    title: 'BASES DO SAMU',
+    one: 'base do SAMU',
+    many: 'bases do SAMU',
+  },
+  ambulatorios: {
+    menu: 'Ambulatórios especializados',
+    title: 'AMBULATÓRIOS ESPECIALIZADOS',
+    one: 'ambulatório especializado',
+    many: 'ambulatórios especializados',
+  },
+  'saude-mental': {
+    menu: 'Saúde mental',
+    title: 'UNIDADES DE SAÚDE MENTAL',
+    one: 'unidade de saúde mental',
+    many: 'unidades de saúde mental',
+  },
+  'dst-aids': {
+    menu: 'Unidades DST/AIDS',
+    title: 'UNIDADES DST/AIDS',
+    one: 'unidade DST/AIDS',
+    many: 'unidades DST/AIDS',
+  },
+  vigilancia: {
+    menu: 'Vigilância em saúde',
+    title: 'UNIDADES DE VIGILÂNCIA EM SAÚDE',
+    one: 'unidade de vigilância em saúde',
+    many: 'unidades de vigilância em saúde',
+  },
+  animais: {
+    menu: 'Animais (zoonoses e hospitais veterinários)',
+    title: 'EQUIPAMENTOS PARA ANIMAIS',
+    one: 'equipamento para animais',
+    many: 'equipamentos para animais',
   },
   restaurantes: {
     menu: 'Restaurantes públicos',

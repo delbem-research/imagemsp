@@ -19,7 +19,18 @@ export type AgeGroup = '65' | '70' | '75' | '65-69' | '70-74';
  * The services of the offer categories: public facilities counted per area and
  * set against its 65+ population. Each is also a point overlay.
  */
-export type OfferService = 'ubs' | 'hospitais' | 'restaurantes' | 'esporte';
+export type OfferService =
+  | 'ubs'
+  | 'hospitais'
+  | 'urgencia'
+  | 'samu'
+  | 'ambulatorios'
+  | 'saude-mental'
+  | 'dst-aids'
+  | 'vigilancia'
+  | 'animais'
+  | 'restaurantes'
+  | 'esporte';
 
 /**
  * The second menu's value: an age band for the share categories, a service for

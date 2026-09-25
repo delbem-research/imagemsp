@@ -44,7 +44,19 @@ const AREA: DistrictCounts = {
   count70to74: 6000,
   count75plus: 5380,
   total: 200000,
-  services: { ubs: 3, hospitais: 0, restaurantes: 1, esporte: 7 },
+  services: {
+    ubs: 3,
+    hospitais: 0,
+    urgencia: 0,
+    samu: 0,
+    ambulatorios: 0,
+    'saude-mental': 0,
+    'dst-aids': 0,
+    vigilancia: 0,
+    animais: 0,
+    restaurantes: 1,
+    esporte: 7,
+  },
 };
 
 describe('offer indicators — rates', () => {
@@ -132,6 +144,13 @@ describe('offer indicators — contract', () => {
     return {
       ubs,
       hospitais: new Map(),
+      urgencia: new Map(),
+      samu: new Map(),
+      ambulatorios: new Map(),
+      'saude-mental': new Map(),
+      'dst-aids': new Map(),
+      vigilancia: new Map(),
+      animais: new Map(),
       restaurantes: new Map(),
       esporte: new Map(),
     };
@@ -192,7 +211,17 @@ describe('offer indicators — sidebar and legend', () => {
       });
     };
 
-    expect(services('health-65plus')).toEqual(['ubs', 'hospitais']);
+    expect(services('health-65plus')).toEqual([
+      'ubs',
+      'hospitais',
+      'urgencia',
+      'samu',
+      'ambulatorios',
+      'saude-mental',
+      'dst-aids',
+      'vigilancia',
+      'animais',
+    ]);
     expect(services('food-65plus')).toEqual(['restaurantes']);
     expect(services('leisure-65plus')).toEqual(['esporte']);
   });
