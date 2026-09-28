@@ -3,10 +3,12 @@ import type {
   DataSource,
   HoverTooltipConfig,
   MapHoverInfo,
+  PinImage,
   VisualizationLayer,
   VisualizationSpec,
 } from '@ttoss/geovis';
 
+import { PIN_ICON_DATA } from '@/components/map/lib/icons';
 import {
   type OverlayConfig,
   overlayDrawOrder,
@@ -31,6 +33,20 @@ export const overlaySpecId = (overlay: OverlayId): string => {
 };
 
 /**
+ * Id of a point overlay's pin in `spec.images`, which its layer draws through
+ * `paint.iconImage`.
+ *
+ * @param overlay - The overlay.
+ * @returns The image id.
+ *
+ * @example
+ * overlayPinId('ubs'); // 'ubs-pin'
+ */
+const overlayPinId = (overlay: OverlayId): string => {
+  return `${overlay}-pin`;
+};
+
+/**
  * What a source holds until its features arrive. Every overlay has to exist in
  * the spec from the first paint, loaded or not: the geovis control greys out an
  * item whose layers are all absent, so without it there would be no way to
@@ -45,30 +61,44 @@ const EMPTY_COLLECTION: OverlayContract = {
 const THUMB_GROUND = "<rect width='64' height='64' fill='rgb(234,238,227)'/>";
 
 /**
+ * The pin's teardrop, in a 24 × 30 box — the same shape geovis draws on the map
+ * — and where its icon sits inside it.
+ */
+const PIN_PATH =
+  'M12 29.25C12 29.25 1.5 19 1.5 12a10.5 10.5 0 1 1 21 0c0 7-10.5 17.25-10.5 17.25z';
+const PIN_ICON_BOX = { x: 5.5, y: 5.5, size: 13 };
+
+/**
+ * One pin centred on the thumbnail, scaled up from the map's: the overlay's
+ * colour, a white outline and its icon, so the card previews exactly the mark
+ * the overlay draws.
+ */
+const pinMark = (config: OverlayConfig & { kind: 'point' }): string => {
+  const icon = PIN_ICON_DATA[config.icon];
+  const iconSvg = icon
+    ? `<svg x='${PIN_ICON_BOX.x}' y='${PIN_ICON_BOX.y}' width='${PIN_ICON_BOX.size}' height='${PIN_ICON_BOX.size}' viewBox='${icon.left ?? 0} ${icon.top ?? 0} ${icon.width ?? 16} ${icon.height ?? 16}' color='white' fill='white'>${icon.body}</svg>`
+    : '';
+
+  return `<g transform='translate(13 5) scale(1.575)'><path d='${PIN_PATH}' fill='${config.color}' stroke='white' stroke-width='1.5'/>${iconSvg}</g>`;
+};
+
+/**
  * Thumbnail of a control item, inline so it needs no request: for a point
- * overlay a few dots in its colour, like the kitchens' in cozsolidarias; for a
- * polygon overlay two filled, outlined patches, like it draws on the map.
+ * overlay its pin; for a polygon overlay two filled, outlined patches, like it
+ * draws on the map.
  *
  * @param config - The overlay.
  * @returns An SVG data URI.
  */
 const thumbnail = (config: OverlayConfig): string => {
-  const color = encodeURIComponent(config.color);
-
   const marks =
     config.kind === 'point'
-      ? [
-          [20, 24],
-          [42, 36],
-          [28, 48],
-        ]
-          .map(([cx, cy]) => {
-            return `<circle cx='${cx}' cy='${cy}' r='6' fill='${color}' stroke='white' stroke-width='1.5'/>`;
-          })
-          .join('')
-      : `<path d='M8 14 L30 8 L36 28 L14 34 Z' fill='${color}' fill-opacity='${config.fillOpacity}' stroke='${color}' stroke-width='2'/><path d='M34 38 L56 34 L54 56 L30 52 Z' fill='${color}' fill-opacity='${config.fillOpacity}' stroke='${color}' stroke-width='2'/>`;
+      ? pinMark(config)
+      : `<path d='M8 14 L30 8 L36 28 L14 34 Z' fill='${config.color}' fill-opacity='${config.fillOpacity}' stroke='${config.color}' stroke-width='2'/><path d='M34 38 L56 34 L54 56 L30 52 Z' fill='${config.color}' fill-opacity='${config.fillOpacity}' stroke='${config.color}' stroke-width='2'/>`;
 
-  return `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'>${THUMB_GROUND}${marks}</svg>`;
+  // Encoded whole: icon bodies carry double quotes and `#` colours.
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'>${THUMB_GROUND}${marks}</svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 };
 
 /**
@@ -100,10 +130,10 @@ const renderOverlayTooltip = (feature: OverlayProperties | undefined) => {
 /**
  * The part of an overlay's layer that depends on what it draws.
  *
- * Points copy the kitchen points of cozsolidarias — small, nearly opaque, with
- * a light halo so each one reads over both the pale basemap and the dark end of
- * the choropleth — in the overlay's own fixed colour. `click: {}` is what gives
- * them a tooltip at all: geovis only hover-tracks point layers that declare it.
+ * Points are pins: a `symbol` layer drawing the overlay's pin from
+ * `spec.images` at each feature, anchored by its tip so the tip — not the
+ * pin's middle — sits on the place. `click: {}` is what gives them a tooltip at
+ * all: geovis only hover-tracks non-polygon layers that declare it.
  *
  * Polygons are a fill plus an outline in the overlay's colour, at the
  * overlay's own opacity. `hoverPaint` does for them what `click` does
@@ -115,13 +145,11 @@ const drawing = (
 ): Pick<VisualizationLayer, 'geometry' | 'paint' | 'click' | 'hoverPaint'> => {
   if (config.kind === 'point') {
     return {
-      geometry: 'point',
+      geometry: 'symbol',
       paint: {
-        circleColor: config.color,
-        circleRadius: config.radius,
-        circleOpacity: 0.9,
-        circleStrokeColor: '#FAF9F7',
-        circleStrokeWidth: config.strokeWidth,
+        iconImage: overlayPinId(config.id),
+        iconAnchor: 'bottom',
+        iconAllowOverlap: config.allowOverlap,
       },
       click: {},
     };
@@ -178,18 +206,37 @@ const buildLayer = ({
 };
 
 /**
- * Builds the sources and layers of every overlay.
+ * The pin of every point overlay, in its colour with its icon, for
+ * `spec.images`. Fixed for the app's lifetime, so geovis builds each pin once
+ * and keeps it across the spec rebuilds of every timeline tick.
+ */
+const PIN_IMAGES: PinImage[] = OVERLAYS.flatMap((config) => {
+  if (config.kind !== 'point') return [];
+  return [
+    {
+      id: overlayPinId(config.id),
+      kind: 'pin',
+      icon: config.icon,
+      color: config.color,
+      size: config.pinSize,
+    },
+  ];
+});
+
+/**
+ * Builds the sources, layers and pin images of every overlay.
  *
  * Layers are returned in {@link overlayDrawOrder}: polygons beneath points,
  * and within each kind the control's first item on top.
  *
  * @param params.layers - The store's snapshot: toggles and loaded data.
  * @param params.tooltipStyle - Card style shared with the area tooltip.
- * @returns The sources and layers to append to the spec.
+ * @returns The sources and layers to append to the spec, and the pin images
+ * its point layers draw.
  *
  * @example
  * buildOverlays({ layers: overlaysStore.getSnapshot(), tooltipStyle });
- * // { sources: [{ id: 'parques', ... }, ...], layers: [{ id: 'pontos-onibus-overlay', visible: false, ... }, ...] }
+ * // { sources: [{ id: 'parques', ... }, ...], layers: [{ id: 'pontos-onibus-overlay', visible: false, ... }, ...], images: [{ id: 'hospitais-pin', ... }, ...] }
  */
 export const buildOverlays = ({
   layers,
@@ -197,7 +244,11 @@ export const buildOverlays = ({
 }: {
   layers: OverlaysSnapshot;
   tooltipStyle: HoverTooltipConfig['style'];
-}): { sources: DataSource[]; layers: VisualizationLayer[] } => {
+}): {
+  sources: DataSource[];
+  layers: VisualizationLayer[];
+  images: PinImage[];
+} => {
   const sources: DataSource[] = OVERLAYS.map((config) => {
     return {
       id: config.id,
@@ -215,7 +266,7 @@ export const buildOverlays = ({
     });
   });
 
-  return { sources, layers: mapLayers };
+  return { sources, layers: mapLayers, images: PIN_IMAGES };
 };
 
 /**
@@ -235,6 +286,9 @@ export const LAYER_CONTROL: NonNullable<VisualizationSpec['control']> = {
   // button lines up with the card when the sidebar is closed.
   offset: 12,
   trigger: 'hover',
+  // Fifteen overlays outgrow the map in a single row of cards: show the first
+  // three and tuck the rest behind a "Ver mais" card.
+  maxVisibleItems: 3,
   items: OVERLAYS.map((config) => {
     return {
       id: config.id,

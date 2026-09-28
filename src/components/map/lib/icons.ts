@@ -5,7 +5,8 @@
  *   - UI navigation / menus  → Phosphor regular (line)  e.g. "ph:caret-left"
  *   - Interactive controls   → Phosphor bold            e.g. "ph:caret-left-bold"
  *   - Active / highlight     → Phosphor fill            e.g. "ph:caret-left-fill"
- *   - Map pins / POI markers → Maki                     e.g. "maki:hospital"
+ *   - Map pins / POI markers → Phosphor regular, the same icon the sidebar
+ *                              shows for that service  e.g. "ph:first-aid"
  *   - Vendored (geovis)      → Lucide                   e.g. "lucide:circle"
  *
  * Add icons here before use to avoid Iconify API calls in production.
@@ -35,6 +36,7 @@ import lucideZoomIn from '@iconify/icons-lucide/zoom-in';
 import phArrowsInLineHorizontal from '@iconify/icons-ph/arrows-in-line-horizontal';
 // Phosphor — sidebar do mapa (cabecalhos de secao e variacoes de indicador)
 import phBrain from '@iconify/icons-ph/brain';
+import phBus from '@iconify/icons-ph/bus';
 import phCalendarBlank from '@iconify/icons-ph/calendar-blank';
 import phCaretDoubleLeftBold from '@iconify/icons-ph/caret-double-left-bold';
 import phCaretDoubleRightBold from '@iconify/icons-ph/caret-double-right-bold';
@@ -49,6 +51,7 @@ import phChartDonut from '@iconify/icons-ph/chart-donut';
 import phChartPieSlice from '@iconify/icons-ph/chart-pie-slice';
 import phClock from '@iconify/icons-ph/clock';
 import phFirstAid from '@iconify/icons-ph/first-aid';
+import phFirstAidFill from '@iconify/icons-ph/first-aid-fill';
 import phFirstAidKit from '@iconify/icons-ph/first-aid-kit';
 import phForkKnife from '@iconify/icons-ph/fork-knife';
 import phGauge from '@iconify/icons-ph/gauge';
@@ -65,8 +68,11 @@ import phSquaresFour from '@iconify/icons-ph/squares-four';
 import phStethoscope from '@iconify/icons-ph/stethoscope';
 import phStorefront from '@iconify/icons-ph/storefront';
 import phTestTube from '@iconify/icons-ph/test-tube';
+// Phosphor — pins of the transit overlays (the others reuse the sidebar's)
+import phTrafficSign from '@iconify/icons-ph/traffic-sign';
+import phTrain from '@iconify/icons-ph/train';
 import phUsersThree from '@iconify/icons-ph/users-three';
-import { addIcon, Icon } from '@ttoss/react-icons';
+import { addIcon, Icon, type IconifyIcon } from '@ttoss/react-icons';
 
 // Register bundled icons (no API call in production)
 addIcon('ph:caret-left-bold', phCaretLeftBold);
@@ -91,6 +97,7 @@ addIcon('ph:heartbeat', phHeartbeat);
 addIcon('ph:storefront', phStorefront);
 addIcon('ph:first-aid-kit', phFirstAidKit);
 addIcon('ph:first-aid', phFirstAid);
+addIcon('ph:first-aid-fill', phFirstAidFill);
 addIcon('ph:fork-knife', phForkKnife);
 addIcon('ph:soccer-ball', phSoccerBall);
 addIcon('ph:brain', phBrain);
@@ -100,6 +107,9 @@ addIcon('ph:shield-check', phShieldCheck);
 addIcon('ph:siren', phSiren);
 addIcon('ph:stethoscope', phStethoscope);
 addIcon('ph:test-tube', phTestTube);
+addIcon('ph:train', phTrain);
+addIcon('ph:bus', phBus);
+addIcon('ph:traffic-sign', phTrafficSign);
 
 // Register the Lucide icons @ttoss/geovis-workspace renders by name
 addIcon('lucide:circle', lucideCircle);
@@ -170,9 +180,40 @@ export const ICONS = {
   shieldCheck: 'ph:shield-check',
   pawPrint: 'ph:paw-print',
 
+  // Map pins — the hospitals' cross, filled so it reads solid inside the pin
+  firstAidFill: 'ph:first-aid-fill',
+
+  // Map pins — transit overlays
+  train: 'ph:train',
+  bus: 'ph:bus',
+  trafficSign: 'ph:traffic-sign',
+
   // Map sidebar — age-group variations
   plusCircle: 'ph:plus-circle',
   arrowsInLineHorizontal: 'ph:arrows-in-line-horizontal',
 } as const;
 
 export type IconName = (typeof ICONS)[keyof typeof ICONS];
+
+/**
+ * SVG data of every icon drawn inside a map pin, by name. geovis resolves a
+ * pin's icon from the registry above on its own; the "Camadas" control's
+ * thumbnails are plain SVG strings, though, so they need the icon's body to
+ * draw the same pin.
+ */
+export const PIN_ICON_DATA: Partial<Record<IconName, IconifyIcon>> = {
+  [ICONS.firstAidFill]: phFirstAidFill,
+  [ICONS.pulse]: phPulse,
+  [ICONS.siren]: phSiren,
+  [ICONS.firstAidKit]: phFirstAidKit,
+  [ICONS.stethoscope]: phStethoscope,
+  [ICONS.brain]: phBrain,
+  [ICONS.testTube]: phTestTube,
+  [ICONS.shieldCheck]: phShieldCheck,
+  [ICONS.pawPrint]: phPawPrint,
+  [ICONS.forkKnife]: phForkKnife,
+  [ICONS.soccerBall]: phSoccerBall,
+  [ICONS.train]: phTrain,
+  [ICONS.bus]: phBus,
+  [ICONS.trafficSign]: phTrafficSign,
+};

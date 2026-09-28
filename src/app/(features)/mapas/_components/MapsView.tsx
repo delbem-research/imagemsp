@@ -292,6 +292,7 @@ const buildSpec = ({
       ...overlayLayers.layers,
     ],
     control: LAYER_CONTROL,
+    images: overlayLayers.images,
     mapData: [
       {
         mapDataId: areas.mapDataId,
