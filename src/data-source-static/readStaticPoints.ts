@@ -13,6 +13,27 @@ const SNAPSHOTS: Record<PointOverlayId, () => Promise<{ default: unknown }>> = {
   ubs: () => {
     return import('./data/points/ubs.json');
   },
+  urgencia: () => {
+    return import('./data/points/urgencia.json');
+  },
+  samu: () => {
+    return import('./data/points/samu.json');
+  },
+  ambulatorios: () => {
+    return import('./data/points/ambulatorios.json');
+  },
+  'saude-mental': () => {
+    return import('./data/points/saude-mental.json');
+  },
+  'dst-aids': () => {
+    return import('./data/points/dst-aids.json');
+  },
+  vigilancia: () => {
+    return import('./data/points/vigilancia.json');
+  },
+  animais: () => {
+    return import('./data/points/animais.json');
+  },
   restaurantes: () => {
     return import('./data/points/restaurantes.json');
   },

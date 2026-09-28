@@ -21,7 +21,6 @@ import {
 } from '@/components/map/lib/mapCamera';
 import { LEGEND_COLORS } from '@/components/map/lib/mapConfig';
 import {
-  isMapLevel,
   MAP_LEVEL_IDS,
   MAP_LEVELS,
   type MapLevel,
@@ -29,24 +28,40 @@ import {
 import {
   buildElderlyHistogram,
   buildMapRows,
+  offerAgeShare,
 } from '@/components/map/lib/mapRows';
 import {
+  areaLayerFilter,
+  paintedLevelFor,
+} from '@/components/map/lib/subprefeituraDivision';
+import {
+  AGE_MENU_ID,
   buildWorkspaceConfig,
   CATEGORY_MENU_ID,
-  getDefaultGroup,
+  DEFAULT_OFFER_AGE,
   GROUP_MENU_ID,
   LEVEL_MENU_ID,
-  MAP_TITLES,
   mapDescription,
+  mapTitle,
   YEAR_MENU_ID,
 } from '@/components/map/lib/workspaceConfig';
 import LoadingIndicator from '@/components/ui/LoadingIndicator';
-import { isOfferCategory, OFFER_YEAR } from '@/config/offer';
-import { thresholdsFor } from '@/config/thresholds';
+import {
+  isOfferCategory,
+  type OfferAgeBand,
+  offerAgeBands,
+} from '@/config/offer';
+import { scaleOfferThresholds, thresholdsFor } from '@/config/thresholds';
 import type { MapsDataContract } from '@/data-gateway/schema';
 
 import { legendLabelFormat, legendReference } from './mapLegend';
 import MapPanel from './MapPanel';
+import {
+  initialYear,
+  nextSelection,
+  paintedYearFor,
+  type Selection,
+} from './mapSelection';
 import { renderTooltipContent, TOOLTIP_STYLE } from './mapTooltips';
 import { buildOverlays, LAYER_CONTROL } from './overlays';
 import { type OverlaysSnapshot, overlaysStore } from './overlaysStore';
@@ -100,22 +115,33 @@ const LEGEND_ID = 'pop-legend';
  * since summing districts smooths out their extremes.
  *
  * @param params.data - Canonical maps data from the gateway.
- * @param params.level - The geographic level to paint.
+ * @param params.level - The geographic level selected. A year with no
+ * subprefeitura division paints the districts instead, with a note in the
+ * legend subtitle (see `paintedLevelFor`).
  * @param params.category - The demographic category to visualize.
  * @param params.group - The age group to visualize.
+ * The subprefeitura level is versioned — the division changed over the
+ * series — so its layer is filtered to the subprefeituras in force in the year
+ * painted: one GeoJSON holds every version, and a year change only swaps the
+ * filter, never the geometry.
+ *
  * @param params.year - The projection year to visualize — for an offer
  * indicator, the fixed year it is painted for, whatever the timeline says.
  * @param params.overlays - The overlays' toggles and loaded data.
+ * @param params.ages - For an offer indicator, the age bands its rate is set
+ * against (its "Faixa etária" menu). Its class breaks are scaled to them, since a
+ * narrower population raises every rate.
  * @returns A complete VisualizationSpec for GeoVis rendering.
  */
 const buildSpec = ({
   data,
-  level,
+  level: selectedLevel,
   category,
   group,
   year,
   zoom,
   overlays,
+  ages,
 }: {
   data: MapsDataContract;
   level: MapLevel;
@@ -124,13 +150,16 @@ const buildSpec = ({
   year: number;
   zoom: number;
   overlays: OverlaysSnapshot;
+  ages: readonly OfferAgeBand[];
 }): VisualizationSpec => {
+  const { level, note } = paintedLevelFor({ data, level: selectedLevel, year });
   const areas = MAP_LEVELS[level];
   const rows = buildMapRows({
     counts: level === 'distrito' ? data.counts : data.subprefeituraCounts,
     year,
     category,
     group,
+    ages,
   });
 
   // geovis MapDataRow is strictly `{ geometryId, value }` and its runtime
@@ -142,21 +171,29 @@ const buildSpec = ({
     return { geometryId, value };
   });
 
-  const thresholds = thresholdsFor({ category, group });
+  const offer = isOfferCategory(category);
+  // Scaled against the district counts at either level, so both share one
+  // set of breaks as they do for every series.
+  const thresholds = offer
+    ? scaleOfferThresholds({
+        thresholds: thresholdsFor({ category, group }),
+        share: offerAgeShare({ counts: data.counts, year, ages }),
+      })
+    : thresholdsFor({ category, group });
 
-  const indicator =
-    (MAP_TITLES[category] as Partial<Record<string, string>>)[group] ?? '';
+  const indicator = mapTitle({ category, group, ages });
   // The year belongs in the legend's own heading: during playback it is the
   // only thing on screen that changes, and a title that omits it leaves the
   // reader watching colours shift with no idea which year they are looking at.
-  const offer = isOfferCategory(category);
   // An offer title already reads "… POR 10 MIL IDOSOS", so the level follows
   // as "EM CADA …" rather than a second "POR".
   const levelPhrase = `${offer ? 'EM CADA' : 'POR'} ${areas.titleNoun}`;
   const title = indicator
     ? `${indicator} ${levelPhrase} — ${year}`
     : String(year);
-  const description = mapDescription({ category, group, level });
+  const description = [mapDescription({ category, group, level, ages }), note]
+    .filter(Boolean)
+    .join(' ');
 
   // Lookup used by the spec-driven hover tooltip to resolve a feature's row.
   const rowLookup = new Map(
@@ -218,6 +255,7 @@ const buildSpec = ({
         id: areas.layerId,
         sourceId: areas.sourceId,
         geometry: 'polygon',
+        ...areaLayerFilter({ data, level, year }),
         mapDataId: areas.mapDataId,
         activeLegendId: LEGEND_ID,
         legends: [
@@ -268,6 +306,7 @@ const buildSpec = ({
               category,
               group,
               thresholds,
+              ages,
             });
           },
           style: TOOLTIP_STYLE,
@@ -277,6 +316,7 @@ const buildSpec = ({
       ...overlayLayers.layers,
     ],
     control: LAYER_CONTROL,
+    images: overlayLayers.images,
     mapData: [
       {
         mapDataId: areas.mapDataId,
@@ -336,114 +376,6 @@ export type MapsViewProps = {
 };
 
 /**
- * Projection year the map opens on: the present-day one when the series carries
- * it, otherwise the first year available. Chosen over `years[0]` so the first
- * paint describes the city as it is now rather than as it was in 2000, and the
- * timeline can be played in either direction from there.
- */
-const INITIAL_YEAR = 2025;
-
-/**
- * Resolves the year the map opens on from the years the snapshot carries.
- *
- * @param years - Projection years, ascending.
- * @returns {@link INITIAL_YEAR} when present, else the earliest year.
- *
- * @example
- * initialYear([2000, 2025, 2050]); // 2025
- * initialYear([2010, 2020]); // 2010
- */
-const initialYear = (years: number[]): number => {
-  return years.includes(INITIAL_YEAR) ? INITIAL_YEAR : (years[0] ?? 0);
-};
-
-/** What the sidebar selects: level, indicator, band or service, and year. */
-type Selection = {
-  level: MapLevel;
-  category: Category;
-  group: Group;
-  year: number;
-};
-
-/**
- * The selection after the sidebar reports its menus' values.
- *
- * The level and the year are axes of their own: switching either never resets
- * the rest. A new category resets the group to the category's first option,
- * since the groups available depend on it (cascading behaviour) — but not the
- * year, which would otherwise undo the user's place in the animation on every
- * menu click.
- *
- * @param params.prev - The current selection.
- * @param params.next - The sidebar's values, keyed by menu id. The timeline
- * reports its year as a string on every tick; one the snapshot does not carry
- * is dropped rather than painted, since no area has rows for it and the map
- * would go blank.
- * @param params.years - Projection years the snapshot carries.
- * @returns The next selection.
- *
- * @example
- * nextSelection({ prev, next: { category: 'health-65plus' }, years });
- * // { ...prev, category: 'health-65plus', group: 'ubs' }
- */
-const nextSelection = ({
-  prev,
-  next,
-  years,
-}: {
-  prev: Selection;
-  next: Record<string, string | undefined>;
-  years: number[];
-}): Selection => {
-  const reportedYear = Number(next[YEAR_MENU_ID]);
-  const year = years.includes(reportedYear) ? reportedYear : prev.year;
-
-  const reportedLevel = next[LEVEL_MENU_ID];
-  const level = isMapLevel(reportedLevel) ? reportedLevel : prev.level;
-
-  const category = (next[CATEGORY_MENU_ID] ?? prev.category) as Category;
-  const group =
-    category === prev.category
-      ? ((next[GROUP_MENU_ID] ?? prev.group) as Group)
-      : getDefaultGroup(category);
-
-  return { level, category, group, year };
-};
-
-/**
- * The year the map paints for a selection.
- *
- * The offer indicators pair today's facilities with one projection year, so
- * they paint {@link OFFER_YEAR} whatever the timeline holds — or the opening
- * year, should a snapshot lack it. The timeline's own year is not touched: its
- * tab is disabled meanwhile, and picking a share indicator again resumes it
- * where it was.
- *
- * @param params.category - The selected category.
- * @param params.year - The timeline's year.
- * @param params.years - Projection years the snapshot carries.
- * @returns The year to paint.
- *
- * @example
- * paintedYearFor({ category: 'food-65plus', year: 2050, years }); // 2025
- */
-const paintedYearFor = ({
-  category,
-  year,
-  years,
-}: {
-  category: Category;
-  year: number;
-  years: number[];
-}): number => {
-  if (!isOfferCategory(category)) {
-    return year;
-  }
-
-  return years.includes(OFFER_YEAR) ? OFFER_YEAR : initialYear(years);
-};
-
-/**
  * Interactive client component for the demographic maps visualization.
  *
  * Receives pre-fetched canonical maps data from the server component parent and
@@ -462,6 +394,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
     category: 'cumulative-total',
     group: '65',
     year: defaultYear,
+    age: DEFAULT_OFFER_AGE,
   });
 
   /*
@@ -525,6 +458,8 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
     overlaysStore.getServerSnapshot
   );
 
+  const ages = offerAgeBands(selection.age);
+
   const paintedYear = paintedYearFor({
     category: selection.category,
     year: selection.year,
@@ -540,6 +475,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
       year: paintedYear,
       zoom,
       overlays,
+      ages,
     });
   }, [
     mapsData,
@@ -549,6 +485,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
     paintedYear,
     zoom,
     overlays,
+    ages,
   ]);
 
   /*
@@ -573,6 +510,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
       level: selection.level,
       category: selection.category,
       group: selection.group,
+      age: selection.age,
       years: mapsData.years,
       defaultYear,
       elderlyHistogram,
@@ -590,6 +528,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
     selection.level,
     selection.category,
     selection.group,
+    selection.age,
     mapsData.years,
     defaultYear,
     elderlyHistogram,
@@ -603,6 +542,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
       [GROUP_MENU_ID]: selection.group,
       // The timeline publishes and reads its value as a string.
       [YEAR_MENU_ID]: String(selection.year),
+      [AGE_MENU_ID]: selection.age,
     };
   }, [selection]);
 

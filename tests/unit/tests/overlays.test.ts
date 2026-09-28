@@ -276,6 +276,51 @@ describe('toAppPoints', () => {
     );
   });
 
+  test('leaves the source placeholders out of a facility line', () => {
+    const contract = toAppPoints({
+      layer: 'animais',
+      source: {
+        points: [
+          {
+            ...SANTA_CASA,
+            atributos: {
+              nome: 'CENTRO DE CONTROLE DE ZOONOSES',
+              tipo: 'SEM TIPO',
+              esfera: 'SEM ESFERA',
+            },
+          },
+        ],
+      },
+    });
+
+    expect(contract.features[0]?.properties.detail).toBe('');
+  });
+
+  test('describes a SAMU base by region and the modalities it runs', () => {
+    const contract = toAppPoints({
+      layer: 'samu',
+      source: {
+        points: [
+          {
+            ...SANTA_CASA,
+            atributos: {
+              nome: 'Hungria',
+              regiao: 'NORTE',
+              suporte_basico: 'Sim',
+              suporte_basico_enfermeiro: 'Sim',
+              suporte_avancado: 'Não',
+              motolancia: 'Sim',
+            },
+          },
+        ],
+      },
+    });
+
+    expect(contract.features[0]?.properties.detail).toBe(
+      'Região Norte · Suporte básico · Suporte básico com enfermeiro · Motolância'
+    );
+  });
+
   test('throws on an empty snapshot', () => {
     expect(() => {
       return toAppPoints({ layer: 'ubs', source: { points: [] } });

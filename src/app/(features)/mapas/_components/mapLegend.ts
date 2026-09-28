@@ -68,7 +68,8 @@ export const legendLabelFormat = (category: Category): LabelFormatSpec => {
  * the footer never cites a source for something the map is not showing.
  *
  * The aggregation and geometry credits follow the level painted: the
- * subprefeitura polygons come from GeoSampa, the district ones do not.
+ * subprefeitura polygons come from GeoSampa, the district ones do not, and the
+ * subprefeitura ones are dated, since the division changed within the series.
  *
  * @param params.level - The geographic level painted.
  * @param params.year - The projection year currently painted.
@@ -107,7 +108,13 @@ export const legendReference = ({
       ? ` ${geosampaWhat.charAt(0).toUpperCase()}${geosampaWhat.slice(1)}: {link:GeoSampa|https://geosampa.prefeitura.sp.gov.br}.`
       : '';
 
-  const { dataCredit, geometryCredit } = MAP_LEVELS[level];
+  const { dataCredit } = MAP_LEVELS[level];
+  // The subprefeitura division changed over the series (Sapopemba split from
+  // Vila Prudente in 2013), so the geometry is dated like the data.
+  const geometryCredit =
+    level === 'subprefeitura'
+      ? `${MAP_LEVELS[level].geometryCredit}, na divisão em vigor em ${year}`
+      : MAP_LEVELS[level].geometryCredit;
 
   return `Fonte dos dados: {link:${dataCredit} a partir das projeções populacionais por sexo e idade do SEADE|https://repositorio.seade.gov.br/dataset/populacao-residente-municipio-de-sao-paulo-evolucao} — projeção para ${year}, de uma série quinquenal que vai de ${first} a ${last}. Geometria: ${geometryCredit}. Mapa base: {link:OpenFreeMap|https://openfreemap.org/} · {link:OpenStreetMap|https://www.openstreetmap.org/copyright}.${overlaysCredit}`;
 };

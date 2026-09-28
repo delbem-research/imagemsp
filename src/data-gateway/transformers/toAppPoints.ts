@@ -33,6 +33,36 @@ const joinDetail = (parts: (string | undefined)[]): string => {
 };
 
 /**
+ * GeoSampa's placeholders for an empty type or sphere. They carry nothing a
+ * reader can use, so they are left out of the tooltip rather than printed.
+ */
+const PLACEHOLDERS = new Set(['SEM TIPO', 'SEM ESFERA']);
+
+/**
+ * The secondary line of a GeoSampa facility — the layers that share the
+ * `equipamento_*` schema: its type and administrative sphere, skipping either
+ * when the source leaves a placeholder.
+ *
+ * @param a - The point's columns.
+ * @returns E.g. `Pronto Atendimento · Municipal`.
+ */
+const equipmentDetail = (a: Record<string, string>): string => {
+  return joinDetail(
+    [a['tipo'], a['esfera']].filter((part) => {
+      return !PLACEHOLDERS.has(part ?? '');
+    })
+  );
+};
+
+/** The SAMU base modalities, in the order the tooltip lists them. */
+const SAMU_MODALITIES: [column: string, label: string][] = [
+  ['suporte_avancado', 'Suporte avançado'],
+  ['suporte_basico', 'Suporte básico'],
+  ['suporte_basico_enfermeiro', 'Suporte básico com enfermeiro'],
+  ['motolancia', 'Motolância'],
+];
+
+/**
  * The tooltip's secondary line per layer, built from the snapshot's columns.
  * Which columns a reader sees is an app decision, so it lives here and not in
  * the generator, which keeps every column.
@@ -41,12 +71,25 @@ const DETAIL: Record<
   PointOverlayId,
   (atributos: Record<string, string>) => string
 > = {
-  hospitais: (a) => {
-    return joinDetail([a['tipo'], a['esfera']]);
+  hospitais: equipmentDetail,
+  urgencia: equipmentDetail,
+  // The region, then the modalities the base answers with.
+  samu: (a) => {
+    return joinDetail([
+      a['regiao'] ? `Região ${titleCase(a['regiao'])}` : undefined,
+      ...SAMU_MODALITIES.filter(([column]) => {
+        return a[column] === 'Sim';
+      }).map(([, label]) => {
+        return label;
+      }),
+    ]);
   },
-  ubs: (a) => {
-    return joinDetail([a['tipo'], a['esfera']]);
-  },
+  ubs: equipmentDetail,
+  ambulatorios: equipmentDetail,
+  'saude-mental': equipmentDetail,
+  'dst-aids': equipmentDetail,
+  vigilancia: equipmentDetail,
+  animais: equipmentDetail,
   restaurantes: (a) => {
     return joinDetail([
       titleCase(a['programa'] ?? ''),

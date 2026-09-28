@@ -1,6 +1,10 @@
+// Type only: this registry also runs in the API route, which must not pull in
+// the icon registry's client-side `addIcon` calls.
+import type { IconName } from '@/components/map/lib/icons';
+
 /**
  * The overlays the map offers in its "Camadas" control, drawn on top of the
- * choropleth: GeoSampa facilities and stops as points, and parks as polygons.
+ * choropleth: GeoSampa facilities and stops as pins, and parks as polygons.
  *
  * This registry is the single place an overlay is declared: the route, the
  * client store and the spec all iterate it, so adding one is an entry here plus
@@ -11,7 +15,14 @@
 /** Overlays drawn as points, each built from a CSV in `data/raw/`. */
 export const POINT_OVERLAY_IDS = [
   'hospitais',
+  'urgencia',
+  'samu',
   'ubs',
+  'ambulatorios',
+  'saude-mental',
+  'dst-aids',
+  'vigilancia',
+  'animais',
   'restaurantes',
   'esporte',
   'estacoes',
@@ -56,17 +67,26 @@ export const isPointOverlayId = (id: OverlayId): id is PointOverlayId => {
 type OverlayBase = {
   /** Text of the overlay's toggle in the "Camadas" control. */
   label: string;
-  /** Fixed colour: a point's fill, or a polygon's fill and outline. */
+  /** Fixed colour: a pin's fill, or a polygon's fill and outline. */
   color: string;
 };
 
 export type PointOverlayConfig = OverlayBase & {
   id: PointOverlayId;
   kind: 'point';
-  /** Point radius, in pixels. */
-  radius: number;
-  /** Width of the light halo around each point, in pixels. */
-  strokeWidth: number;
+  /**
+   * Icon drawn inside the overlay's pin — for the health and service overlays
+   * the same one the sidebar shows for that offer, so a pin and its indicator
+   * read as the same thing.
+   */
+  icon: IconName;
+  /** Pin width, in pixels; its height follows the teardrop's shape. */
+  pinSize: number;
+  /**
+   * Whether every pin is drawn even where it collides with another. `false`
+   * lets MapLibre drop the colliding ones, which come back as the map zooms in.
+   */
+  allowOverlap: boolean;
 };
 
 export type PolygonOverlayConfig = OverlayBase & {
@@ -86,13 +106,19 @@ export type OverlayConfig = PointOverlayConfig | PolygonOverlayConfig;
  * hard to tell apart. That is safe because polygons always draw beneath the
  * points, so a facility inside a park stays on top of it.
  *
- * Colours are one distinct hue per overlay and deliberately none of them blue:
- * the choropleth underneath is a blue ramp (`LEGEND_COLORS`), and a blue mark
- * would vanish into the darker districts. The parks' green is darker and less
- * saturated than the UBS points' so the two read apart.
+ * Colours are one hue per overlay and deliberately none of them blue: the
+ * choropleth underneath is a blue ramp (`LEGEND_COLORS`), and a blue mark would
+ * vanish into the darker districts. With this many overlays some hues sit
+ * close; the ones meant to be read together are the ones kept apart — the
+ * emergency care (hospitals, urgência, SAMU) in the red family, the rest of
+ * the health network in distinct hues around it. The parks' green is darker and
+ * less saturated than the UBS points' so the two read apart.
  *
- * Bus stops are smaller and thinner-haloed than the other points: there are 22
- * thousand of them, and at the size of the others they would pave the city over.
+ * Bus stops are smaller than the other pins and the only ones allowed to
+ * collide away: there are 22 thousand of them, and drawn all at once they would
+ * pave the city over. MapLibre keeps a readable spread of them at city zoom and
+ * brings back the rest as the map zooms in; every other overlay keeps all its
+ * pins at any zoom.
  */
 export const OVERLAYS: readonly OverlayConfig[] = [
   {
@@ -107,56 +133,128 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     kind: 'point',
     label: 'Localização dos hospitais',
     color: '#E4572E',
-    radius: 4,
-    strokeWidth: 1.2,
+    // Filled, unlike the sidebar's outline cross: the hospitals are the most
+    // prominent pins, and a solid cross reads better at pin size.
+    icon: 'ph:first-aid-fill',
+    pinSize: 22,
+    allowOverlap: true,
+  },
+  {
+    id: 'urgencia',
+    kind: 'point',
+    label: 'UPA',
+    color: '#9C1C1C',
+    icon: 'ph:pulse',
+    pinSize: 22,
+    allowOverlap: true,
+  },
+  {
+    id: 'samu',
+    kind: 'point',
+    label: 'Bases do SAMU',
+    color: '#00897B',
+    icon: 'ph:siren',
+    pinSize: 22,
+    allowOverlap: true,
   },
   {
     id: 'ubs',
     kind: 'point',
     label: 'UBS',
     color: '#2E9E5B',
-    radius: 4,
-    strokeWidth: 1.2,
+    icon: 'ph:first-aid-kit',
+    pinSize: 22,
+    allowOverlap: true,
+  },
+  {
+    id: 'ambulatorios',
+    kind: 'point',
+    label: 'Ambulatórios especializados',
+    color: '#F28E2B',
+    icon: 'ph:stethoscope',
+    pinSize: 22,
+    allowOverlap: true,
+  },
+  {
+    id: 'saude-mental',
+    kind: 'point',
+    label: 'Saúde mental',
+    color: '#B279A2',
+    icon: 'ph:brain',
+    pinSize: 22,
+    allowOverlap: true,
+  },
+  {
+    id: 'dst-aids',
+    kind: 'point',
+    label: 'Unidades DST/AIDS',
+    color: '#FF9DA7',
+    icon: 'ph:test-tube',
+    pinSize: 22,
+    allowOverlap: true,
+  },
+  {
+    id: 'vigilancia',
+    kind: 'point',
+    label: 'Vigilância em saúde',
+    color: '#4D4D00',
+    icon: 'ph:shield-check',
+    pinSize: 22,
+    allowOverlap: true,
+  },
+  {
+    id: 'animais',
+    kind: 'point',
+    label: 'Animais (zoonoses e hospitais veterinários)',
+    color: '#9BBB2F',
+    icon: 'ph:paw-print',
+    pinSize: 22,
+    allowOverlap: true,
   },
   {
     id: 'restaurantes',
     kind: 'point',
     label: 'Restaurantes públicos',
     color: '#D63A8A',
-    radius: 4,
-    strokeWidth: 1.2,
+    icon: 'ph:fork-knife',
+    pinSize: 22,
+    allowOverlap: true,
   },
   {
     id: 'esporte',
     kind: 'point',
     label: 'Locais de esporte públicos',
     color: '#8C564B',
-    radius: 4,
-    strokeWidth: 1.2,
+    icon: 'ph:soccer-ball',
+    pinSize: 22,
+    allowOverlap: true,
   },
   {
     id: 'estacoes',
     kind: 'point',
     label: 'Estações de metrô e trem',
     color: '#7B3FA0',
-    radius: 4,
-    strokeWidth: 1.2,
+    icon: 'ph:train',
+    pinSize: 22,
+    allowOverlap: true,
   },
   {
     id: 'terminais',
     kind: 'point',
     label: 'Terminais de ônibus',
     color: '#3D3D3D',
-    radius: 4,
-    strokeWidth: 1.2,
+    icon: 'ph:bus',
+    pinSize: 22,
+    allowOverlap: true,
   },
   {
     id: 'pontos-onibus',
     kind: 'point',
     label: 'Pontos de ônibus',
     color: '#E0A100',
-    radius: 2.5,
-    strokeWidth: 0.6,
+    icon: 'ph:traffic-sign',
+    pinSize: 16,
+    allowOverlap: false,
   },
 ];
 

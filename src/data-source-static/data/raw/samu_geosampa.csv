@@ -1,0 +1,81 @@
+nome,regiao,endereco,suporte_basico,suporte_basico_enfermeiro,suporte_avancado,motolancia,longitude,latitude,distrito
+Hungria,NORTE,"Avenida Menotti Laudisio, 100",Sim,Sim,Não,Sim,-46.727603,-23.48466702,Pirituba
+EB - Estação de Bombeiro Pirituba,NORTE,"Rua Monsenhor Castro Nery, 150",Não,Não,Sim,Não,-46.738523,-23.49092902,São Domingos
+EB - Estação de Bombeiro Mooca,SUDESTE,"Rua Dr João Inácio Teixeira, 91",Não,Sim,Sim,Não,-46.5855,-23.55804702,Água Rasa
+Parelheiros,SUL,"Rua Euzebio Coghi, 841",Sim,Não,Não,Não,-46.726476,-23.82332202,Parelheiros
+Parque CERET,SUDESTE,"Rua Canuto Abreu, s/n, Tatuapé",Não,Não,Não,Sim,-46.559709,-23.55567702,Vila Formosa
+UPA Jaçanã,NORTE,"Rua Estér Elisa, s/n",Sim,Não,Não,Não,-46.57967,-23.45932402,Jaçanã
+UPA Jardim Helena,LESTE,"Avenida Kumaki Aoki, 785, Jardim Helena",Sim,Não,Não,Sim,-46.419559,-23.47908002,Jardim Helena
+UBS Jardim das Oliveiras,LESTE,"Rua José Da Cruz Camargo, 174",Sim,Sim,Não,Não,-46.380043,-23.49498802,Itaim Paulista
+CAPS Largo 13,SUL,"Rua Paula Cruz, 71",Sim,Não,Não,Sim,-46.715816,-23.65090302,Santo Amaro
+Cidade Universitária - USP,OESTE,"Avenida Professor Almeida Prado, 1280",Sim,Sim,Sim,Sim,-46.742702,-23.55981602,Butantã
+UPA Tito Lopes,LESTE,"Avenida Pires Do Rio, 228",Sim,Não,Não,Não,-46.442414,-23.49831202,São Miguel
+Nove de Julho,NORTE,"Rua Avanhandava, 521",Não,Não,Não,Sim,-46.64846,-23.55264402,Bela Vista
+Jardim Colombo,OESTE,"Rua Frei Bonifacio Dux, 40",Não,Não,Não,Sim,-46.72822,-23.60168202,Vila Sônia
+AMA Capao Redondo,SUL,"Avenida Comendador Santanna, 774",Sim,Não,Não,Não,-46.77385,-23.67375002,Capão Redondo
+CAPS Pirituba,NORTE,"Avenida Raimundo Pereira de Magalhães, 5214",Não,Sim,Não,Não,-46.72428,-23.48680302,Pirituba
+Palmeiras,NORTE,"Rua Francisco Lotufo, 24",Sim,Não,Não,Não,-46.685206,-23.49466402,Freguesia do Ó
+Base Posto de Atendimento Bandeirantes (PAT BAND),OESTE,"Praça Augusto Rademaker Grunewald, 50",Não,Não,Sim,Sim,-46.691531,-23.59646302,Itaim Bibi
+Hospital do Servidor Público Municipal – HSPM,NORTE,"Rua Castro Alves, 60",Não,Sim,Não,Não,-46.63911,-23.56742102,Liberdade
+UBS Cupecê,SUDESTE,"Avenida Santa Catarina, 1523",Sim,Não,Não,Não,-46.662079,-23.64806102,Jabaquara
+Hospital Municipal Nhocune,SUDESTE,"Rua Alves Maldonado, 128",Sim,Não,Não,Não,-46.502311,-23.54306302,Vila Matilde
+EB - Estação de Bombeiro Sapopemba,SUDESTE,"Avenida Arquiteto Vilanova Artigas, 889, Sapopemba",Sim,Não,Não,Não,-46.503031,-23.60643502,Sapopemba
+CAPS Itaim Bibi,OESTE,"Avenida Horácio Lafer, 560",Sim,Não,Não,Não,-46.684625,-23.58790002,Itaim Bibi
+Mandaqui,NORTE,"Rua Augusto Tolle, 892",Sim,Não,Sim,Sim,-46.633055,-23.48571902,Santana
+Saboya,SUDESTE,"Rua Cruz das Almas, 290",Sim,Sim,Sim,Sim,-46.64624576,-23.65281961,Jabaquara
+Interlagos,SUL,"Avenida Interlagos, 5945, Portão 1",Sim,Sim,Sim,Sim,-46.70037,-23.69767002,Cidade Dutra
+UPA Itaquera,LESTE,"Avenida Miguel Ignacio Curi, 44",Não,Sim,Sim,Não,-46.463636,-23.54420602,Itaquera
+Real Parque,OESTE,"Rua Barão de Melgaço, 339",Não,Não,Não,Sim,-46.705528,-23.61002202,Morumbi
+UVIS Cidade Ademar,SUL,"Rua Maria Cuofono Salzano, 185",Não,Não,Sim,Não,-46.667044,-23.65519302,Cidade Ademar
+USP Leste,LESTE,"Rua Arlindo Béttio, 1000",Sim,Não,Não,Sim,-46.500229,-23.48362502,Cangaíba
+Mario Degni,OESTE,"Rua Lucas de Leyde, 257",Sim,Não,Não,Não,-46.764929,-23.57789002,Rio Pequeno
+EB - Estação de Bombeiro Tucuruvi,NORTE,"Avenida Nova Cantareira, 2641",Não,Não,Sim,Não,-46.613265,-23.47511802,Tucuruvi
+UBS Cidade Nova Sao Miguel,LESTE,"Rua Mohamad Ibrahin Saleh, 824",Sim,Não,Não,Não,-46.432148,-23.50417902,São Miguel
+Jova Rural,NORTE,"Rua Alfeu de Alcântara Monteiro, 300",Não,Não,Não,Sim,-46.579875,-23.45478602,Jaçanã
+Bom Retiro,NORTE,"Rua Jaraguá, 858",Não,Sim,Sim,Sim,-46.648501,-23.52472602,Bom Retiro
+UPA Atualpa Girão Rabelo,LESTE,"Rua Ilha do Arvoredo, 10",Sim,Não,Não,Não,-46.395845,-23.50825802,Itaim Paulista
+Elisio Teixeira Leite,NORTE,"Rua João Amado Coutinho, 400",Sim,Sim,Não,Não,-46.714481,-23.44647802,Jaraguá
+CER III Santo Amaro,SUL,"Avenida. Miguel Yunes, 491",Sim,Não,Não,Não,-46.68764,-23.68774202,Campo Grande
+CECCO Jacana,NORTE,"Avenida Paulo Lincoln Do Valle Pontin, 241",Sim,Não,Não,Não,-46.585335,-23.46325902,Jaçanã
+Vila Maria,NORTE,"Rua General Mendes, 111",Não,Sim,Não,Não,-46.591666,-23.50148502,Vila Maria
+Paraisópolis,SUL,"Rua Silveira Sampaio, 160",Não,Sim,Não,Não,-46.720223,-23.61270102,Vila Andrade
+EB - Estação de Bombeiro Butantã,OESTE,"Rua Azém Abdalla Azém, 800",Sim,Não,Não,Não,-46.737515,-23.58391502,Butantã
+AMA Hermenegildo,SUDESTE,"Rua Planalto Da Conquista, 80",Sim,Não,Não,Não,-46.560212,-23.58856002,São Lucas
+Aristides Viadana,OESTE,"Rua Aristides Viadana, 61",Sim,Não,Não,Sim,-46.698813,-23.51751102,Lapa
+UBS Inacio Monteiro,LESTE,"Rua Inácio Monteiro, 3002",Sim,Não,Não,Não,-46.392056,-23.57640602,Cidade Tiradentes
+Armênia,NORTE,"Avenida do Estado, 704",Sim,Não,Não,Não,-46.633586,-23.52303302,Bom Retiro
+Tribunal de Contas do Município,SUDESTE,"Avenida Professor Ascendino Reis, 1130",Não,Não,Sim,Não,-46.651694,-23.59904502,Moema
+EB - Estação de Bombeiro São Miguel,LESTE,"Avenida Nordestina, 475, Vila Americana",Não,Não,Sim,Sim,-46.441296,-23.49707702,São Miguel
+Cachoeirinha,NORTE,"Avenida Deputado Emílio Carlos, 3100",Sim,Não,Não,Não,-46.671287,-23.48023402,Cachoeirinha
+UBS Rio Claro,LESTE,"Rua Cinira Polônio, 33",Não,Sim,Não,Sim,-46.456374,-23.62117402,São Rafael
+UPA Sacomã,SUDESTE,"Estrada Das Lágrimas, 1403",Sim,Não,Não,Sim,-46.593777,-23.61360602,Sacomã
+AMA Sorocabana,OESTE,"Rua Catão, 380",Sim,Não,Sim,Não,-46.700669,-23.52427602,Lapa
+Hospital Municipal Itaquera - Itaquera Planalto,LESTE,"Rua Augusto Carlos Bauman, 1074",Sim,Não,Não,Sim,-46.444518,-23.53109302,Itaquera
+UPA Vera Cruz,SUL,"Avenida Dos Funcionários Públicos, 379",Sim,Não,Não,Não,-46.781498,-23.73497402,Jardim Ângela
+Hospital Municipal Cidade Tiradentes,LESTE,"Avenida Dos Metalúrgicos, 2100",Sim,Não,Não,Sim,-46.401997,-23.59966902,Cidade Tiradentes
+UBS Marsilac / Jardim Embura,SUL,"Rua Benedito Schunck, 8",Sim,Não,Não,Não,-46.742317,-23.88081002,Marsilac
+Jardim Grimaldi,SUDESTE,"Rua José de Queiroz Matos, 216-A, Jardim Grimaldi",Sim,Sim,Não,Sim,-46.516149,-23.59833302,Sapopemba
+UBS São Nicolau,SUDESTE,"Rua Brook Taylor, 30",Sim,Sim,Não,Não,-46.476123,-23.52930602,Artur Alvim
+Cidade Ademar,SUL,"Avenida Yervant Kissajikian, 416",Sim,Sim,Não,Não,-46.67491,-23.66780602,Campo Grande
+UBS Vila Esperanca,SUDESTE,"Rua Alvinopolis, 1350",Sim,Não,Não,Não,-46.532036,-23.53092302,Penha
+CAPS AMA Sé,NORTE,"Rua Frederico Alvarenga, 259",Não,Não,Sim,Sim,-46.628234,-23.55105602,Sé
+UPA Carrão,SUDESTE,"Rua Nunes Balboa, 47",Sim,Sim,Não,Não,-46.533362,-23.54999102,Carrão
+UBS Itaquera,LESTE,"Rua Américo Salvador Novelli, 265",Sim,Não,Não,Não,-46.455232,-23.53946102,Itaquera
+Base Santana,NORTE,"Rua Voluntários Da Pátria, 901",Não,Não,Não,Não,-46.626717,-23.51269202,Santana
+Perus,NORTE,"Rua Júlio Maciel, 54",Sim,Sim,Não,Sim,-46.75302,-23.41424902,Perus
+Hospital Municipal Ermelino Matarazzo,LESTE,"Alameda Rodrigo de Brum, 1989",Sim,Não,Não,Não,-46.472441,-23.49983602,Ermelino Matarazzo
+M'Boi Mirim,SUL,"Estrada Do Mboi Mirim, 5203",Sim,Sim,Não,Sim,-46.775416,-23.69225102,Jardim Ângela
+UPA Maria Antonieta,SUL,"Rua Antônio Felipe Filho, 180",Sim,Não,Não,Sim,-46.690569,-23.74882302,Grajaú
+UPA Cidade Tiradentes,LESTE,"Rua Cachoeira Morena, 462",Sim,Sim,Não,Não,-46.403426,-23.57149202,Cidade Tiradentes
+CEU Alvarenga,SUL,"Estrada Do Alvarenga, 3752",Sim,Não,Não,Não,-46.644135,-23.70479002,Pedreira
+São Mateus,LESTE,"Avenida Ragueb Chohfi, 822",Sim,Sim,Não,Sim,-46.470988,-23.60616902,São Mateus
+UPA 21 DE JUNHO,NORTE,"Rua Miguel Helou, s/n, Parque Monteiro Soares",Não,Sim,Não,Sim,-46.690402,-23.49087202,Freguesia do Ó
+AE/UBS/CEO Dr Walter Elias,NORTE,"Rua Mourão Vieira, 11",Não,Sim,Não,Não,-46.663995,-23.50949302,Casa Verde
+Hospital Municipal Tatuapé,SUDESTE,"Avenida Celso Garcia, 4815",Sim,Não,Sim,Não,-46.566529,-23.53270502,Tatuapé
+Anchieta,SUL,"Rua Alziro Pinheiro Magalhães, 578",Não,Sim,Não,Não,-46.683663,-23.76203102,Grajaú
+CAPS São Luiz,SUL,"Rua Luciano Silva, 179",Não,Não,Sim,Sim,-46.743252,-23.64541802,Jardim São Luís
+Lapa,OESTE,"Avenida Queiroz Filho, 313",Sim,Não,Não,Sim,-46.722369,-23.53738102,Alto de Pinheiros
+UPA Julio Tupi,LESTE,"Rua Serra Da Queimada, 800",Sim,Não,Não,Sim,-46.411365,-23.52751602,Lajeado
+Andaraí,NORTE,"Rua Benedita Dornellas Claro, 451, Parque Novo Mundo",Sim,Sim,Não,Sim,-46.575113,-23.51594402,Vila Maria
+Ipiranga,SUDESTE,"Rua Xavier de Almeida, 210",Sim,Sim,Não,Não,-46.608723,-23.58762502,Ipiranga
+Rio Pequeno,OESTE,"Rua José Vicente Da Cruz, 90",Sim,Sim,Não,Sim,-46.765007,-23.57647702,Rio Pequeno

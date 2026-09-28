@@ -2,6 +2,7 @@ import type { GeovisWorkspaceConfig } from '@ttoss/geovis-workspace';
 
 import { ICONS } from '@/components/map/lib/icons';
 import type {
+  AgeGroup,
   Category,
   Group,
   OfferCategory,
@@ -14,10 +15,14 @@ import {
 } from '@/components/map/lib/mapLevels';
 import {
   isOfferCategory,
+  OFFER_AGE_BANDS,
   OFFER_CATEGORIES,
   OFFER_CATEGORY_IDS,
   OFFER_LABELS,
   OFFER_YEAR,
+  type OfferAgeBand,
+  offerAgesLong,
+  offerAgesShort,
 } from '@/config/offer';
 
 /** Menu ids used by the GeovisWorkspace left sidebar and selection record. */
@@ -25,6 +30,7 @@ export const LEVEL_MENU_ID = 'level';
 export const CATEGORY_MENU_ID = 'category';
 export const GROUP_MENU_ID = 'group';
 export const YEAR_MENU_ID = 'year';
+export const AGE_MENU_ID = 'age';
 
 /**
  * Section ids, which double as the tab labels here.
@@ -172,18 +178,41 @@ const GROUP_ICONS: Record<Group, string> = {
   '70-74': ICONS.arrowsInLineHorizontal,
   ubs: ICONS.firstAidKit,
   hospitais: ICONS.firstAid,
+  urgencia: ICONS.pulse,
+  samu: ICONS.siren,
+  ambulatorios: ICONS.stethoscope,
+  'saude-mental': ICONS.brain,
+  'dst-aids': ICONS.testTube,
+  vigilancia: ICONS.shieldCheck,
+  animais: ICONS.pawPrint,
   restaurantes: ICONS.forkKnife,
   esporte: ICONS.soccerBall,
 };
 
 /**
+ * Age-group options of the offer indicators: the population a rate is set
+ * against (see `offerAgeBands`) — every elderly resident, or one of the three
+ * bands the counts carry. "Todos" leads, being the rate the indicators open on.
+ */
+export const OFFER_AGE_OPTIONS: { value: AgeGroup; label: string }[] = [
+  { value: '65', label: 'Todos' },
+  { value: '65-69', label: '65 a 69 anos' },
+  { value: '70-74', label: '70 a 74 anos' },
+  { value: '75', label: '75 anos ou mais' },
+];
+
+/** The offer indicators' opening age group: every elderly resident. */
+export const DEFAULT_OFFER_AGE: AgeGroup = '65';
+
+/**
  * Title of an offer indicator in the legend, upper case like the others.
  *
  * @param service - The offer service.
- * @returns E.g. `UBS POR 10 MIL IDOSOS (65+)`.
+ * @returns E.g. `UBS POR 10 MIL IDOSOS ({ages})`, the placeholder `mapTitle`
+ * fills with the selected age bands.
  */
 const offerTitle = (service: OfferService): string => {
-  return `${OFFER_LABELS[service].title} POR 10 MIL IDOSOS (65+)`;
+  return `${OFFER_LABELS[service].title} POR 10 MIL IDOSOS ({ages})`;
 };
 
 /**
@@ -192,10 +221,11 @@ const offerTitle = (service: OfferService): string => {
  * rate is not read as a forecast of the network.
  *
  * @param service - The offer service.
- * @returns The subtitle, with the `{area}` placeholder `mapDescription` fills.
+ * @returns The subtitle, with the `{area}` and `{agesLong}` placeholders
+ * `mapDescription` fills.
  */
 const offerDescription = (service: OfferService): string => {
-  const base = `${OFFER_LABELS[service].menu} {area} para cada 10 mil pessoas com 65 anos ou mais — rede atual mapeada pelo GeoSampa sobre a população projetada para ${OFFER_YEAR}.`;
+  const base = `${OFFER_LABELS[service].menu} {area} para cada 10 mil pessoas com {agesLong} — rede atual mapeada pelo GeoSampa sobre a população projetada para ${OFFER_YEAR}.`;
 
   // The hospital layer is not the city's full universe (see the catalogue's
   // `hospitais_geosampa_incomplete_coverage`); a rate built on it undercounts.
@@ -248,12 +278,42 @@ export const MAP_DESCRIPTIONS: Record<
 };
 
 /**
+ * The legend title for one series. An offer title carries an `{ages}`
+ * placeholder, filled with the age bands its rate is set against.
+ *
+ * @param params.category - The indicator category.
+ * @param params.group - The age group, or the service, within that category.
+ * @param params.ages - The offer rate's age bands. Defaults to all three.
+ * @returns The title, or `''` for a series with none.
+ *
+ * @example
+ * mapTitle({ category: 'health-65plus', group: 'ubs', ages: ['75'] });
+ * // 'UBS POR 10 MIL IDOSOS (75+)'
+ */
+export const mapTitle = ({
+  category,
+  group,
+  ages = OFFER_AGE_BANDS,
+}: {
+  category: Category;
+  group: Group;
+  ages?: readonly OfferAgeBand[];
+}): string => {
+  const template =
+    (MAP_TITLES[category] as Partial<Record<string, string>>)[group] ?? '';
+
+  return template.replace('{ages}', offerAgesShort(ages));
+};
+
+/**
  * The legend subtitle for one series at one level. Descriptions that name the
- * area carry an `{area}` placeholder, filled with the level's own wording.
+ * area carry an `{area}` placeholder, filled with the level's own wording, and
+ * the offer ones an `{agesLong}` placeholder, filled with the age bands.
  *
  * @param params.category - The indicator category.
  * @param params.group - The age group within that category.
  * @param params.level - The geographic level painted.
+ * @param params.ages - The offer rate's age bands. Defaults to all three.
  * @returns The subtitle, or `''` for a series with no description.
  *
  * @example
@@ -264,16 +324,20 @@ export const mapDescription = ({
   category,
   group,
   level,
+  ages = OFFER_AGE_BANDS,
 }: {
   category: Category;
   group: Group;
   level: MapLevel;
+  ages?: readonly OfferAgeBand[];
 }): string => {
   const template =
     (MAP_DESCRIPTIONS[category] as Partial<Record<string, string>>)[group] ??
     '';
 
-  return template.replace('{area}', MAP_LEVELS[level].ofArea);
+  return template
+    .replace('{area}', MAP_LEVELS[level].ofArea)
+    .replace('{agesLong}', offerAgesLong(ages));
 };
 
 /** Resolves the default age-group for a category (its first option). */
@@ -354,6 +418,45 @@ const buildYearSection = ({
 };
 
 /**
+ * The offer indicators' "Faixa etária" block: the age group their rate is set
+ * against, read with the service picked above it. Listed only for the offer
+ * categories — the share ones carry their age band in the `group` menu.
+ *
+ * @param age - The selected age group, the menu's default.
+ * @returns The block for the variations tab's `filters` body.
+ */
+const buildOfferAgeBlock = (age: AgeGroup) => {
+  return {
+    id: AGE_MENU_ID,
+    title: 'Faixa etária',
+    icon: ICONS.usersThree,
+    control: {
+      kind: 'variations' as const,
+      menuId: AGE_MENU_ID,
+      variations: OFFER_AGE_OPTIONS.map((option) => {
+        return { ...option, icon: GROUP_ICONS[option.value] };
+      }),
+      defaultValue: age,
+    },
+  };
+};
+
+/**
+ * The workspace slots this map hides. The right sidebar is never configured
+ * here, but that alone does not drop it: `hasRightSidebar` is derived from slot
+ * CONTENT, not from `config.rightSidebar`. The `metadata` slot auto-fills from
+ * `spec.sources` (always non-empty for us) and `inspector` fills on any map
+ * click, so the open-sidebar button would show regardless. Declaring the slots
+ * hidden is the only way out — hidden always wins over content.
+ */
+const HIDDEN_SLOTS: GeovisWorkspaceConfig['slots'] = {
+  legend: { hidden: true },
+  warnings: { hidden: true },
+  inspector: { hidden: true },
+  metadata: { hidden: true },
+};
+
+/**
  * Builds the GeovisWorkspace config (left sidebar sections) for the current
  * selection. The `group` variations depend on `category`, so the config is
  * rebuilt whenever the selection changes (cascading behaviour). The legend and
@@ -361,14 +464,14 @@ const buildYearSection = ({
  * `buildSpec` in `MapsView.tsx`), so there is no right sidebar.
  *
  * Two tabs. The first holds the variation menus as blocks — geographic level,
- * indicator and age band are read together, and the cascade between them is driven by React state
+ * indicator and age band (and, for the offer indicators, service) are read together, and the cascade between them is driven by React state
  * in `MapsView`, not by the sidebar's own navigation. The second is the
  * projection-year timeline, which stays in a tab of its own as the workspace
  * recommends: it is the only control with playback, and it publishes
  * `variables[YEAR_MENU_ID]` on every tick, so it has nothing to gain from
  * sitting beside menus that are picked once.
  *
- * Neither section declares `header.title`, so the sidebar draws no header band
+ * No section declares `header.title`, so the sidebar draws no header band
  * and the tab bar takes the top of the card, close button included. Navigation
  * rides on the tab icons, and every block heads itself. What names each tab —
  * on hover and for assistive tech — is its section `id`, which is why those
@@ -377,6 +480,7 @@ const buildYearSection = ({
  * @param params.level - The selected geographic level.
  * @param params.category - The selected demographic category.
  * @param params.group - The selected age group.
+ * @param params.age - The offer indicators' selected age group.
  * @param params.years - Projection years available, ascending and evenly
  * spaced; drives the timeline's `min`, `max` and `step`.
  * @param params.defaultYear - Year the timeline starts on. Only the first value
@@ -394,6 +498,7 @@ export const buildWorkspaceConfig = ({
   level,
   category,
   group,
+  age = DEFAULT_OFFER_AGE,
   years,
   defaultYear,
   elderlyHistogram,
@@ -402,6 +507,7 @@ export const buildWorkspaceConfig = ({
   level: MapLevel;
   category: Category;
   group: Group;
+  age?: AgeGroup;
   years: number[];
   defaultYear: number;
   elderlyHistogram: { key: number; count: number }[];
@@ -411,18 +517,7 @@ export const buildWorkspaceConfig = ({
     // The page owns the framing (full-bleed map filling the viewport), so drop
     // the workspace own card border and radius.
     appearance: 'bare',
-    // The right sidebar is never configured here, but that alone does not
-    // drop it: `hasRightSidebar` is derived from slot CONTENT, not from
-    // `config.rightSidebar`. The `metadata` slot auto-fills from
-    // `spec.sources` (always non-empty for us) and `inspector` fills on any
-    // map click, so the open-sidebar button would show regardless. Declaring
-    // the slots hidden is the only way out — hidden always wins over content.
-    slots: {
-      legend: { hidden: true },
-      warnings: { hidden: true },
-      inspector: { hidden: true },
-      metadata: { hidden: true },
-    },
+    slots: HIDDEN_SLOTS,
     leftSidebar: {
       /*
        * This is the ONLY way to decide whether the sidebar starts open:
@@ -500,6 +595,9 @@ export const buildWorkspaceConfig = ({
                   defaultValue: group,
                 },
               },
+              // Last, so it sits where the share indicators keep their own
+              // age band.
+              ...(isOfferCategory(category) ? [buildOfferAgeBlock(age)] : []),
             ],
           },
         },
