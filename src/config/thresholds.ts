@@ -138,3 +138,42 @@ export const thresholdsFor = ({
 
   return thresholds;
 };
+
+/**
+ * Rounds a break to two significant digits, so a scaled legend reads `0,83`
+ * rather than `0,8264`.
+ */
+const roundBreak = (value: number): number => {
+  return Number(value.toPrecision(2));
+};
+
+/**
+ * An offer series' breaks for a narrower population than the 65+ they are
+ * calibrated for: every break divided by that population's share of the 65+,
+ * since the rate is divided by it too. Without this, filtering to 75+ (about a
+ * third of the 65+) would triple every rate and push the map into the darkest
+ * classes.
+ *
+ * The first break is kept as is: it sits a hair above zero so the lightest
+ * class holds only the areas without the service, whatever the population.
+ *
+ * @param params.thresholds - The series' 65+ breaks.
+ * @param params.share - The selected bands' share of the 65+, in (0, 1].
+ * @returns The scaled breaks, rounded to two significant digits.
+ *
+ * @example
+ * scaleOfferThresholds({ thresholds: [0.001, 1, 2, 3, 5, 8], share: 0.5 });
+ * // [0.001, 2, 4, 6, 10, 16]
+ */
+export const scaleOfferThresholds = ({
+  thresholds,
+  share,
+}: {
+  thresholds: number[];
+  share: number;
+}): number[] => {
+  if (share >= 1) return thresholds;
+  return thresholds.map((value, index) => {
+    return index === 0 ? value : roundBreak(value / share);
+  });
+};

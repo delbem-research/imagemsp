@@ -2,17 +2,23 @@
  * @jest-environment node
  */
 import { legendLabelFormat } from '@/app/(features)/mapas/_components/mapLegend';
-import { buildMapRows } from '@/components/map/lib/mapRows';
+import { buildMapRows, offerAgeShare } from '@/components/map/lib/mapRows';
 import {
+  AGE_MENU_ID,
   buildWorkspaceConfig,
   GROUP_OPTIONS,
+  mapDescription,
+  mapTitle,
 } from '@/components/map/lib/workspaceConfig';
 import {
   isOfferCategory,
   OFFER_CATEGORIES,
   OFFER_CATEGORY_IDS,
+  offerAgeBands,
+  offerAgesLong,
+  offerAgesShort,
 } from '@/config/offer';
-import { thresholdsFor } from '@/config/thresholds';
+import { scaleOfferThresholds, thresholdsFor } from '@/config/thresholds';
 import type { DistrictCounts } from '@/data-gateway/schema';
 import {
   type ServiceCounts,
@@ -193,7 +199,7 @@ describe('offer indicators — sidebar and legend', () => {
   test('the timeline tab is enabled for every category but the offer one', () => {
     const timeline = config('cumulative-total').leftSidebar?.sections?.find(
       (section) => {
-        return section.enabledWhen !== undefined;
+        return section.id === 'Linha do tempo';
       }
     );
 
@@ -249,5 +255,146 @@ describe('offer indicators — sidebar and legend', () => {
       type: 'percentage',
       decimals: 0,
     });
+  });
+});
+
+describe('offer indicators — age filter', () => {
+  test('each age group stands for the bands it spans', () => {
+    expect(offerAgeBands('65')).toEqual(['65-69', '70-74', '75']);
+    expect(offerAgeBands('70')).toEqual(['70-74', '75']);
+    expect(offerAgeBands('75')).toEqual(['75']);
+    expect(offerAgeBands('65-69')).toEqual(['65-69']);
+    expect(offerAgeBands('70-74')).toEqual(['70-74']);
+  });
+
+  test.each([
+    [['65-69', '70-74', '75'], '65+', '65 anos ou mais'],
+    [['70-74', '75'], '70+', '70 anos ou mais'],
+    [['75'], '75+', '75 anos ou mais'],
+    [['65-69', '70-74'], '65–74', '65 a 74 anos'],
+    [['70-74'], '70–74', '70 a 74 anos'],
+    [['65-69', '75'], '65–69 e 75+', '65 a 69 anos e 75 anos ou mais'],
+  ] as const)('names %j as %s', (bands, short, long) => {
+    expect(offerAgesShort(bands)).toBe(short);
+    expect(offerAgesLong(bands)).toBe(long);
+  });
+
+  test('a rate narrowed to some bands divides by their residents only', () => {
+    const [row] = buildMapRows({
+      counts: [AREA],
+      year: 2025,
+      category: 'health-65plus',
+      group: 'ubs',
+      ages: ['75'],
+    });
+
+    // 3 UBS over 5,380 residents aged 75+.
+    expect(row).toMatchObject({ value: 5.58, count: 3, totalCount: 5380 });
+  });
+
+  test("the share series ignore the offer's age bands", () => {
+    const [row] = buildMapRows({
+      counts: [AREA],
+      year: 2025,
+      category: 'cumulative-total',
+      group: '65',
+      ages: ['75'],
+    });
+
+    expect(row?.totalCount).toBe(200000);
+  });
+
+  test("the bands' city-wide share of the 65+ scales the breaks", () => {
+    const share = offerAgeShare({ counts: [AREA], year: 2025, ages: ['75'] });
+
+    expect(share).toBeCloseTo(5380 / 21380);
+    expect(
+      offerAgeShare({ counts: [AREA], year: 2025, ages: offerAgeBands('65') })
+    ).toBe(1);
+  });
+
+  test('scaled breaks keep the zero class and round to two digits', () => {
+    expect(
+      scaleOfferThresholds({ thresholds: [0.001, 1, 2, 3, 5, 8], share: 0.5 })
+    ).toEqual([0.001, 2, 4, 6, 10, 16]);
+    expect(
+      scaleOfferThresholds({ thresholds: [0.001, 0.25, 0.5], share: 0.3 })
+    ).toEqual([0.001, 0.83, 1.7]);
+    expect(scaleOfferThresholds({ thresholds: [0.001, 1], share: 1 })).toEqual([
+      0.001, 1,
+    ]);
+  });
+
+  test('the legend title and subtitle name the bands', () => {
+    expect(mapTitle({ category: 'health-65plus', group: 'ubs' })).toBe(
+      'UBS POR 10 MIL IDOSOS (65+)'
+    );
+    expect(
+      mapTitle({ category: 'health-65plus', group: 'ubs', ages: ['75'] })
+    ).toBe('UBS POR 10 MIL IDOSOS (75+)');
+    expect(
+      mapDescription({
+        category: 'health-65plus',
+        group: 'ubs',
+        level: 'distrito',
+        ages: ['65-69'],
+      })
+    ).toContain('para cada 10 mil pessoas com 65 a 69 anos');
+  });
+
+  test('the offer indicators list an age menu below the service, the share ones do not', () => {
+    const blocks = (category: 'health-65plus' | 'cumulative-total') => {
+      const [variations] =
+        buildWorkspaceConfig({
+          level: 'distrito',
+          category,
+          group: category === 'health-65plus' ? 'ubs' : '65',
+          age: '75',
+          years: [2025],
+          defaultYear: 2025,
+          elderlyHistogram: [],
+          sidebarInitiallyOpen: true,
+        }).leftSidebar?.sections ?? [];
+      if (variations?.body.kind !== 'filters') {
+        throw new Error('expected a filters body');
+      }
+      return variations.body.blocks;
+    };
+
+    const offerBlocks = blocks('health-65plus');
+    expect(
+      offerBlocks.map((block) => {
+        return block.id;
+      })
+    ).toEqual(['level', 'category', 'group', AGE_MENU_ID]);
+    expect(offerBlocks[3]?.control).toMatchObject({
+      kind: 'variations',
+      menuId: AGE_MENU_ID,
+      defaultValue: '75',
+    });
+    expect(
+      blocks('cumulative-total').some((block) => {
+        return block.id === AGE_MENU_ID;
+      })
+    ).toBe(false);
+  });
+
+  test('the sidebar has no filters tab, only the variations and the timeline', () => {
+    const sections =
+      buildWorkspaceConfig({
+        level: 'distrito',
+        category: 'health-65plus',
+        group: 'ubs',
+        years: [2025],
+        defaultYear: 2025,
+        elderlyHistogram: [],
+        sidebarInitiallyOpen: true,
+      }).leftSidebar?.sections ?? [];
+
+    expect(
+      sections.map((section) => {
+        return section.id;
+      })
+    ).toEqual(['Variações', 'Linha do tempo']);
   });
 });

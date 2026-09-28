@@ -1,7 +1,9 @@
 import {
+  OFFER_AGE_BANDS,
   OFFER_CATEGORIES,
   OFFER_CATEGORY_IDS,
   OFFER_RATE_BASE,
+  type OfferAgeBand,
 } from '@/config/offer';
 import type {
   Category,
@@ -15,9 +17,13 @@ import type {
 /**
  * The numerator and denominator one indicator series reads off an area's
  * counts: two of its four population figures, or a service's facilities over
- * its 65+ residents.
+ * its residents in the age bands selected (`ages`, which only the offer series
+ * read).
  */
-type SeriesRatio = (counts: DistrictCounts) => {
+type SeriesRatio = (
+  counts: DistrictCounts,
+  ages: readonly OfferAgeBand[]
+) => {
   count: number;
   totalCount: number;
 };
@@ -25,6 +31,29 @@ type SeriesRatio = (counts: DistrictCounts) => {
 /** Residents aged 65 or older — the denominator of both `*-65plus` categories. */
 const elderly = (counts: DistrictCounts): number => {
   return counts.count65to69 + counts.count70to74 + counts.count75plus;
+};
+
+/** Each age band's residents in an area's counts. */
+const BAND_COUNT: Record<OfferAgeBand, (counts: DistrictCounts) => number> = {
+  '65-69': (counts) => {
+    return counts.count65to69;
+  },
+  '70-74': (counts) => {
+    return counts.count70to74;
+  },
+  '75': (counts) => {
+    return counts.count75plus;
+  },
+};
+
+/** Residents in the given age bands — all three being the 65+ population. */
+const inBands = (
+  counts: DistrictCounts,
+  ages: readonly OfferAgeBand[]
+): number => {
+  return ages.reduce((sum, band) => {
+    return sum + BAND_COUNT[band](counts);
+  }, 0);
 };
 
 /** Residents aged 70 or older. */
@@ -44,7 +73,7 @@ const elderly70plus = (counts: DistrictCounts): number => {
  */
 /**
  * One ratio per service of an offer category: its facilities over the area's
- * 65+ residents.
+ * residents in the selected age bands.
  *
  * @param services - The category's services.
  * @returns The category's row of {@link SERIES_RATIOS}.
@@ -54,8 +83,11 @@ const offerRatios = (
 ): Partial<Record<Group, SeriesRatio>> => {
   return Object.fromEntries(
     services.map((service) => {
-      const ratio: SeriesRatio = (counts) => {
-        return { count: counts.services[service], totalCount: elderly(counts) };
+      const ratio: SeriesRatio = (counts, ages) => {
+        return {
+          count: counts.services[service],
+          totalCount: inBands(counts, ages),
+        };
       };
       return [service, ratio];
     })
@@ -169,9 +201,12 @@ const safeRate = ({
  * @param params.year - The projection year to paint.
  * @param params.category - The indicator category.
  * @param params.group - The age group within that category.
+ * @param params.ages - For an offer series, the age bands whose residents the
+ * rate is set against. Defaults to all three (the 65+ population); ignored by
+ * the share series.
  * @returns One {@link MapDataRow} per area in that year, carrying the rate
  * plus the absolute figures the tooltip shows — for an offer series, the
- * facilities and the 65+ population.
+ * facilities and the population in those bands.
  * @throws If the category/group pair is not a series the app defines.
  *
  * @example
@@ -183,11 +218,13 @@ export const buildMapRows = ({
   year,
   category,
   group,
+  ages = OFFER_AGE_BANDS,
 }: {
   counts: DistrictCounts[];
   year: number;
   category: Category;
   group: Group;
+  ages?: readonly OfferAgeBand[];
 }): MapDataRow[] => {
   const ratio = SERIES_RATIOS[category][group];
 
@@ -205,7 +242,7 @@ export const buildMapRows = ({
       continue;
     }
 
-    const { count, totalCount } = ratio(entry);
+    const { count, totalCount } = ratio(entry, ages);
 
     rows.push({
       geometryId: entry.geometryId,
@@ -247,4 +284,45 @@ export const buildElderlyHistogram = ({
   return years.map((year) => {
     return { key: year, count: totals.get(year) ?? 0 };
   });
+};
+
+/**
+ * The city's residents in the given age bands, as a share of its 65+ — what
+ * narrowing an offer rate to those bands divides its denominator by, on
+ * average. The offer class breaks are calibrated for 65+, so they are divided
+ * by this share too (see `scaleOfferThresholds`): a narrower band shows higher
+ * rates, and unscaled breaks would paint it all in the darkest class.
+ *
+ * City-wide rather than per area, so the breaks are one set for the whole map,
+ * as they are for every other series.
+ *
+ * @param params.counts - Every district/year entry from the gateway.
+ * @param params.year - The projection year painted.
+ * @param params.ages - The selected bands.
+ * @returns A share in (0, 1]; `1` for all three bands, or with no residents.
+ *
+ * @example
+ * offerAgeShare({ counts, year: 2025, ages: ['75'] }); // 0.3, say
+ */
+export const offerAgeShare = ({
+  counts,
+  year,
+  ages,
+}: {
+  counts: DistrictCounts[];
+  year: number;
+  ages: readonly OfferAgeBand[];
+}): number => {
+  let selected = 0;
+  let all = 0;
+
+  for (const entry of counts) {
+    if (entry.year !== year) {
+      continue;
+    }
+    selected += inBands(entry, ages);
+    all += elderly(entry);
+  }
+
+  return all > 0 && selected > 0 ? selected / all : 1;
 };

@@ -8,7 +8,13 @@ import type {
   ShareCategory,
 } from '@/components/map/lib/indicators';
 import { getBandIndex, LEGEND_COLORS } from '@/components/map/lib/mapConfig';
-import { isOfferCategory, OFFER_LABELS } from '@/config/offer';
+import {
+  isOfferCategory,
+  OFFER_AGE_BANDS,
+  OFFER_LABELS,
+  type OfferAgeBand,
+  offerAgesShort,
+} from '@/config/offer';
 import type { MapDataRow } from '@/data-gateway/schema';
 
 import { formatRate } from './mapLegend';
@@ -57,16 +63,19 @@ const getTooltipText = (category: ShareCategory, group: AgeGroup): string => {
  * @param params.row - The hovered area's row.
  * @param params.category - The indicator category.
  * @param params.group - The age band, or the service.
+ * @param params.ages - An offer rate's age bands, named in the count line.
  * @returns The two lines' text; the second is `null` without counts.
  */
 const tooltipLines = ({
   row,
   category,
   group,
+  ages,
 }: {
   row: MapDataRow;
   category: Category;
   group: Group;
+  ages: readonly OfferAgeBand[];
 }): { value: string; counts: string | null } => {
   const hasCounts = row.count != null && row.totalCount != null;
 
@@ -77,7 +86,7 @@ const tooltipLines = ({
     return {
       value: `${formatRate(row.value)} ${labels.many} por 10 mil idosos`,
       counts: hasCounts
-        ? `(${count.toLocaleString('pt-BR')} ${count === 1 ? labels.one : labels.many} para ${(row.totalCount ?? 0).toLocaleString('pt-BR')} pessoas com 65+)`
+        ? `(${count.toLocaleString('pt-BR')} ${count === 1 ? labels.one : labels.many} para ${(row.totalCount ?? 0).toLocaleString('pt-BR')} pessoas com ${offerAgesShort(ages)})`
         : null,
     };
   }
@@ -124,6 +133,7 @@ const swatchColorFor = ({
  * @param params.group - Current selected group.
  * @param params.thresholds - The active series' class breaks, so the swatch is
  * read off the same scale the layer is painted with.
+ * @param params.ages - An offer rate's age bands. Defaults to all three.
  * @returns Tooltip JSX content.
  */
 export const renderTooltipContent = ({
@@ -133,6 +143,7 @@ export const renderTooltipContent = ({
   category,
   group,
   thresholds,
+  ages = OFFER_AGE_BANDS,
 }: {
   featureId: string | number;
   rowLookup: Map<number, MapDataRow>;
@@ -140,10 +151,11 @@ export const renderTooltipContent = ({
   category: Category;
   group: Group;
   thresholds: number[];
+  ages?: readonly OfferAgeBand[];
 }) => {
   const row = rowLookup.get(Number(featureId));
   const memberNames = members?.get(Number(featureId));
-  const lines = row ? tooltipLines({ row, category, group }) : null;
+  const lines = row ? tooltipLines({ row, category, group, ages }) : null;
   const swatchColor = swatchColorFor({ row, thresholds });
 
   return (

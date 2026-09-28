@@ -1,4 +1,5 @@
 import type {
+  AgeGroup,
   Category,
   OfferCategory,
   OfferService,
@@ -140,4 +141,111 @@ export const OFFER_LABELS: Record<
     one: 'local de esporte público',
     many: 'locais de esporte públicos',
   },
+};
+
+/**
+ * The age bands an offer rate can be set against, youngest first — the three
+ * closed or open bands the counts carry. The rate's denominator is the sum of
+ * the bands the sidebar's age group stands for; all three is the 65+
+ * population.
+ */
+export const OFFER_AGE_BANDS = ['65-69', '70-74', '75'] as const;
+
+export type OfferAgeBand = (typeof OFFER_AGE_BANDS)[number];
+
+/**
+ * Each band's ages, for the phrases below: its first age, and its last — none
+ * for the open top band.
+ */
+const BAND_AGES: Record<OfferAgeBand, { from: number; to: number | null }> = {
+  '65-69': { from: 65, to: 69 },
+  '70-74': { from: 70, to: 74 },
+  '75': { from: 75, to: null },
+};
+
+/**
+ * The bands each age-group option of the offer indicators stands for — the
+ * same five options the share indicators list, read here as the population
+ * the rate is set against: `65` is every band, `70` the two from 70 up.
+ */
+const OFFER_AGE_GROUP_BANDS: Record<AgeGroup, readonly OfferAgeBand[]> = {
+  '65': OFFER_AGE_BANDS,
+  '70': ['70-74', '75'],
+  '75': ['75'],
+  '65-69': ['65-69'],
+  '70-74': ['70-74'],
+};
+
+/**
+ * The bands an offer rate is set against, for the age group picked in the
+ * sidebar.
+ *
+ * @param age - The age-group option.
+ * @returns The bands, youngest first.
+ *
+ * @example
+ * offerAgeBands('70'); // ['70-74', '75']
+ */
+export const offerAgeBands = (age: AgeGroup): readonly OfferAgeBand[] => {
+  return OFFER_AGE_GROUP_BANDS[age];
+};
+
+/**
+ * The bands as runs of consecutive ones, each an age range: 65–69 and 70–74
+ * together are 65 to 74, not two ranges.
+ */
+const ageRuns = (
+  bands: readonly OfferAgeBand[]
+): { from: number; to: number | null }[] => {
+  const runs: { from: number; to: number | null }[] = [];
+  let previous = -2;
+
+  for (const band of bands) {
+    const index = OFFER_AGE_BANDS.indexOf(band);
+    const last = runs[runs.length - 1];
+    if (last && index === previous + 1) {
+      last.to = BAND_AGES[band].to;
+    } else {
+      runs.push({ ...BAND_AGES[band] });
+    }
+    previous = index;
+  }
+
+  return runs;
+};
+
+/**
+ * The bands in short form, for the legend title and the tooltip.
+ *
+ * @param bands - The selected bands, youngest first.
+ * @returns E.g. `65+`, `70+`, `65–74`, `65–69 e 75+`.
+ *
+ * @example
+ * offerAgesShort(['70-74', '75']); // '70+'
+ * offerAgesShort(['65-69', '75']); // '65–69 e 75+'
+ */
+export const offerAgesShort = (bands: readonly OfferAgeBand[]): string => {
+  return ageRuns(bands)
+    .map(({ from, to }) => {
+      return to === null ? `${from}+` : `${from}–${to}`;
+    })
+    .join(' e ');
+};
+
+/**
+ * The bands in long form, for the legend subtitle: "pessoas com …".
+ *
+ * @param bands - The selected bands, youngest first.
+ * @returns E.g. `65 anos ou mais`, `65 a 74 anos`.
+ *
+ * @example
+ * offerAgesLong(['65-69', '70-74', '75']); // '65 anos ou mais'
+ * offerAgesLong(['65-69']); // '65 a 69 anos'
+ */
+export const offerAgesLong = (bands: readonly OfferAgeBand[]): string => {
+  return ageRuns(bands)
+    .map(({ from, to }) => {
+      return to === null ? `${from} anos ou mais` : `${from} a ${to} anos`;
+    })
+    .join(' e ');
 };
