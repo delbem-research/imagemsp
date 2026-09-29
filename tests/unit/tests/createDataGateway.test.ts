@@ -36,7 +36,6 @@ const MOCK_SUBPREFEITURAS = {
       regiao: 'Leste',
       distritos: [8],
       validFrom: 2002,
-      validTo: null,
     },
   ],
 };
@@ -184,10 +183,10 @@ describe('createDataGateway', () => {
       expect(data.subprefeituras).toEqual([
         {
           geometryId: 24,
+          versionKey: '24@2002',
           name: 'Mooca',
           districtNames: ['Belém'],
           validFrom: 2002,
-          validTo: null,
         },
       ]);
       expect(data.subprefeituraCounts[0]).toEqual({

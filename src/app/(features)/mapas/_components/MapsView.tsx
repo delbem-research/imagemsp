@@ -13,13 +13,16 @@ import { BruttalTheme } from '@ttoss/theme/Bruttal';
 import * as React from 'react';
 import { ThemeUIProvider } from 'theme-ui';
 
+import {
+  DEFAULT_COLOR_RAMP,
+  DEFAULT_FILL_OPACITY,
+} from '@/components/map/lib/colorRamps';
 import type { Category, Group } from '@/components/map/lib/indicators';
 import {
   DISTRICTS_CENTER,
   FALLBACK_ZOOM,
   fitZoom,
 } from '@/components/map/lib/mapCamera';
-import { LEGEND_COLORS } from '@/components/map/lib/mapConfig';
 import {
   MAP_LEVEL_IDS,
   MAP_LEVELS,
@@ -33,17 +36,13 @@ import {
 import {
   areaLayerFilter,
   paintedLevelFor,
+  subprefeiturasInForce,
 } from '@/components/map/lib/subprefeituraDivision';
 import {
-  AGE_MENU_ID,
   buildWorkspaceConfig,
-  CATEGORY_MENU_ID,
-  DEFAULT_OFFER_AGE,
-  GROUP_MENU_ID,
-  LEVEL_MENU_ID,
+  DEFAULT_AGE,
   mapDescription,
   mapTitle,
-  YEAR_MENU_ID,
 } from '@/components/map/lib/workspaceConfig';
 import LoadingIndicator from '@/components/ui/LoadingIndicator';
 import {
@@ -61,10 +60,13 @@ import {
   nextSelection,
   paintedYearFor,
   type Selection,
+  selectionVariables,
+  seriesGroupOf,
 } from './mapSelection';
 import { renderTooltipContent, TOOLTIP_STYLE } from './mapTooltips';
 import { buildOverlays, LAYER_CONTROL } from './overlays';
 import { type OverlaysSnapshot, overlaysStore } from './overlaysStore';
+import { useColorSettings } from './useColorSettings';
 import {
   emptyViewportSnapshot,
   MAP_HEIGHT,
@@ -131,6 +133,9 @@ const LEGEND_ID = 'pop-legend';
  * @param params.ages - For an offer indicator, the age bands its rate is set
  * against (its "Faixa etária" menu). Its class breaks are scaled to them, since a
  * narrower population raises every rate.
+ * @param params.colors - The class colours, from the "Configurações" tab's
+ * ramp and opacity: the legend carries them, and geovis paints the fill from
+ * the legend.
  * @returns A complete VisualizationSpec for GeoVis rendering.
  */
 const buildSpec = ({
@@ -142,6 +147,7 @@ const buildSpec = ({
   zoom,
   overlays,
   ages,
+  colors,
 }: {
   data: MapsDataContract;
   level: MapLevel;
@@ -151,6 +157,7 @@ const buildSpec = ({
   zoom: number;
   overlays: OverlaysSnapshot;
   ages: readonly OfferAgeBand[];
+  colors: string[];
 }): VisualizationSpec => {
   const { level, note } = paintedLevelFor({ data, level: selectedLevel, year });
   const areas = MAP_LEVELS[level];
@@ -202,11 +209,12 @@ const buildSpec = ({
     })
   );
 
-  // Only the aggregated level lists what each area is made of.
+  // Only the aggregated level lists what each area is made of — the districts
+  // of the version in force that year, since one id can have had several.
   const members =
     level === 'subprefeitura'
       ? new Map(
-          data.subprefeituras.map((sub) => {
+          subprefeiturasInForce({ data, year }).map((sub) => {
             return [sub.geometryId, sub.districtNames] as const;
           })
         )
@@ -283,7 +291,7 @@ const buildSpec = ({
               property: 'value',
               scale: 'threshold',
               thresholds,
-              colors: LEGEND_COLORS,
+              colors,
             },
             // Values are proportions in [0, 1]; render each bin as a percent
             // range (`< 5%`, `5% – 10%`, … `> 30%`) instead of raw breaks.
@@ -307,6 +315,7 @@ const buildSpec = ({
               group,
               thresholds,
               ages,
+              colors,
             });
           },
           style: TOOLTIP_STYLE,
@@ -392,9 +401,17 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
   const [selection, setSelection] = React.useState<Selection>({
     level: 'distrito',
     category: 'cumulative-total',
-    group: '65',
+    // The offer indicators' service; the share ones read the age group.
+    group: 'ubs',
     year: defaultYear,
-    age: DEFAULT_OFFER_AGE,
+    age: DEFAULT_AGE,
+    ramp: DEFAULT_COLOR_RAMP,
+    opacity: String(DEFAULT_FILL_OPACITY),
+  });
+
+  const { colors, colorSettings } = useColorSettings({
+    ramp: selection.ramp,
+    opacity: selection.opacity,
   });
 
   /*
@@ -459,6 +476,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
   );
 
   const ages = offerAgeBands(selection.age);
+  const seriesGroup = seriesGroupOf(selection);
 
   const paintedYear = paintedYearFor({
     category: selection.category,
@@ -471,21 +489,23 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
       data: mapsData,
       level: selection.level,
       category: selection.category,
-      group: selection.group,
+      group: seriesGroup,
       year: paintedYear,
       zoom,
       overlays,
       ages,
+      colors,
     });
   }, [
     mapsData,
     selection.level,
     selection.category,
-    selection.group,
+    seriesGroup,
     paintedYear,
     zoom,
     overlays,
     ages,
+    colors,
   ]);
 
   /*
@@ -514,6 +534,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
       years: mapsData.years,
       defaultYear,
       elderlyHistogram,
+      colorSettings,
       sidebarInitiallyOpen,
     });
 
@@ -532,18 +553,12 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
     mapsData.years,
     defaultYear,
     elderlyHistogram,
+    colorSettings,
     sidebarInitiallyOpen,
   ]);
 
   const variables = React.useMemo(() => {
-    return {
-      [LEVEL_MENU_ID]: selection.level,
-      [CATEGORY_MENU_ID]: selection.category,
-      [GROUP_MENU_ID]: selection.group,
-      // The timeline publishes and reads its value as a string.
-      [YEAR_MENU_ID]: String(selection.year),
-      [AGE_MENU_ID]: selection.age,
-    };
+    return selectionVariables(selection);
   }, [selection]);
 
   const handleVariableChange = (next: Record<string, string | undefined>) => {

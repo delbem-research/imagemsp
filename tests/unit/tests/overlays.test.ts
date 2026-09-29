@@ -5,14 +5,17 @@ import { createOverlaysStore } from '@/app/(features)/mapas/_components/overlays
 import {
   isOverlayId,
   isPointOverlayId,
+  isTerritoryOverlayId,
   OVERLAY_IDS,
   overlayDrawOrder,
   OVERLAYS,
   POINT_OVERLAY_IDS,
+  TERRITORY_OVERLAY_IDS,
 } from '@/config/overlays';
 import type { OverlayContract } from '@/data-gateway/schema';
 import { toAppParks } from '@/data-gateway/transformers/toAppParks';
 import { toAppPoints } from '@/data-gateway/transformers/toAppPoints';
+import { toAppTerritories } from '@/data-gateway/transformers/toAppTerritories';
 
 const SANTA_CASA = {
   id: 1,
@@ -76,8 +79,16 @@ describe('overlay registry', () => {
       return overlay.id;
     });
 
-    expect(ids[0]).toBe('parques');
-    expect(ids[1]).toBe('pontos-onibus');
+    // Polygons first, bottom to top: the finest territory beneath, the solid
+    // parks — first in the control — above them.
+    expect(ids.slice(0, 5)).toEqual([
+      'saude-familia',
+      'abrangencia-ubs',
+      'supervisoes-saude',
+      'coordenadorias-saude',
+      'parques',
+    ]);
+    expect(ids[5]).toBe('pontos-onibus');
     expect(ids[ids.length - 1]).toBe('hospitais');
   });
 });
@@ -208,6 +219,126 @@ describe('parks', () => {
 
     expect(parques.length).toBeGreaterThan(0);
   });
+});
+
+describe('health territories', () => {
+  afterEach(() => {
+    jest.resetModules();
+  });
+
+  const CRS_OESTE = {
+    id: 1,
+    nome: 'CRS Oeste',
+    detalhe: 'Coordenadoria Regional de Saúde',
+    geometry: {
+      type: 'Polygon' as const,
+      coordinates: [
+        [
+          [-46.76, -23.59],
+          [-46.65, -23.59],
+          [-46.65, -23.5],
+          [-46.76, -23.59],
+        ] as [number, number][],
+      ],
+    },
+  };
+
+  test('are polygon overlays, told apart from the parks and the points', () => {
+    expect(TERRITORY_OVERLAY_IDS.every(isTerritoryOverlayId)).toBe(true);
+    expect(isTerritoryOverlayId('parques')).toBe(false);
+    expect(isTerritoryOverlayId('ubs')).toBe(false);
+    for (const id of TERRITORY_OVERLAY_IDS) {
+      expect(isOverlayId(id)).toBe(true);
+      expect(isPointOverlayId(id)).toBe(false);
+    }
+  });
+
+  test('the administrative tiers are outlines only, heaviest for the CRS', () => {
+    const byId = new Map(
+      OVERLAYS.map((config) => {
+        return [config.id, config] as const;
+      })
+    );
+    const widths = [
+      'coordenadorias-saude',
+      'supervisoes-saude',
+      'abrangencia-ubs',
+    ].map((id) => {
+      const config = byId.get(id as (typeof TERRITORY_OVERLAY_IDS)[number]);
+      if (config?.kind !== 'polygon') throw new Error(`${id} is not a polygon`);
+      expect(config.fillOpacity).toBe(0);
+      return config.lineWidth;
+    });
+
+    expect(widths).toEqual(
+      [...widths].sort((a, b) => {
+        return b - a;
+      })
+    );
+  });
+
+  test('toAppTerritories labels each territory with its name and detail', () => {
+    expect(toAppTerritories({ territorios: [CRS_OESTE] })).toEqual({
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          id: 1,
+          properties: {
+            name: 'CRS Oeste',
+            detail: 'Coordenadoria Regional de Saúde',
+          },
+          geometry: CRS_OESTE.geometry,
+        },
+      ],
+    });
+  });
+
+  test('toAppTerritories throws on an empty snapshot', () => {
+    expect(() => {
+      return toAppTerritories({ territorios: [] });
+    }).toThrow('[data-gateway]');
+  });
+
+  test('readStaticTerritories rejects a territory without a polygon', async () => {
+    jest.doMock(
+      '@/data-source-static/data/polygons/coordenadorias-saude.json',
+      () => {
+        return {
+          territorios: [
+            { ...CRS_OESTE, geometry: { type: 'Point', coordinates: [0, 0] } },
+          ],
+        };
+      }
+    );
+
+    const { readStaticTerritories } =
+      await import('@/data-source-static/readStaticTerritories');
+
+    await expect(readStaticTerritories('coordenadorias-saude')).rejects.toThrow(
+      '[data-source-static]'
+    );
+  });
+
+  test.each([
+    ['coordenadorias-saude', 5],
+    ['supervisoes-saude', 26],
+    ['abrangencia-ubs', 487],
+    ['saude-familia', 382],
+  ] as const)(
+    'the versioned %s snapshot passes its own validation',
+    async (layer, count) => {
+      jest.dontMock(
+        '@/data-source-static/data/polygons/coordenadorias-saude.json'
+      );
+
+      const { readStaticTerritories } =
+        await import('@/data-source-static/readStaticTerritories');
+      const { territorios } = await readStaticTerritories(layer);
+
+      expect(territorios).toHaveLength(count);
+    }
+  );
 });
 
 describe('toAppPoints', () => {

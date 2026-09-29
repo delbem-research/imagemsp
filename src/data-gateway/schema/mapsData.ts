@@ -1,8 +1,8 @@
-/** The categories that paint a population share, along the timeline. */
-export type ShareCategory =
-  | 'cumulative-total'
-  | 'cumulative-65plus'
-  | '5year-65plus';
+/**
+ * The categories that paint a population share, along the timeline: an age
+ * group's share of the whole population, or of the 65+.
+ */
+export type ShareCategory = 'cumulative-total' | '5year-65plus';
 
 /**
  * The categories that paint public facilities per 10 thousand residents aged
@@ -12,8 +12,11 @@ export type OfferCategory = 'health-65plus' | 'food-65plus' | 'leisure-65plus';
 
 export type Category = ShareCategory | OfferCategory;
 
-/** The age bands of the three population-share categories. */
-export type AgeGroup = '65' | '70' | '75' | '65-69' | '70-74';
+/**
+ * The age groups every indicator lists: every elderly resident (`65`, shown
+ * as "Todos"), or one of the three bands the counts carry.
+ */
+export type AgeGroup = '65' | '65-69' | '70-74' | '75';
 
 /**
  * The services of the offer categories: public facilities counted per area and
@@ -108,45 +111,83 @@ export type MapsDataContract = {
    */
   subprefeituraCounts: DistrictCounts[];
   /**
-   * Every subprefeitura in force at some point of the series, current and
-   * former, with the districts each one groups and the years it was in force.
-   * Pick the ones of a year with {@link isInForce}.
+   * Every version of every subprefeitura in force at some point of the series,
+   * with the districts each one groups and the year it came into force. Pick
+   * the ones of a year with {@link versionsInForce}.
    */
   subprefeituras: Subprefeitura[];
 };
 
-/** A subprefeitura and the districts it groups, for the map's tooltip. */
+/**
+ * One version of a subprefeitura and the districts it groups, for the map's
+ * tooltip. A subprefeitura whose territory changed has one version per shape,
+ * all under the same id: Vila Prudente is Vila Prudente-Sapopemba from 2002
+ * and Vila Prudente alone from 2013.
+ */
 export type Subprefeitura = {
   /** Feature id of its polygon in `public/subprefeituras.geojson`. */
   geometryId: number;
+  /**
+   * The version's own key, `id@validFrom` (see {@link versionKey}) — what the
+   * map filters the polygons by, since the versions of one id share it.
+   */
+  versionKey: string;
   name: string;
   /** Names of the districts it groups, alphabetically. */
   districtNames: string[];
-  /** First year it was in force. */
+  /** The year this version came into force. */
   validFrom: number;
-  /** Last year it was in force, or `null` while it still is. */
-  validTo: number | null;
 };
 
 /**
- * Whether a versioned area — a subprefeitura, current or former — was in force
- * in a year. The one rule for it: the map filters polygons by it and the
- * gateway sums counts by it, so the two cannot disagree on a year.
+ * The key of one version of a versioned area: its id and the year it came
+ * into force. `scripts/generateSubprefeituras.ts` writes the same key into the
+ * GeoJSON, which is what lets the map filter the polygons by it.
  *
- * @param area - The area's first and last year in force (`validTo: null` while
- * it still is).
- * @param year - The year asked about.
- * @returns `true` when `validFrom ≤ year ≤ validTo`.
+ * @param area - The area's id and first year.
+ * @returns `id@validFrom`.
  *
  * @example
- * isInForce({ validFrom: 2002, validTo: 2012 }, 2010); // true
- * isInForce({ validFrom: 2013, validTo: null }, 2010); // false
+ * versionKey({ id: 18, validFrom: 2002 }); // '18@2002'
  */
-export const isInForce = (
-  area: { validFrom: number; validTo: number | null },
-  year: number
-): boolean => {
-  return (
-    area.validFrom <= year && (area.validTo === null || year <= area.validTo)
-  );
+export const versionKey = (area: { id: number; validFrom: number }): string => {
+  return `${area.id}@${area.validFrom}`;
+};
+
+/**
+ * The versions of a versioned area set in force in a year — for each id, the
+ * one that came into force last, no later than that year. A version ends only
+ * when the next version of its id begins, so the areas carry a first year and
+ * nothing else. The one rule for it: the map filters polygons by it and the
+ * gateway sums counts by it, so the two cannot disagree on a year.
+ *
+ * @param params.areas - Every version, current and former.
+ * @param params.year - The year asked about.
+ * @param params.idOf - The id the versions of one area share.
+ * @returns One version per id in force; none for a year before any began.
+ *
+ * @example
+ * versionsInForce({ areas, year: 2010, idOf: (sub) => sub.id });
+ * // [..., { id: 18, nome: 'Vila Prudente-Sapopemba', validFrom: 2002 }, ...]
+ */
+export const versionsInForce = <T extends { validFrom: number }>({
+  areas,
+  year,
+  idOf,
+}: {
+  areas: readonly T[];
+  year: number;
+  idOf: (area: T) => number;
+}): T[] => {
+  const latest = new Map<number, T>();
+
+  for (const area of areas) {
+    if (area.validFrom > year) continue;
+    const current = latest.get(idOf(area));
+    if (!current || area.validFrom > current.validFrom) {
+      latest.set(idOf(area), area);
+    }
+  }
+
+  return [...latest.values()];
 };

@@ -28,7 +28,7 @@ type SeriesRatio = (
   totalCount: number;
 };
 
-/** Residents aged 65 or older — the denominator of both `*-65plus` categories. */
+/** Residents aged 65 or older — the denominator of the `*-65plus` categories. */
 const elderly = (counts: DistrictCounts): number => {
   return counts.count65to69 + counts.count70to74 + counts.count75plus;
 };
@@ -56,17 +56,12 @@ const inBands = (
   }, 0);
 };
 
-/** Residents aged 70 or older. */
-const elderly70plus = (counts: DistrictCounts): number => {
-  return counts.count70to74 + counts.count75plus;
-};
-
 /**
  * Numerator and denominator per indicator series.
  *
  * The category decides the denominator (the district's whole population, or its
- * own 65+ population) and the group decides the numerator, which is cumulative
- * for `65`/`70`/`75` and a closed band for `65-69`/`70-74`. For an offer
+ * own 65+ population) and the age group decides the numerator: every elderly
+ * resident (`65`, only over the whole population) or one band. For an offer
  * category the group is one of its services, and the numerator its facilities
  * in the area. Encoded as a table so the map, the legend and the tooltip cannot
  * drift apart: all three read the same entry.
@@ -110,19 +105,14 @@ const SERIES_RATIOS: Record<Category, Partial<Record<Group, SeriesRatio>>> = {
     '65': (counts) => {
       return { count: elderly(counts), totalCount: counts.total };
     },
-    '70': (counts) => {
-      return { count: elderly70plus(counts), totalCount: counts.total };
+    '65-69': (counts) => {
+      return { count: counts.count65to69, totalCount: counts.total };
+    },
+    '70-74': (counts) => {
+      return { count: counts.count70to74, totalCount: counts.total };
     },
     '75': (counts) => {
       return { count: counts.count75plus, totalCount: counts.total };
-    },
-  },
-  'cumulative-65plus': {
-    '70': (counts) => {
-      return { count: elderly70plus(counts), totalCount: elderly(counts) };
-    },
-    '75': (counts) => {
-      return { count: counts.count75plus, totalCount: elderly(counts) };
     },
   },
   '5year-65plus': {
@@ -132,8 +122,6 @@ const SERIES_RATIOS: Record<Category, Partial<Record<Group, SeriesRatio>>> = {
     '70-74': (counts) => {
       return { count: counts.count70to74, totalCount: elderly(counts) };
     },
-    // Identical to `cumulative-65plus/75`: the open top band is at once the last
-    // closed band and a cumulative one, so both menu paths land on this ratio.
     '75': (counts) => {
       return { count: counts.count75plus, totalCount: elderly(counts) };
     },
@@ -150,7 +138,6 @@ const SERIES_RATIOS: Record<Category, Partial<Record<Group, SeriesRatio>>> = {
  */
 const SERIES_SCALE: Record<Category, { base: number; decimals: number }> = {
   'cumulative-total': { base: 1, decimals: 4 },
-  'cumulative-65plus': { base: 1, decimals: 4 },
   '5year-65plus': { base: 1, decimals: 4 },
   ...byOfferCategory(() => {
     return { base: OFFER_RATE_BASE, decimals: 2 };

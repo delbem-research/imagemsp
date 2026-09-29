@@ -7,7 +7,7 @@ import type {
   OfferService,
   ShareCategory,
 } from '@/components/map/lib/indicators';
-import { getBandIndex, LEGEND_COLORS } from '@/components/map/lib/mapConfig';
+import { getBandIndex } from '@/components/map/lib/mapConfig';
 import {
   isOfferCategory,
   OFFER_AGE_BANDS,
@@ -40,7 +40,6 @@ export const TOOLTIP_STYLE = {
 const getTooltipText = (category: ShareCategory, group: AgeGroup): string => {
   const ageLabels: Record<AgeGroup, string> = {
     '65': '65+',
-    '70': '70+',
     '75': '75+',
     '65-69': '65 a 69 anos',
     '70-74': '70 a 74 anos',
@@ -48,7 +47,6 @@ const getTooltipText = (category: ShareCategory, group: AgeGroup): string => {
 
   const contextLabels: Record<ShareCategory, string> = {
     'cumulative-total': 'do total',
-    'cumulative-65plus': 'da pop 65+',
     '5year-65plus': 'da pop 65+',
   };
 
@@ -105,19 +103,22 @@ const tooltipLines = ({
  *
  * @param params.row - The hovered area's row, when found.
  * @param params.thresholds - The active series' class breaks.
+ * @param params.colors - The class colours the layer is painted with.
  * @returns A CSS colour.
  */
 const swatchColorFor = ({
   row,
   thresholds,
+  colors,
 }: {
   row: MapDataRow | undefined;
   thresholds: number[];
+  colors: string[];
 }): string => {
   const neutral = 'var(--chakra-colors-border-subtle)';
 
   return row
-    ? (LEGEND_COLORS[getBandIndex({ value: row.value, thresholds })] ?? neutral)
+    ? (colors[getBandIndex({ value: row.value, thresholds })] ?? neutral)
     : neutral;
 };
 
@@ -134,6 +135,8 @@ const swatchColorFor = ({
  * @param params.thresholds - The active series' class breaks, so the swatch is
  * read off the same scale the layer is painted with.
  * @param params.ages - An offer rate's age bands. Defaults to all three.
+ * @param params.colors - The class colours the layer is painted with (the
+ * chosen ramp, at the chosen opacity), so the swatch matches the fill.
  * @returns Tooltip JSX content.
  */
 export const renderTooltipContent = ({
@@ -144,6 +147,7 @@ export const renderTooltipContent = ({
   group,
   thresholds,
   ages = OFFER_AGE_BANDS,
+  colors,
 }: {
   featureId: string | number;
   rowLookup: Map<number, MapDataRow>;
@@ -152,11 +156,12 @@ export const renderTooltipContent = ({
   group: Group;
   thresholds: number[];
   ages?: readonly OfferAgeBand[];
+  colors: string[];
 }) => {
   const row = rowLookup.get(Number(featureId));
   const memberNames = members?.get(Number(featureId));
   const lines = row ? tooltipLines({ row, category, group, ages }) : null;
-  const swatchColor = swatchColorFor({ row, thresholds });
+  const swatchColor = swatchColorFor({ row, thresholds, colors });
 
   return (
     <Box display="flex" flexDirection="column" gap="2" minWidth="200px">

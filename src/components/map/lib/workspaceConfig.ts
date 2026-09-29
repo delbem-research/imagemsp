@@ -14,6 +14,10 @@ import {
   type MapLevel,
 } from '@/components/map/lib/mapLevels';
 import {
+  buildSettingsSection,
+  type ColorSettings,
+} from '@/components/map/lib/settingsSection';
+import {
   isOfferCategory,
   OFFER_AGE_BANDS,
   OFFER_CATEGORIES,
@@ -49,21 +53,15 @@ const TIMELINE_SECTION_ID = 'Linha do tempo';
 const CATEGORY_OPTIONS: { value: Category; label: string; icon: string }[] = [
   {
     value: 'cumulative-total',
-    label: 'taxa cumulativa (% do total)',
+    label: 'proporção (% da pop total)',
     // A slice of the whole population.
     icon: ICONS.chartPieSlice,
   },
   {
-    value: 'cumulative-65plus',
-    label: 'proporção cumulativa (% da pop 65+)',
+    value: '5year-65plus',
+    label: 'proporção (% da pop 65+)',
     // A proportion measured inside a subset, not the whole.
     icon: ICONS.chartDonut,
-  },
-  {
-    value: '5year-65plus',
-    label: 'faixa (% da pop 65+)',
-    // A closed band rather than a cumulative total.
-    icon: ICONS.chartBar,
   },
   // Facilities rather than people, one category per kind of service.
   {
@@ -139,40 +137,23 @@ const LEVEL_OPTIONS: { value: MapLevel; label: string; icon: string }[] =
     };
   });
 
-/** Age-group options available for each category (cascading menu). */
+/** The services each offer category lists in its "Serviço" menu (cascading). */
 export const GROUP_OPTIONS: Record<
-  Category,
-  { value: Group; label: string }[]
-> = {
-  'cumulative-total': [
-    { value: '65', label: '65 anos ou mais' },
-    { value: '70', label: '70 anos ou mais' },
-    { value: '75', label: '75 anos ou mais' },
-  ],
-  'cumulative-65plus': [
-    { value: '70', label: '70 anos ou mais' },
-    { value: '75', label: '75 anos ou mais' },
-  ],
-  '5year-65plus': [
-    { value: '65-69', label: '65 a 69 anos' },
-    { value: '70-74', label: '70 a 74 anos' },
-    { value: '75', label: '75 anos ou mais' },
-  ],
-  ...byOfferCategory((category) => {
-    return OFFER_CATEGORIES[category].map((service) => {
-      return { value: service, label: OFFER_LABELS[service].menu };
-    });
-  }),
-};
+  OfferCategory,
+  { value: OfferService; label: string }[]
+> = byOfferCategory((category) => {
+  return OFFER_CATEGORIES[category].map((service) => {
+    return { value: service, label: OFFER_LABELS[service].menu };
+  });
+});
 
 /**
- * Icon per age group. The distinction that matters is cumulative vs closed
- * band: `65`/`70`/`75` mean "X anos ou mais" (open-ended, rendered as `65+`
- * in the tooltip), while `65-69`/`70-74` are bounded on both sides.
+ * Icon per age group and per service. For the ages the distinction that
+ * matters is open vs closed: `65` ("Todos") and `75` are "X anos ou mais",
+ * while `65-69`/`70-74` are bounded on both sides.
  */
 const GROUP_ICONS: Record<Group, string> = {
   '65': ICONS.plusCircle,
-  '70': ICONS.plusCircle,
   '75': ICONS.plusCircle,
   '65-69': ICONS.arrowsInLineHorizontal,
   '70-74': ICONS.arrowsInLineHorizontal,
@@ -190,19 +171,67 @@ const GROUP_ICONS: Record<Group, string> = {
 };
 
 /**
- * Age-group options of the offer indicators: the population a rate is set
- * against (see `offerAgeBands`) — every elderly resident, or one of the three
- * bands the counts carry. "Todos" leads, being the rate the indicators open on.
+ * The one list of age groups every indicator's "Faixa etária" menu draws from:
+ * every elderly resident ("Todos"), or one of the three bands the counts
+ * carry. A share indicator reads the group as its numerator, an offer one as
+ * the population its rate is set against (see `offerAgeBands`).
  */
-export const OFFER_AGE_OPTIONS: { value: AgeGroup; label: string }[] = [
+export const AGE_OPTIONS: { value: AgeGroup; label: string }[] = [
   { value: '65', label: 'Todos' },
   { value: '65-69', label: '65 a 69 anos' },
   { value: '70-74', label: '70 a 74 anos' },
   { value: '75', label: '75 anos ou mais' },
 ];
 
-/** The offer indicators' opening age group: every elderly resident. */
-export const DEFAULT_OFFER_AGE: AgeGroup = '65';
+/** The age group the map opens on: every elderly resident. */
+export const DEFAULT_AGE: AgeGroup = '65';
+
+/**
+ * The age groups an indicator lists: the whole list, except that the share of
+ * the 65+ drops "Todos" — the 65+ as a share of itself is 100% everywhere.
+ *
+ * @param category - The indicator.
+ * @returns Its options, in {@link AGE_OPTIONS} order.
+ *
+ * @example
+ * ageOptionsFor('5year-65plus').map((option) => option.value); // ['65-69', '70-74', '75']
+ */
+export const ageOptionsFor = (
+  category: Category
+): { value: AgeGroup; label: string }[] => {
+  return category === '5year-65plus'
+    ? AGE_OPTIONS.filter((option) => {
+        return option.value !== '65';
+      })
+    : AGE_OPTIONS;
+};
+
+/**
+ * The age group an indicator paints for a requested one: the request when the
+ * indicator lists it, otherwise its first option — so entering the share of
+ * the 65+ with "Todos" selected lands on 65–69.
+ *
+ * @param params.category - The indicator.
+ * @param params.age - The requested age group.
+ * @returns An age group the indicator lists.
+ *
+ * @example
+ * ageFor({ category: '5year-65plus', age: '65' }); // '65-69'
+ */
+export const ageFor = ({
+  category,
+  age,
+}: {
+  category: Category;
+  age: AgeGroup;
+}): AgeGroup => {
+  const options = ageOptionsFor(category);
+  return options.some((option) => {
+    return option.value === age;
+  })
+    ? age
+    : (options[0]?.value ?? DEFAULT_AGE);
+};
 
 /**
  * Title of an offer indicator in the legend, upper case like the others.
@@ -237,12 +266,9 @@ const offerDescription = (service: OfferService): string => {
 export const MAP_TITLES: Record<Category, Partial<Record<Group, string>>> = {
   'cumulative-total': {
     '65': 'POPULAÇÃO 65+ COMO % DA POPULAÇÃO TOTAL',
-    '70': 'POPULAÇÃO 70+ COMO % DA POPULAÇÃO TOTAL',
+    '65-69': 'POPULAÇÃO DE 65–69 ANOS COMO % DA POPULAÇÃO TOTAL',
+    '70-74': 'POPULAÇÃO DE 70–74 ANOS COMO % DA POPULAÇÃO TOTAL',
     '75': 'POPULAÇÃO 75+ COMO % DA POPULAÇÃO TOTAL',
-  },
-  'cumulative-65plus': {
-    '70': '70+ COMO % DA POPULAÇÃO 65+',
-    '75': '75+ COMO % DA POPULAÇÃO 65+',
   },
   '5year-65plus': {
     '65-69': '65–69 ANOS COMO % DA POPULAÇÃO 65+',
@@ -260,12 +286,9 @@ export const MAP_DESCRIPTIONS: Record<
 > = {
   'cumulative-total': {
     '65': 'Proporção da população total {area} com 65 anos ou mais.',
-    '70': 'Proporção da população total {area} com 70 anos ou mais.',
+    '65-69': 'Proporção da população total {area} com 65 a 69 anos.',
+    '70-74': 'Proporção da população total {area} com 70 a 74 anos.',
     '75': 'Proporção da população total {area} com 75 anos ou mais.',
-  },
-  'cumulative-65plus': {
-    '70': 'Proporção da população 65+ que tem 70 anos ou mais.',
-    '75': 'Proporção da população 65+ que tem 75 anos ou mais.',
   },
   '5year-65plus': {
     '65-69': 'Parcela da população 65+ na faixa de 65 a 69 anos.',
@@ -340,9 +363,9 @@ export const mapDescription = ({
     .replace('{agesLong}', offerAgesLong(ages));
 };
 
-/** Resolves the default age-group for a category (its first option). */
-export const getDefaultGroup = (category: Category): Group => {
-  return GROUP_OPTIONS[category][0].value;
+/** The service an offer category opens on: its first. */
+export const getDefaultService = (category: OfferCategory): OfferService => {
+  return GROUP_OPTIONS[category][0]?.value ?? OFFER_CATEGORIES[category][0]!;
 };
 
 /**
@@ -418,14 +441,52 @@ const buildYearSection = ({
 };
 
 /**
- * The offer indicators' "Faixa etária" block: the age group their rate is set
- * against, read with the service picked above it. Listed only for the offer
- * categories — the share ones carry their age band in the `group` menu.
+ * The offer indicators' "Serviço" block: which kind of facility is counted.
+ * Cascading — the options depend on the category, so the list is rebuilt
+ * whenever it changes (see the note on `buildWorkspaceConfig`).
  *
- * @param age - The selected age group, the menu's default.
+ * @param params.category - The offer category.
+ * @param params.group - The selected service, the menu's default.
  * @returns The block for the variations tab's `filters` body.
  */
-const buildOfferAgeBlock = (age: AgeGroup) => {
+const buildServiceBlock = ({
+  category,
+  group,
+}: {
+  category: OfferCategory;
+  group: Group;
+}) => {
+  return {
+    id: GROUP_MENU_ID,
+    title: 'Serviço',
+    icon: ICONS.storefront,
+    control: {
+      kind: 'variations' as const,
+      menuId: GROUP_MENU_ID,
+      variations: GROUP_OPTIONS[category].map((option) => {
+        return { ...option, icon: GROUP_ICONS[option.value] };
+      }),
+      defaultValue: group,
+    },
+  };
+};
+
+/**
+ * The "Faixa etária" block every indicator shows, last in the tab: one list of
+ * ages everywhere (see {@link AGE_OPTIONS}), minus "Todos" for the share of the
+ * 65+, where it would read 100% (see {@link ageOptionsFor}).
+ *
+ * @param params.category - The indicator, which decides the options.
+ * @param params.age - The selected age group, the menu's default.
+ * @returns The block for the variations tab's `filters` body.
+ */
+const buildAgeBlock = ({
+  category,
+  age,
+}: {
+  category: Category;
+  age: AgeGroup;
+}) => {
   return {
     id: AGE_MENU_ID,
     title: 'Faixa etária',
@@ -433,10 +494,10 @@ const buildOfferAgeBlock = (age: AgeGroup) => {
     control: {
       kind: 'variations' as const,
       menuId: AGE_MENU_ID,
-      variations: OFFER_AGE_OPTIONS.map((option) => {
+      variations: ageOptionsFor(category).map((option) => {
         return { ...option, icon: GROUP_ICONS[option.value] };
       }),
-      defaultValue: age,
+      defaultValue: ageFor({ category, age }),
     },
   };
 };
@@ -463,13 +524,14 @@ const HIDDEN_SLOTS: GeovisWorkspaceConfig['slots'] = {
  * data sources live on the map itself, configured via the geovis spec (see
  * `buildSpec` in `MapsView.tsx`), so there is no right sidebar.
  *
- * Two tabs. The first holds the variation menus as blocks — geographic level,
+ * Three tabs. The first holds the variation menus as blocks — geographic level,
  * indicator and age band (and, for the offer indicators, service) are read together, and the cascade between them is driven by React state
  * in `MapsView`, not by the sidebar's own navigation. The second is the
  * projection-year timeline, which stays in a tab of its own as the workspace
  * recommends: it is the only control with playback, and it publishes
  * `variables[YEAR_MENU_ID]` on every tick, so it has nothing to gain from
- * sitting beside menus that are picked once.
+ * sitting beside menus that are picked once. The third holds the choropleth's
+ * drawing settings, its ramp and opacity (see `buildSettingsSection`).
  *
  * No section declares `header.title`, so the sidebar draws no header band
  * and the tab bar takes the top of the card, close button included. Navigation
@@ -489,6 +551,7 @@ const HIDDEN_SLOTS: GeovisWorkspaceConfig['slots'] = {
  * would rebuild this whole config on every playback tick for no effect.
  * @param params.elderlyHistogram - Total 65+ population per year, drawn as the
  * timeline's mini bars.
+ * @param params.colorSettings - The "Configurações" tab's ramps and handlers.
  * @param params.sidebarInitiallyOpen - Whether the left sidebar starts open.
  * `GeovisWorkspace` reads this only once, when it seeds its own state, so later
  * changes cannot reopen a sidebar the user has closed.
@@ -498,10 +561,11 @@ export const buildWorkspaceConfig = ({
   level,
   category,
   group,
-  age = DEFAULT_OFFER_AGE,
+  age = DEFAULT_AGE,
   years,
   defaultYear,
   elderlyHistogram,
+  colorSettings,
   sidebarInitiallyOpen,
 }: {
   level: MapLevel;
@@ -511,6 +575,7 @@ export const buildWorkspaceConfig = ({
   years: number[];
   defaultYear: number;
   elderlyHistogram: { key: number; count: number }[];
+  colorSettings: ColorSettings;
   sidebarInitiallyOpen: boolean;
 }): GeovisWorkspaceConfig => {
   return {
@@ -575,33 +640,16 @@ export const buildWorkspaceConfig = ({
                   defaultValue: category,
                 },
               },
-              {
-                id: GROUP_MENU_ID,
-                // The second menu lists age bands, or services for the offer
-                // indicator; its heading follows.
-                title: isOfferCategory(category) ? 'Serviço' : 'Faixa etária',
-                icon: isOfferCategory(category)
-                  ? ICONS.storefront
-                  : ICONS.usersThree,
-                control: {
-                  kind: 'variations',
-                  menuId: GROUP_MENU_ID,
-                  // Cascading: the options depend on the active category, so
-                  // this list is rebuilt whenever it changes (see the note on
-                  // this builder).
-                  variations: GROUP_OPTIONS[category].map((option) => {
-                    return { ...option, icon: GROUP_ICONS[option.value] };
-                  }),
-                  defaultValue: group,
-                },
-              },
-              // Last, so it sits where the share indicators keep their own
-              // age band.
-              ...(isOfferCategory(category) ? [buildOfferAgeBlock(age)] : []),
+              // The offer indicators count one kind of facility.
+              ...(isOfferCategory(category)
+                ? [buildServiceBlock({ category, group })]
+                : []),
+              buildAgeBlock({ category, age }),
             ],
           },
         },
         buildYearSection({ years, defaultYear, elderlyHistogram }),
+        buildSettingsSection(colorSettings),
       ],
     },
   };
