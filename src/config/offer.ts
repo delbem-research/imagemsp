@@ -172,6 +172,8 @@ const OFFER_AGE_GROUP_BANDS: Record<AgeGroup, readonly OfferAgeBand[]> = {
   '65': OFFER_AGE_BANDS,
   '65-69': ['65-69'],
   '70-74': ['70-74'],
+  // Listed by the cumulative share only, never by an offer indicator.
+  '70': ['70-74', '75'],
   '75': ['75'],
 };
 

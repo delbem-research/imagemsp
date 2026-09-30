@@ -525,6 +525,13 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
    * the timeline's initial value, so rebuilding it on every playback tick would
    * re-render the whole sidebar eleven times per run and change nothing.
    */
+  // The count, not the year, feeds the config below: it changes only where the
+  // division does, so playback does not rebuild the sidebar on every tick.
+  const subprefeituraCount = subprefeiturasInForce({
+    data: mapsData,
+    year: paintedYear,
+  }).length;
+
   const config = React.useMemo(() => {
     const base = buildWorkspaceConfig({
       level: selection.level,
@@ -535,6 +542,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
       defaultYear,
       elderlyHistogram,
       colorSettings,
+      subprefeituraCount,
       sidebarInitiallyOpen,
     });
 
@@ -554,6 +562,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
     defaultYear,
     elderlyHistogram,
     colorSettings,
+    subprefeituraCount,
     sidebarInitiallyOpen,
   ]);
 

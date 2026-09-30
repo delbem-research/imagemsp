@@ -214,6 +214,7 @@ describe('offer indicators — sidebar and legend', () => {
 
     expect(timeline?.enabledWhen?.values).toEqual([
       'cumulative-total',
+      'cumulative-65plus',
       '5year-65plus',
     ]);
   });
@@ -405,6 +406,58 @@ describe('offer indicators — age filter', () => {
     expect(options('cumulative-total')).toEqual(all);
     // The 65+ as a share of itself would be 100% everywhere.
     expect(options('5year-65plus')).toEqual(all.slice(1));
+  });
+
+  test('the cumulative share lists its own "or older" ages', () => {
+    const [variations] =
+      buildWorkspaceConfig({
+        level: 'distrito',
+        category: 'cumulative-65plus',
+        group: 'ubs',
+        age: '65',
+        years: [2025],
+        defaultYear: 2025,
+        elderlyHistogram: [],
+        colorSettings: COLOR_SETTINGS,
+        sidebarInitiallyOpen: true,
+      }).leftSidebar?.sections ?? [];
+    if (variations?.body.kind !== 'filters') throw new Error('no filters body');
+    const age = variations.body.blocks.find((block) => {
+      return block.id === AGE_MENU_ID;
+    });
+    if (age?.control.kind !== 'variations') throw new Error('no age menu');
+
+    expect(
+      age.control.variations.map((variation) => {
+        return variation.label;
+      })
+    ).toEqual(['70 anos ou mais', '75 anos ou mais']);
+    // "Todos" has no place here, so the menu opens on 70+.
+    expect(age.control.defaultValue).toBe('70');
+  });
+
+  test('the cumulative share sets the 70+ against the 65+', () => {
+    const [row] = buildMapRows({
+      counts: [AREA],
+      year: 2025,
+      category: 'cumulative-65plus',
+      group: '70',
+    });
+
+    // 6,000 aged 70–74 and 5,380 aged 75+, over 21,380 aged 65+.
+    expect(row).toMatchObject({
+      value: 0.5323,
+      count: 11380,
+      totalCount: 21380,
+    });
+  });
+
+  test('moving between the shares keeps an age only where it is listed', () => {
+    expect(ageFor({ category: 'cumulative-65plus', age: '65' })).toBe('70');
+    expect(ageFor({ category: 'cumulative-65plus', age: '70-74' })).toBe('70');
+    expect(ageFor({ category: 'cumulative-65plus', age: '75' })).toBe('75');
+    expect(ageFor({ category: '5year-65plus', age: '70' })).toBe('65-69');
+    expect(ageFor({ category: 'cumulative-total', age: '70' })).toBe('65');
   });
 
   test('the share of the 65+ opens on its first band when "Todos" is selected', () => {

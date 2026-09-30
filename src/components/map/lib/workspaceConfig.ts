@@ -1,5 +1,10 @@
 import type { GeovisWorkspaceConfig } from '@ttoss/geovis-workspace';
 
+import {
+  ageFor,
+  ageOptionsFor,
+  DEFAULT_AGE,
+} from '@/components/map/lib/ageOptions';
 import { ICONS } from '@/components/map/lib/icons';
 import type {
   AgeGroup,
@@ -36,6 +41,15 @@ export const GROUP_MENU_ID = 'group';
 export const YEAR_MENU_ID = 'year';
 export const AGE_MENU_ID = 'age';
 
+// The age lists moved to `ageOptions`; re-exported so callers keep one import.
+export {
+  AGE_OPTIONS,
+  ageFor,
+  ageOptionsFor,
+  CUMULATIVE_AGE_OPTIONS,
+  DEFAULT_AGE,
+} from '@/components/map/lib/ageOptions';
+
 /**
  * Section ids, which double as the tab labels here.
  *
@@ -58,10 +72,16 @@ const CATEGORY_OPTIONS: { value: Category; label: string; icon: string }[] = [
     icon: ICONS.chartPieSlice,
   },
   {
-    value: '5year-65plus',
-    label: 'proporção (% da pop 65+)',
+    value: 'cumulative-65plus',
+    label: 'proporção cumulativa (% da pop 65+)',
     // A proportion measured inside a subset, not the whole.
     icon: ICONS.chartDonut,
+  },
+  {
+    value: '5year-65plus',
+    label: 'proporção (% da pop 65+)',
+    // A closed band rather than a cumulative total.
+    icon: ICONS.chartBar,
   },
   // Facilities rather than people, one category per kind of service.
   {
@@ -126,16 +146,33 @@ const byService = <T>(
   );
 };
 
-/** Geographic level options, one per {@link MapLevel}. */
-const LEVEL_OPTIONS: { value: MapLevel; label: string; icon: string }[] =
-  MAP_LEVEL_IDS.map((level) => {
+/**
+ * Geographic level options, one per {@link MapLevel}. The subprefeitura label
+ * carries the count in force in the year painted, as the districts' carries its
+ * fixed 96 — 31 until 2012, 32 since — and none before the division existed.
+ *
+ * @param subprefeituraCount - Subprefeituras in force in the year painted.
+ * @returns The "Recorte" menu's options.
+ *
+ * @example
+ * levelOptions(31)[1]?.label; // 'Subprefeituras (31)'
+ * levelOptions(0)[1]?.label; // 'Subprefeituras'
+ */
+export const levelOptions = (
+  subprefeituraCount: number
+): { value: MapLevel; label: string; icon: string }[] => {
+  return MAP_LEVEL_IDS.map((level) => {
+    const counted = level === 'subprefeitura' && subprefeituraCount > 0;
     return {
       value: level,
-      label: MAP_LEVELS[level].label,
+      label: counted
+        ? `${MAP_LEVELS[level].label} (${subprefeituraCount})`
+        : MAP_LEVELS[level].label,
       // Many small areas vs a few large ones.
       icon: level === 'distrito' ? ICONS.squaresFour : ICONS.polygon,
     };
   });
+};
 
 /** The services each offer category lists in its "Serviço" menu (cascading). */
 export const GROUP_OPTIONS: Record<
@@ -154,6 +191,7 @@ export const GROUP_OPTIONS: Record<
  */
 const GROUP_ICONS: Record<Group, string> = {
   '65': ICONS.plusCircle,
+  '70': ICONS.plusCircle,
   '75': ICONS.plusCircle,
   '65-69': ICONS.arrowsInLineHorizontal,
   '70-74': ICONS.arrowsInLineHorizontal,
@@ -168,69 +206,6 @@ const GROUP_ICONS: Record<Group, string> = {
   animais: ICONS.pawPrint,
   restaurantes: ICONS.forkKnife,
   esporte: ICONS.soccerBall,
-};
-
-/**
- * The one list of age groups every indicator's "Faixa etária" menu draws from:
- * every elderly resident ("Todos"), or one of the three bands the counts
- * carry. A share indicator reads the group as its numerator, an offer one as
- * the population its rate is set against (see `offerAgeBands`).
- */
-export const AGE_OPTIONS: { value: AgeGroup; label: string }[] = [
-  { value: '65', label: 'Todos' },
-  { value: '65-69', label: '65 a 69 anos' },
-  { value: '70-74', label: '70 a 74 anos' },
-  { value: '75', label: '75 anos ou mais' },
-];
-
-/** The age group the map opens on: every elderly resident. */
-export const DEFAULT_AGE: AgeGroup = '65';
-
-/**
- * The age groups an indicator lists: the whole list, except that the share of
- * the 65+ drops "Todos" — the 65+ as a share of itself is 100% everywhere.
- *
- * @param category - The indicator.
- * @returns Its options, in {@link AGE_OPTIONS} order.
- *
- * @example
- * ageOptionsFor('5year-65plus').map((option) => option.value); // ['65-69', '70-74', '75']
- */
-export const ageOptionsFor = (
-  category: Category
-): { value: AgeGroup; label: string }[] => {
-  return category === '5year-65plus'
-    ? AGE_OPTIONS.filter((option) => {
-        return option.value !== '65';
-      })
-    : AGE_OPTIONS;
-};
-
-/**
- * The age group an indicator paints for a requested one: the request when the
- * indicator lists it, otherwise its first option — so entering the share of
- * the 65+ with "Todos" selected lands on 65–69.
- *
- * @param params.category - The indicator.
- * @param params.age - The requested age group.
- * @returns An age group the indicator lists.
- *
- * @example
- * ageFor({ category: '5year-65plus', age: '65' }); // '65-69'
- */
-export const ageFor = ({
-  category,
-  age,
-}: {
-  category: Category;
-  age: AgeGroup;
-}): AgeGroup => {
-  const options = ageOptionsFor(category);
-  return options.some((option) => {
-    return option.value === age;
-  })
-    ? age
-    : (options[0]?.value ?? DEFAULT_AGE);
 };
 
 /**
@@ -270,6 +245,10 @@ export const MAP_TITLES: Record<Category, Partial<Record<Group, string>>> = {
     '70-74': 'POPULAÇÃO DE 70–74 ANOS COMO % DA POPULAÇÃO TOTAL',
     '75': 'POPULAÇÃO 75+ COMO % DA POPULAÇÃO TOTAL',
   },
+  'cumulative-65plus': {
+    '70': '70+ COMO % DA POPULAÇÃO 65+',
+    '75': '75+ COMO % DA POPULAÇÃO 65+',
+  },
   '5year-65plus': {
     '65-69': '65–69 ANOS COMO % DA POPULAÇÃO 65+',
     '70-74': '70–74 ANOS COMO % DA POPULAÇÃO 65+',
@@ -289,6 +268,10 @@ export const MAP_DESCRIPTIONS: Record<
     '65-69': 'Proporção da população total {area} com 65 a 69 anos.',
     '70-74': 'Proporção da população total {area} com 70 a 74 anos.',
     '75': 'Proporção da população total {area} com 75 anos ou mais.',
+  },
+  'cumulative-65plus': {
+    '70': 'Proporção da população 65+ que tem 70 anos ou mais.',
+    '75': 'Proporção da população 65+ que tem 75 anos ou mais.',
   },
   '5year-65plus': {
     '65-69': 'Parcela da população 65+ na faixa de 65 a 69 anos.',
@@ -552,6 +535,10 @@ const HIDDEN_SLOTS: GeovisWorkspaceConfig['slots'] = {
  * @param params.elderlyHistogram - Total 65+ population per year, drawn as the
  * timeline's mini bars.
  * @param params.colorSettings - The "Configurações" tab's ramps and handlers.
+ * @param params.subprefeituraCount - Subprefeituras in force in the year
+ * painted, shown in the "Recorte" menu (see `levelOptions`). A count rather
+ * than the year, so the config is rebuilt only when the division changes
+ * (2002, 2013) and not on every playback tick.
  * @param params.sidebarInitiallyOpen - Whether the left sidebar starts open.
  * `GeovisWorkspace` reads this only once, when it seeds its own state, so later
  * changes cannot reopen a sidebar the user has closed.
@@ -566,6 +553,7 @@ export const buildWorkspaceConfig = ({
   defaultYear,
   elderlyHistogram,
   colorSettings,
+  subprefeituraCount = 0,
   sidebarInitiallyOpen,
 }: {
   level: MapLevel;
@@ -576,6 +564,7 @@ export const buildWorkspaceConfig = ({
   defaultYear: number;
   elderlyHistogram: { key: number; count: number }[];
   colorSettings: ColorSettings;
+  subprefeituraCount?: number;
   sidebarInitiallyOpen: boolean;
 }): GeovisWorkspaceConfig => {
   return {
@@ -623,7 +612,7 @@ export const buildWorkspaceConfig = ({
                 control: {
                   kind: 'variations',
                   menuId: LEVEL_MENU_ID,
-                  variations: LEVEL_OPTIONS,
+                  variations: levelOptions(subprefeituraCount),
                   defaultValue: level,
                 },
               },

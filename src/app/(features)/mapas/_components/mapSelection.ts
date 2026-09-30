@@ -13,6 +13,7 @@ import {
   AGE_OPTIONS,
   ageFor,
   CATEGORY_MENU_ID,
+  CUMULATIVE_AGE_OPTIONS,
   getDefaultService,
   GROUP_MENU_ID,
   LEVEL_MENU_ID,
@@ -69,9 +70,9 @@ export type Selection = {
   opacity: string;
 };
 
-/** Whether a reported value is one of the age groups. */
+/** Whether a reported value is one of the age groups, of either list. */
 const isAgeGroup = (value: string | undefined): value is AgeGroup => {
-  return AGE_OPTIONS.some((option) => {
+  return [...AGE_OPTIONS, ...CUMULATIVE_AGE_OPTIONS].some((option) => {
     return option.value === value;
   });
 };

@@ -40,6 +40,7 @@ export const TOOLTIP_STYLE = {
 const getTooltipText = (category: ShareCategory, group: AgeGroup): string => {
   const ageLabels: Record<AgeGroup, string> = {
     '65': '65+',
+    '70': '70+',
     '75': '75+',
     '65-69': '65 a 69 anos',
     '70-74': '70 a 74 anos',
@@ -47,6 +48,7 @@ const getTooltipText = (category: ShareCategory, group: AgeGroup): string => {
 
   const contextLabels: Record<ShareCategory, string> = {
     'cumulative-total': 'do total',
+    'cumulative-65plus': 'da pop 65+',
     '5year-65plus': 'da pop 65+',
   };
 

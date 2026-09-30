@@ -1,8 +1,12 @@
 /**
  * The categories that paint a population share, along the timeline: an age
- * group's share of the whole population, or of the 65+.
+ * group's share of the whole population, or of the 65+ — as a band
+ * (`5year-65plus`) or cumulatively, "X or older" (`cumulative-65plus`).
  */
-export type ShareCategory = 'cumulative-total' | '5year-65plus';
+export type ShareCategory =
+  | 'cumulative-total'
+  | 'cumulative-65plus'
+  | '5year-65plus';
 
 /**
  * The categories that paint public facilities per 10 thousand residents aged
@@ -13,10 +17,11 @@ export type OfferCategory = 'health-65plus' | 'food-65plus' | 'leisure-65plus';
 export type Category = ShareCategory | OfferCategory;
 
 /**
- * The age groups every indicator lists: every elderly resident (`65`, shown
- * as "Todos"), or one of the three bands the counts carry.
+ * The age groups the indicators list: every elderly resident (`65`, shown as
+ * "Todos"), one of the three bands the counts carry, or — for the cumulative
+ * share of the 65+ only — everyone aged 70 or older (`70`).
  */
-export type AgeGroup = '65' | '65-69' | '70-74' | '75';
+export type AgeGroup = '65' | '65-69' | '70-74' | '70' | '75';
 
 /**
  * The services of the offer categories: public facilities counted per area and

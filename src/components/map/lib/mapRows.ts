@@ -33,6 +33,11 @@ const elderly = (counts: DistrictCounts): number => {
   return counts.count65to69 + counts.count70to74 + counts.count75plus;
 };
 
+/** Residents aged 70 or older. */
+const elderly70plus = (counts: DistrictCounts): number => {
+  return counts.count70to74 + counts.count75plus;
+};
+
 /** Each age band's residents in an area's counts. */
 const BAND_COUNT: Record<OfferAgeBand, (counts: DistrictCounts) => number> = {
   '65-69': (counts) => {
@@ -115,6 +120,15 @@ const SERIES_RATIOS: Record<Category, Partial<Record<Group, SeriesRatio>>> = {
       return { count: counts.count75plus, totalCount: counts.total };
     },
   },
+  // "X or older" as a share of the 65+: the cuts policies often draw.
+  'cumulative-65plus': {
+    '70': (counts) => {
+      return { count: elderly70plus(counts), totalCount: elderly(counts) };
+    },
+    '75': (counts) => {
+      return { count: counts.count75plus, totalCount: elderly(counts) };
+    },
+  },
   '5year-65plus': {
     '65-69': (counts) => {
       return { count: counts.count65to69, totalCount: elderly(counts) };
@@ -138,6 +152,7 @@ const SERIES_RATIOS: Record<Category, Partial<Record<Group, SeriesRatio>>> = {
  */
 const SERIES_SCALE: Record<Category, { base: number; decimals: number }> = {
   'cumulative-total': { base: 1, decimals: 4 },
+  'cumulative-65plus': { base: 1, decimals: 4 },
   '5year-65plus': { base: 1, decimals: 4 },
   ...byOfferCategory(() => {
     return { base: OFFER_RATE_BASE, decimals: 2 };

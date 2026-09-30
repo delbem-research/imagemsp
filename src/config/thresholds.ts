@@ -47,6 +47,16 @@ export const SERIES_THRESHOLDS: Record<
     /** 75+ over total. Observed 0.5%-20.9%; 2.5-point classes, since the 5-point scale would spend four classes on values it never reaches. */
     '75': [0.025, 0.05, 0.075, 0.1, 0.125, 0.15],
   },
+  /** "X or older" as a share of the district's own 65+ population. */
+  'cumulative-65plus': {
+    /** 70+ over 65+. Observed 51.3%-78.1% — this share never approaches zero, so the scale starts at 50%. */
+    '70': [0.5, 0.55, 0.6, 0.65, 0.7, 0.75],
+    /**
+     * 75+ over 65+. The same series as `5year-65plus/75` — the open top band is
+     * both the last band and a cumulative one — so it classifies the same way.
+     */
+    '75': [0.25, 0.3, 0.35, 0.4, 0.45, 0.5],
+  },
   /** One age band as a share of the district's 65+ population. */
   '5year-65plus': {
     /** 65-69 over 65+. Observed 21.9%-48.7%; 5-point classes. */

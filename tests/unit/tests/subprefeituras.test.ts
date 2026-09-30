@@ -6,7 +6,10 @@ import path from 'node:path';
 
 import { isMapLevel } from '@/components/map/lib/mapLevels';
 import { buildMapRows } from '@/components/map/lib/mapRows';
-import { mapDescription } from '@/components/map/lib/workspaceConfig';
+import {
+  levelOptions,
+  mapDescription,
+} from '@/components/map/lib/workspaceConfig';
 import { versionKey, versionsInForce } from '@/data-gateway/schema';
 import {
   type ServiceCounts,
@@ -515,6 +518,19 @@ describe('map levels', () => {
     expect(isMapLevel('subprefeitura')).toBe(true);
     expect(isMapLevel('regiao')).toBe(false);
     expect(isMapLevel(undefined)).toBe(false);
+  });
+
+  test('the level menu counts the subprefeituras of the year, as it does the districts', () => {
+    const labels = (count: number) => {
+      return levelOptions(count).map((option) => {
+        return option.label;
+      });
+    };
+
+    expect(labels(32)).toEqual(['Distritos (96)', 'Subprefeituras (32)']);
+    expect(labels(31)).toEqual(['Distritos (96)', 'Subprefeituras (31)']);
+    // Before the division existed there is nothing to count.
+    expect(labels(0)).toEqual(['Distritos (96)', 'Subprefeituras']);
   });
 
   test('the legend subtitle names the level painted', () => {
