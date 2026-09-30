@@ -382,31 +382,44 @@ export const buildOverlays = ({
  * floating button in the map's bottom-left corner whenever `spec.control` is
  * present, as in the `SpecDrivenLayerControl` story of ttoss.
  *
- * Every overlay starts off: they sit on top of the choropleth, not in place of
- * it, and turning one on is what triggers its request.
+ * Every overlay starts off — they sit on top of the choropleth, not in place
+ * of it, and turning one on is what triggers its request — except the ones a
+ * shared link switched on (`active`). The control reads `defaultActive` only
+ * for a toggle it has not seen yet, so these seed it once and the reader's own
+ * toggling takes over from there.
+ *
+ * @param active - The overlays to open switched on.
+ * @returns The control, for `spec.control`.
  */
-export const LAYER_CONTROL: NonNullable<VisualizationSpec['control']> = {
-  id: 'camadas',
-  label: 'Camadas',
-  icon: 'lucide:layers',
-  position: 'bottom-left',
-  // The left sidebar card's own inset (theme space `3` = 0.75rem), so the
-  // button lines up with the card when the sidebar is closed.
-  offset: 12,
-  trigger: 'hover',
-  // Nineteen overlays outgrow the map in a single row of cards: show the first
-  // three and tuck the rest behind a "Ver mais" card.
-  maxVisibleItems: 3,
-  items: OVERLAYS.map((config) => {
-    return {
-      id: config.id,
-      label: config.label,
-      thumbnail: thumbnail(config),
-      // A translucent polygon's outline toggles with its fill.
-      layers: hasOutlineLayer(config)
-        ? [overlaySpecId(config.id), overlayOutlineId(config.id)]
-        : [overlaySpecId(config.id)],
-      defaultActive: false,
-    };
-  }),
+export const buildLayerControl = (
+  active: readonly OverlayId[]
+): NonNullable<VisualizationSpec['control']> => {
+  return {
+    id: 'camadas',
+    label: 'Camadas',
+    icon: 'lucide:layers',
+    position: 'bottom-left',
+    // The left sidebar card's own inset (theme space `3` = 0.75rem), so the
+    // button lines up with the card when the sidebar is closed.
+    offset: 12,
+    trigger: 'hover',
+    // Nineteen overlays outgrow the map in a single row of cards: show the first
+    // three and tuck the rest behind a "Ver mais" card.
+    maxVisibleItems: 3,
+    items: OVERLAYS.map((config) => {
+      return {
+        id: config.id,
+        label: config.label,
+        thumbnail: thumbnail(config),
+        // A translucent polygon's outline toggles with its fill.
+        layers: hasOutlineLayer(config)
+          ? [overlaySpecId(config.id), overlayOutlineId(config.id)]
+          : [overlaySpecId(config.id)],
+        defaultActive: active.includes(config.id),
+      };
+    }),
+  };
 };
+
+/** The control with every overlay off, as the map opens without a link. */
+export const LAYER_CONTROL = buildLayerControl([]);
