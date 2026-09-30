@@ -6,8 +6,11 @@ import path from 'node:path';
 
 import { isMapLevel } from '@/components/map/lib/mapLevels';
 import { buildMapRows } from '@/components/map/lib/mapRows';
-import { mapDescription } from '@/components/map/lib/workspaceConfig';
-import { isInForce } from '@/data-gateway/schema';
+import {
+  levelOptions,
+  mapDescription,
+} from '@/components/map/lib/workspaceConfig';
+import { versionKey, versionsInForce } from '@/data-gateway/schema';
 import {
   type ServiceCounts,
   toAppMapsData,
@@ -87,7 +90,6 @@ const SUBPREFEITURAS = {
       regiao: 'Leste',
       distritos: [1, 2],
       validFrom: 2002,
-      validTo: null,
     },
     {
       id: 11,
@@ -97,7 +99,6 @@ const SUBPREFEITURAS = {
       regiao: 'Sul',
       distritos: [3],
       validFrom: 2002,
-      validTo: null,
     },
   ],
 };
@@ -172,10 +173,10 @@ describe('toAppMapsData — subprefeitura aggregation', () => {
 
     expect(contract.subprefeituras[0]).toEqual({
       geometryId: 10,
+      versionKey: '10@2002',
       name: 'Alfa',
       districtNames: ['Grande', 'Pequeno'],
       validFrom: 2002,
-      validTo: null,
     });
   });
 
@@ -204,7 +205,7 @@ describe('toAppMapsData — subprefeitura aggregation', () => {
     }).toThrow('more than one subprefeitura');
   });
 
-  test('throws when two subprefeituras share an id', () => {
+  test('throws when two versions of a subprefeitura begin the same year', () => {
     expect(() => {
       return toAppMapsData(
         SOURCE,
@@ -216,7 +217,7 @@ describe('toAppMapsData — subprefeitura aggregation', () => {
         },
         SERVICES
       );
-    }).toThrow('share the id 10');
+    }).toThrow('both begin in 2002');
   });
 
   test('throws when a subprefeitura names a district without counts', () => {
@@ -236,9 +237,10 @@ describe('toAppMapsData — subprefeitura aggregation', () => {
 });
 
 /**
- * The same three districts across a split: until 2012 all three form "Alfa";
- * from 2013 "Alfa" keeps districts 1 and 2 and district 3 forms "Beta". 2000
- * predates the division.
+ * The same three districts across a split: from 2002 all three form "Alfa-Beta",
+ * the first version of id 10; in 2013 id 10's second version, "Alfa", keeps
+ * districts 1 and 2 and district 3 forms "Beta" — which is what ends the first
+ * version, since versions carry a first year only. 2000 predates the division.
  */
 describe('toAppMapsData — a division that changes over the series', () => {
   const years = [2000, 2005, 2010, 2015];
@@ -254,7 +256,7 @@ describe('toAppMapsData — a division that changes over the series', () => {
   const [alfa, beta] = SUBPREFEITURAS.subprefeituras;
   const versioned = {
     subprefeituras: [
-      { ...alfa!, id: 12, distritos: [1, 2, 3], validTo: 2012 },
+      { ...alfa!, nome: 'Alfa-Beta', distritos: [1, 2, 3] },
       { ...alfa!, validFrom: 2013 },
       { ...beta!, validFrom: 2013 },
     ],
@@ -265,16 +267,18 @@ describe('toAppMapsData — a division that changes over the series', () => {
       .subprefeituraCounts.filter((entry) => {
         return entry.year === year;
       })
-      .map(({ geometryId, total }) => {
-        return { geometryId, total };
+      .map(({ geometryId, name, total }) => {
+        return { geometryId, name, total };
       });
   };
 
-  test('sums each year into the division in force that year', () => {
-    expect(areasOf(2010)).toEqual([{ geometryId: 12, total: 530000 }]);
+  test('sums each year into the version in force that year, under its name', () => {
+    expect(areasOf(2010)).toEqual([
+      { geometryId: 10, name: 'Alfa-Beta', total: 530000 },
+    ]);
     expect(areasOf(2015)).toEqual([
-      { geometryId: 10, total: 510000 },
-      { geometryId: 11, total: 20000 },
+      { geometryId: 10, name: 'Alfa', total: 510000 },
+      { geometryId: 11, name: 'Beta', total: 20000 },
     ]);
   });
 
@@ -289,7 +293,7 @@ describe('toAppMapsData — a division that changes over the series', () => {
         {
           subprefeituras: [
             ...versioned.subprefeituras,
-            { ...beta!, id: 13, validFrom: 2010, validTo: 2012 },
+            { ...beta!, id: 13, validFrom: 2010 },
           ],
         },
         SERVICES
@@ -308,17 +312,40 @@ describe('toAppMapsData — a division that changes over the series', () => {
   });
 });
 
-describe('isInForce', () => {
-  test('includes both ends and treats a null end as ongoing', () => {
-    const former = { validFrom: 2002, validTo: 2012 };
-    const current = { validFrom: 2013, validTo: null };
+describe('versionsInForce', () => {
+  const areas = [
+    { id: 18, nome: 'Vila Prudente-Sapopemba', validFrom: 2002 },
+    { id: 18, nome: 'Vila Prudente', validFrom: 2013 },
+    { id: 32, nome: 'Sapopemba', validFrom: 2013 },
+    { id: 1, nome: 'Pirituba', validFrom: 2002 },
+  ];
+  const namesIn = (year: number) => {
+    return versionsInForce({
+      areas,
+      year,
+      idOf: (area) => {
+        return area.id;
+      },
+    })
+      .map((area) => {
+        return area.nome;
+      })
+      .sort();
+  };
 
-    expect(isInForce(former, 2002)).toBe(true);
-    expect(isInForce(former, 2012)).toBe(true);
-    expect(isInForce(former, 2013)).toBe(false);
-    expect(isInForce(current, 2012)).toBe(false);
-    expect(isInForce(current, 2050)).toBe(true);
-    expect(isInForce(former, 2000)).toBe(false);
+  test('a version holds from its first year until the next version of its id', () => {
+    expect(namesIn(2002)).toEqual(['Pirituba', 'Vila Prudente-Sapopemba']);
+    expect(namesIn(2012)).toEqual(['Pirituba', 'Vila Prudente-Sapopemba']);
+    expect(namesIn(2013)).toEqual(['Pirituba', 'Sapopemba', 'Vila Prudente']);
+    expect(namesIn(2050)).toEqual(['Pirituba', 'Sapopemba', 'Vila Prudente']);
+  });
+
+  test('a year before any version began has none', () => {
+    expect(namesIn(2000)).toEqual([]);
+  });
+
+  test('the version key is the id and the first year', () => {
+    expect(versionKey({ id: 18, validFrom: 2002 })).toBe('18@2002');
   });
 });
 
@@ -344,15 +371,11 @@ describe('readStaticSubprefeituras — validation', () => {
     );
   });
 
-  test('throws when a subprefeitura ends before it starts', async () => {
+  test('throws when a version has no whole first year', async () => {
     jest.doMock('@/data-source-static/data/subprefeituras.json', () => {
       return {
         subprefeituras: [
-          {
-            ...SUBPREFEITURAS.subprefeituras[0],
-            validFrom: 2013,
-            validTo: 2012,
-          },
+          { ...SUBPREFEITURAS.subprefeituras[0], validFrom: '2013' },
         ],
       };
     });
@@ -379,8 +402,12 @@ describe('readStaticSubprefeituras — validation', () => {
       const { readStaticSubprefeituras } =
         await import('@/data-source-static/readStaticSubprefeituras');
       const { subprefeituras } = await readStaticSubprefeituras();
-      const inForce = subprefeituras.filter((sub) => {
-        return isInForce(sub, year);
+      const inForce = versionsInForce({
+        areas: subprefeituras,
+        year,
+        idOf: (sub) => {
+          return sub.id;
+        },
       });
       const districtIds = inForce.flatMap((sub) => {
         return sub.distritos;
@@ -392,7 +419,7 @@ describe('readStaticSubprefeituras — validation', () => {
     }
   );
 
-  test('Vila Prudente-Sapopemba splits into Vila Prudente and Sapopemba in 2013', async () => {
+  test('Vila Prudente-Sapopemba is Vila Prudente until Sapopemba splits off in 2013', async () => {
     jest.dontMock('@/data-source-static/data/subprefeituras.json');
 
     const { readStaticSubprefeituras } =
@@ -406,9 +433,10 @@ describe('readStaticSubprefeituras — validation', () => {
     const former = byName('Vila Prudente-Sapopemba');
     const successors = [byName('Vila Prudente'), byName('Sapopemba')];
 
-    expect(former).toMatchObject({ validFrom: 2002, validTo: 2012 });
+    // The former shape is Vila Prudente's first version: same id, 2002.
+    expect(former).toMatchObject({ id: successors[0]?.id, validFrom: 2002 });
     for (const successor of successors) {
-      expect(successor).toMatchObject({ validFrom: 2013, validTo: null });
+      expect(successor).toMatchObject({ validFrom: 2013 });
     }
     expect(
       successors
@@ -421,7 +449,7 @@ describe('readStaticSubprefeituras — validation', () => {
     ).toEqual(former?.distritos);
   });
 
-  test('the versioned geometry carries each subprefeitura years, as the JSON does', async () => {
+  test('the versioned geometry carries each version key and year, as the JSON does', async () => {
     jest.dontMock('@/data-source-static/data/subprefeituras.json');
 
     const { readStaticSubprefeituras } =
@@ -435,23 +463,31 @@ describe('readStaticSubprefeituras — validation', () => {
     ) as {
       features: {
         id: number;
-        properties: { id: number; validFrom: number; validTo: number | null };
+        properties: Record<string, unknown> & {
+          id: number;
+          versionKey: string;
+          validFrom: number;
+        };
       }[];
     };
 
     for (const feature of geojson.features) {
       const sub = subprefeituras.find((candidate) => {
-        return candidate.id === feature.id;
+        return (
+          candidate.id === feature.id &&
+          candidate.validFrom === feature.properties.validFrom
+        );
       });
 
-      // The map filters on `properties.id`, so it must be the feature id.
+      expect(sub).toBeDefined();
       expect(feature.properties.id).toBe(feature.id);
-      expect(feature.properties.validFrom).toBe(sub?.validFrom);
-      expect(feature.properties.validTo).toBe(sub?.validTo);
+      // The map filters on `properties.versionKey`: the app's key, exactly.
+      expect(feature.properties.versionKey).toBe(versionKey(sub!));
+      expect(feature.properties).not.toHaveProperty('validTo');
     }
   });
 
-  test('the versioned geometry carries one polygon per subprefeitura id', async () => {
+  test('the versioned geometry carries one polygon per version', async () => {
     jest.dontMock('@/data-source-static/data/subprefeituras.json');
 
     const { readStaticSubprefeituras } =
@@ -462,24 +498,17 @@ describe('readStaticSubprefeituras — validation', () => {
         path.resolve(__dirname, '../../../public/subprefeituras.geojson'),
         'utf8'
       )
-    ) as { features: { id: number }[] };
+    ) as { features: { properties: { versionKey: string } }[] };
 
-    const featureIds = geojson.features
+    const featureKeys = geojson.features
       .map((feature) => {
-        return feature.id;
+        return feature.properties.versionKey;
       })
-      .sort((a, b) => {
-        return a - b;
-      });
-    const subIds = subprefeituras
-      .map((sub) => {
-        return sub.id;
-      })
-      .sort((a, b) => {
-        return a - b;
-      });
+      .sort();
+    const subKeys = subprefeituras.map(versionKey).sort();
 
-    expect(featureIds).toEqual(subIds);
+    expect(featureKeys).toEqual(subKeys);
+    expect(new Set(featureKeys).size).toBe(featureKeys.length);
   });
 });
 
@@ -489,6 +518,19 @@ describe('map levels', () => {
     expect(isMapLevel('subprefeitura')).toBe(true);
     expect(isMapLevel('regiao')).toBe(false);
     expect(isMapLevel(undefined)).toBe(false);
+  });
+
+  test('the level menu counts the subprefeituras of the year, as it does the districts', () => {
+    const labels = (count: number) => {
+      return levelOptions(count).map((option) => {
+        return option.label;
+      });
+    };
+
+    expect(labels(32)).toEqual(['Distritos (96)', 'Subprefeituras (32)']);
+    expect(labels(31)).toEqual(['Distritos (96)', 'Subprefeituras (31)']);
+    // Before the division existed there is nothing to count.
+    expect(labels(0)).toEqual(['Distritos (96)', 'Subprefeituras']);
   });
 
   test('the legend subtitle names the level painted', () => {

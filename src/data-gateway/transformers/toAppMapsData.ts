@@ -7,11 +7,16 @@ import type {
 } from '../../data-source-static/types';
 import {
   type DistrictCounts,
-  isInForce,
   type MapsDataContract,
   type OfferService,
   type Subprefeitura,
+  versionKey,
+  versionsInForce,
 } from '../schema';
+
+/** One version of a subprefeitura, as the static snapshot carries it. */
+type SubprefeituraVersion =
+  StaticSubprefeiturasDataSource['subprefeituras'][number];
 
 /** Facilities per service, keyed by district name as the point CSVs spell it. */
 export type ServiceCounts = Record<OfferService, Map<string, number>>;
@@ -129,15 +134,15 @@ const validateYears = (counts: DistrictCounts[]): number[] => {
 };
 
 /**
- * Maps each district to its subprefeitura in one year, asserting the two match
- * one to one among the subprefeituras in force that year.
+ * Maps each district to the version of its subprefeitura in force in one year,
+ * asserting the two match one to one among the versions in force that year.
  *
  * @param params.districtNames - `geometryId → name` of every district with
  * counts.
- * @param params.subprefeituras - Every subprefeitura, current and former.
+ * @param params.subprefeituras - Every version of every subprefeitura.
  * @param params.year - The year whose division is matched.
- * @returns `district geometryId → subprefeitura id`, empty for a year before
- * the division existed (no subprefeitura in force).
+ * @returns `district geometryId → subprefeitura version`, empty for a year
+ * before the division existed (no version in force).
  * @throws Unless every district belongs to exactly one subprefeitura in force,
  * and every district such a subprefeitura names has counts — a district left
  * out would drop its population from the totals without any visible sign, and
@@ -151,10 +156,14 @@ const matchSubprefeituras = ({
   districtNames: Map<number, string>;
   subprefeituras: StaticSubprefeiturasDataSource['subprefeituras'];
   year: number;
-}): Map<number, number> => {
-  const subByDistrict = new Map<number, number>();
-  const inForce = subprefeituras.filter((sub) => {
-    return isInForce(sub, year);
+}): Map<number, SubprefeituraVersion> => {
+  const subByDistrict = new Map<number, SubprefeituraVersion>();
+  const inForce = versionsInForce({
+    areas: subprefeituras,
+    year,
+    idOf: (sub) => {
+      return sub.id;
+    },
   });
 
   if (inForce.length === 0) {
@@ -168,7 +177,7 @@ const matchSubprefeituras = ({
           `[data-gateway] district ${districtId} belongs to more than one subprefeitura in ${year}`
         );
       }
-      subByDistrict.set(districtId, sub.id);
+      subByDistrict.set(districtId, sub);
     }
   }
 
@@ -192,24 +201,26 @@ const matchSubprefeituras = ({
 };
 
 /**
- * Asserts no two subprefeituras share an id. The id is the polygon's feature
- * id, so a shared one would paint two areas from one row.
+ * Asserts no two versions share an id and a first year. The versions of one id
+ * are told apart by the year they came into force alone, so two starting the
+ * same year would leave that year with two shapes for one subprefeitura.
  *
- * @param subprefeituras - Every subprefeitura, current and former.
- * @throws On the first repeated id.
+ * @param subprefeituras - Every version of every subprefeitura.
+ * @throws On the first repeated version.
  */
-const assertUniqueIds = (
+const assertUniqueVersions = (
   subprefeituras: StaticSubprefeiturasDataSource['subprefeituras']
 ): void => {
-  const seen = new Set<number>();
+  const seen = new Set<string>();
 
   for (const sub of subprefeituras) {
-    if (seen.has(sub.id)) {
+    const key = versionKey(sub);
+    if (seen.has(key)) {
       throw new Error(
-        `[data-gateway] two subprefeituras share the id ${sub.id}; one polygon would paint both`
+        `[data-gateway] two versions of subprefeitura ${sub.id} both begin in ${sub.validFrom}`
       );
     }
-    seen.add(sub.id);
+    seen.add(key);
   }
 };
 
@@ -244,8 +255,8 @@ const addCounts = (sum: DistrictCounts, entry: DistrictCounts): void => {
  * @param params.counts - District counts for every year.
  * @param params.subprefeituras - The subprefeituras and their districts.
  * @returns The subprefeitura counts and the tooltip's district lists.
- * @throws If two subprefeituras share an id, or districts and the
- * subprefeituras in force do not match one to one in some year (see
+ * @throws If two versions of a subprefeitura begin the same year, or districts
+ * and the versions in force do not match one to one in some year (see
  * {@link matchSubprefeituras}).
  *
  * @example
@@ -262,7 +273,7 @@ const aggregateSubprefeituras = ({
   subprefeituraCounts: DistrictCounts[];
   subprefeituras: Subprefeitura[];
 } => {
-  assertUniqueIds(subprefeituras);
+  assertUniqueVersions(subprefeituras);
 
   const districtNames = new Map(
     counts.map((entry) => {
@@ -278,25 +289,21 @@ const aggregateSubprefeituras = ({
     })
   );
 
-  const subNames = new Map(
-    subprefeituras.map((sub) => {
-      return [sub.id, sub.nome] as const;
-    })
-  );
   const sums = new Map<string, DistrictCounts>();
 
   for (const entry of counts) {
-    const subId = subByDistrictPerYear.get(entry.year)?.get(entry.geometryId);
+    // The version in force that year, so its name is that year's too.
+    const sub = subByDistrictPerYear.get(entry.year)?.get(entry.geometryId);
 
     // A year before the division existed: nothing to sum into.
-    if (subId === undefined) {
+    if (sub === undefined) {
       continue;
     }
 
-    const key = `${entry.year}|${subId}`;
+    const key = `${entry.year}|${sub.id}`;
     const sum = sums.get(key) ?? {
-      geometryId: subId,
-      name: subNames.get(subId) ?? '',
+      geometryId: sub.id,
+      name: sub.nome,
       year: entry.year,
       count65to69: 0,
       count70to74: 0,
@@ -316,6 +323,7 @@ const aggregateSubprefeituras = ({
     subprefeituras: subprefeituras.map((sub) => {
       return {
         geometryId: sub.id,
+        versionKey: versionKey(sub),
         name: sub.nome,
         districtNames: sub.distritos
           .map((districtId) => {
@@ -325,7 +333,6 @@ const aggregateSubprefeituras = ({
             return a.localeCompare(b, 'pt-BR');
           }),
         validFrom: sub.validFrom,
-        validTo: sub.validTo,
       };
     }),
   };

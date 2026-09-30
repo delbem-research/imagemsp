@@ -18,6 +18,7 @@
 // runtime. `lucide:circle` is the fallback for every sidebar variation AND
 // every section header, so it always renders; the rest cover the sidebar
 // toggle, carousel, collapse and the filter/timeline/locator controls.
+import lucideCheck from '@iconify/icons-lucide/check';
 import lucideChevronDown from '@iconify/icons-lucide/chevron-down';
 import lucideChevronLeft from '@iconify/icons-lucide/chevron-left';
 import lucideChevronRight from '@iconify/icons-lucide/chevron-right';
@@ -25,8 +26,10 @@ import lucideChevronsLeft from '@iconify/icons-lucide/chevrons-left';
 import lucideCircle from '@iconify/icons-lucide/circle';
 import lucideLayers from '@iconify/icons-lucide/layers';
 import lucideLayoutList from '@iconify/icons-lucide/layout-list';
+import lucideMinus from '@iconify/icons-lucide/minus';
 import lucidePause from '@iconify/icons-lucide/pause';
 import lucidePlay from '@iconify/icons-lucide/play';
+import lucidePlus from '@iconify/icons-lucide/plus';
 import lucideSearch from '@iconify/icons-lucide/search';
 import lucideSlidersHorizontal from '@iconify/icons-lucide/sliders-horizontal';
 import lucideX from '@iconify/icons-lucide/x';
@@ -50,13 +53,16 @@ import phChartBar from '@iconify/icons-ph/chart-bar';
 import phChartDonut from '@iconify/icons-ph/chart-donut';
 import phChartPieSlice from '@iconify/icons-ph/chart-pie-slice';
 import phClock from '@iconify/icons-ph/clock';
+import phDropHalf from '@iconify/icons-ph/drop-half';
 import phFirstAid from '@iconify/icons-ph/first-aid';
 import phFirstAidFill from '@iconify/icons-ph/first-aid-fill';
 import phFirstAidKit from '@iconify/icons-ph/first-aid-kit';
 import phForkKnife from '@iconify/icons-ph/fork-knife';
 import phGauge from '@iconify/icons-ph/gauge';
+import phGearSix from '@iconify/icons-ph/gear-six';
 import phHeartbeat from '@iconify/icons-ph/heartbeat';
 import phMapTrifold from '@iconify/icons-ph/map-trifold';
+import phPalette from '@iconify/icons-ph/palette';
 import phPawPrint from '@iconify/icons-ph/paw-print';
 import phPlusCircle from '@iconify/icons-ph/plus-circle';
 import phPolygon from '@iconify/icons-ph/polygon';
@@ -90,6 +96,9 @@ addIcon('ph:plus-circle', phPlusCircle);
 addIcon('ph:arrows-in-line-horizontal', phArrowsInLineHorizontal);
 addIcon('ph:calendar-blank', phCalendarBlank);
 addIcon('ph:clock', phClock);
+addIcon('ph:gear-six', phGearSix);
+addIcon('ph:palette', phPalette);
+addIcon('ph:drop-half', phDropHalf);
 addIcon('ph:map-trifold', phMapTrifold);
 addIcon('ph:squares-four', phSquaresFour);
 addIcon('ph:polygon', phPolygon);
@@ -123,6 +132,10 @@ addIcon('lucide:sliders-horizontal', lucideSlidersHorizontal);
 addIcon('lucide:zoom-in', lucideZoomIn);
 addIcon('lucide:play', lucidePlay);
 addIcon('lucide:pause', lucidePause);
+// The settings controls: the ramp editor's add/confirm and the sliders' steppers.
+addIcon('lucide:plus', lucidePlus);
+addIcon('lucide:minus', lucideMinus);
+addIcon('lucide:check', lucideCheck);
 // Not rendered by the workspace: this one is ours, on the variations tab, and
 // matches the icon cozsolidarias uses for the same tab.
 addIcon('lucide:layout-list', lucideLayoutList);
@@ -152,6 +165,11 @@ export const ICONS = {
   usersThree: 'ph:users-three',
   calendarBlank: 'ph:calendar-blank',
   clock: 'ph:clock',
+
+  // Map sidebar — the "Configurações" tab and its blocks
+  gearSix: 'ph:gear-six',
+  palette: 'ph:palette',
+  dropHalf: 'ph:drop-half',
   // Lucide by exception (the convention above reserves it for geovis): the
   // variations tab shares its icon with the same tab in cozsolidarias.
   layoutList: 'lucide:layout-list',

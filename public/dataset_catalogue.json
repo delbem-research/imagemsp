@@ -1103,7 +1103,7 @@
       "collection_id": "geosampa",
       "slug": "subprefeituras-distritos",
       "title": "Subprefeituras de São Paulo e seus distritos municipais",
-      "description": "Todas as subprefeituras que a cidade teve desde a criação da divisão, em 2002 — as 32 atuais e as extintas —, com código, sigla, região, os distritos do projeto (por `geometry_id`) que cada uma agrupa e os anos em que vigorou. É a correspondência que o gateway usa para somar as contagens dos distritos no recorte por subprefeitura, ano a ano, na divisão em vigor em cada ano.",
+      "description": "Todas as versões das subprefeituras desde a criação da divisão, em 2002 — as 32 atuais e os formatos antigos, cada um como uma versão anterior da subprefeitura que herdou o id —, com código, sigla, região, os distritos do projeto (por `geometry_id`) que cada versão agrupa e o ano em que entrou em vigor. É a correspondência que o gateway usa para somar as contagens dos distritos no recorte por subprefeitura, ano a ano, na versão em vigor em cada ano.",
       "file": "src/data-source-static/data/subprefeituras.json",
       "format": "JSON",
       "source": {
@@ -1112,7 +1112,7 @@
           "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:distrito_municipal",
           "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:subprefeitura"
         ],
-        "notes": "Gerado por `scripts/generateSubprefeituras.ts`. A correspondência é oficial: a camada `distrito_municipal` do GeoSampa informa a subprefeitura de cada distrito. A ligação com os distritos do projeto é feita pelo nome, sem acento nem caixa, e o script falha se algum dos 96 não casar exatamente uma vez. Os nomes das subprefeituras vêm sem acento na fonte (`BUTANTA`, `SE`) e são substituídos por uma tabela de nomes de exibição no script. A divisão é versionada: cada subprefeitura tem `validFrom` e `validTo` (nulo enquanto vigora). O GeoSampa só tem a divisão atual; uma subprefeitura extinta é reconstruída no script a partir das atuais em que foi dividida — hoje só Vila Prudente-Sapopemba (id 33), que agrupou Vila Prudente, São Lucas e Sapopemba de 2002 (Lei 13.399/2002) até a criação da Subprefeitura de Sapopemba (Lei 15.764/2013). As renomeações desde 2002 (Pirituba/Jaraguá em 2005, Perus/Anhanguera em 2019, Casa Verde/Limão/Cachoeirinha em 2023) não mudaram distritos de lugar e não são versionadas. Antes de 2002 não havia subprefeituras, e nenhuma vigora nesses anos."
+        "notes": "Gerado por `scripts/generateSubprefeituras.ts`. A correspondência é oficial: a camada `distrito_municipal` do GeoSampa informa a subprefeitura de cada distrito. A ligação com os distritos do projeto é feita pelo nome, sem acento nem caixa, e o script falha se algum dos 96 não casar exatamente uma vez. Os nomes das subprefeituras vêm sem acento na fonte (`BUTANTA`, `SE`) e são substituídos por uma tabela de nomes de exibição no script. A divisão é versionada: uma subprefeitura cujo território mudou tem uma versão por formato, todas com o mesmo `id`, e cada versão guarda só o ano em que entrou em vigor (`validFrom`) — ela vigora até começar a versão seguinte do mesmo id. O GeoSampa só tem a divisão atual; um formato antigo é reconstruído no script a partir das atuais em que foi dividido — hoje só Vila Prudente-Sapopemba, a primeira versão da Vila Prudente (id 18, de 2002), que agrupou Vila Prudente, São Lucas e Sapopemba até a criação da Subprefeitura de Sapopemba (Lei 15.764/2013), quando começam a versão atual da Vila Prudente e a de Sapopemba. As renomeações desde 2002 (Pirituba/Jaraguá em 2005, Perus/Anhanguera em 2019, Casa Verde/Limão/Cachoeirinha em 2023) não mudaram distritos de lugar e não são versionadas. Antes de 2002 não havia subprefeituras, e nenhuma vigora nesses anos."
       },
       "generated_by": "scripts/generateSubprefeituras.ts",
       "temporal": {
@@ -1130,14 +1130,14 @@
       },
       "stats": {
         "rows": 33,
-        "size_bytes": 6870,
-        "checkSum": "sha256:ea95ac42145215a7b42f11a0db92215964401ac8b614b3f0f304eac984cf1ac0"
+        "size_bytes": 6111,
+        "checkSum": "sha256:09474a9a2462b6449b6e672697129117f83f330ff375ec35031cd91a970f010e"
       },
       "schema": {
         "fields": [
           {
             "name": "id",
-            "description": "`cd_identificador_subprefeitura` do GeoSampa (1–32) para as atuais; 33 em diante para as extintas. Também o id da feição em `subprefeituras.geojson`",
+            "description": "`cd_identificador_subprefeitura` do GeoSampa (1–32), o mesmo em todas as versões de uma subprefeitura. Também o id da feição em `subprefeituras.geojson`",
             "role": "identifier"
           },
           {
@@ -1162,11 +1162,7 @@
           },
           {
             "name": "validFrom",
-            "description": "Primeiro ano em que a subprefeitura vigorou"
-          },
-          {
-            "name": "validTo",
-            "description": "Último ano em que vigorou, ou nulo enquanto ainda vigora"
+            "description": "Ano em que a versão entrou em vigor; ela vigora até começar a versão seguinte do mesmo `id`"
           }
         ]
       },
@@ -1177,7 +1173,7 @@
       "collection_id": "geosampa",
       "slug": "subprefeituras-contorno",
       "title": "Contornos das subprefeituras de São Paulo",
-      "description": "Malha (polígonos) de todas as subprefeituras desde 2002 — as 32 atuais e as extintas —, usada pelo mapa no recorte por subprefeitura. Cada feição traz os anos em que vigorou, e o mapa filtra a camada pelas que estão em vigor no ano da linha do tempo. Join pelo `id` nativo da feição, igual ao `id` de `subprefeituras.json`.",
+      "description": "Malha (polígonos) de todas as versões das subprefeituras desde 2002 — as 32 atuais e os formatos antigos —, usada pelo mapa no recorte por subprefeitura. Cada feição traz o ano em que a sua versão entrou em vigor e uma chave de versão (`versionKey`), e o mapa filtra a camada pelas versões em vigor no ano da linha do tempo. Join pelo `id` nativo da feição, igual ao `id` de `subprefeituras.json`.",
       "file": "public/subprefeituras.geojson",
       "format": "GeoJSON",
       "source": {
@@ -1200,19 +1196,19 @@
       },
       "stats": {
         "features": 33,
-        "size_bytes": 70130,
-        "checkSum": "sha256:2a15ee7f7dbb89f22f9887abeee525bfc4373b0517802b8f326cd0c234ae9c29"
+        "size_bytes": 70385,
+        "checkSum": "sha256:84affc592ebbb57cffed2b37e420e24893ad70df8f3b3cd52cfbe8052ffafc4f"
       },
       "schema": {
         "fields": [
           {
             "name": "id",
-            "description": "Id nativo da feição (1–32 para as atuais, 33 em diante para as extintas) — a chave do join com `subprefeituras.json`",
+            "description": "Id nativo da feição (1–32), o mesmo em todas as versões de uma subprefeitura — a chave do join com `subprefeituras.json` e com os dados do mapa",
             "role": "identifier"
           },
           {
             "name": "properties",
-            "description": "`id` (o mesmo id da feição, repetido porque os filtros do MapLibre só leem propriedades), `nome`, `validFrom` e `validTo` — os mesmos anos de `subprefeituras.json`, que tem os demais atributos"
+            "description": "`id` (o mesmo id da feição), `versionKey` (`id@validFrom`, a chave pela qual o mapa filtra as versões em vigor em cada ano, já que as versões de uma subprefeitura compartilham o id), `nome` e `validFrom` — o mesmo ano de `subprefeituras.json`, que tem os demais atributos"
           },
           {
             "name": "geometry",
@@ -1276,6 +1272,222 @@
           {
             "name": "geometry",
             "description": "Polígono do parque (WGS84)",
+            "role": "geometry"
+          }
+        ]
+      }
+    },
+    "camada_coordenadorias_saude": {
+      "id": "camada_coordenadorias_saude",
+      "collection_id": "geosampa",
+      "slug": "camada-coordenadorias-saude",
+      "title": "Coordenadorias Regionais de Saúde — camada do mapa",
+      "description": "As 5 Coordenadorias Regionais de Saúde (CRS) da Secretaria Municipal da Saúde — Norte, Sul, Leste, Oeste e Sudeste —, como polígonos, servidas à camada \"Coordenadoria saúde\" do botão \"Camadas\" do mapa (`/api/camadas/coordenadorias-saude`), desenhada só como contorno.",
+      "file": "src/data-source-static/data/polygons/coordenadorias-saude.json",
+      "format": "JSON",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_coordenadoria_regional",
+        "notes": "Camada `geoportal:equipamento_saude_coordenadoria_regional` do GeoSampa (carga de 2026-05). Geometria simplificada por Douglas-Peucker com tolerância de 20 m e coordenadas arredondadas a 5 casas por `scripts/generateHealthTerritoriesData.ts`, que também converte os nomes de CRS e STS (em maiúsculas e sem acento na fonte) para a grafia da cidade e falha em qualquer nome que não conheça."
+      },
+      "generated_by": "scripts/generateHealthTerritoriesData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-29"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "coordenadoria (polígono)",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 5,
+        "size_bytes": 56319,
+        "checkSum": "sha256:7c875eedf2ba62a4b9eaf7efd3d740cdb0c3938ce15a6f4661e35dde02127018"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–5) — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "nome",
+            "description": "Nome de exibição (`CRS Oeste`), a partir de `nm_coordenadoria_regional_saude`"
+          },
+          {
+            "name": "detalhe",
+            "description": "Linha secundária do tooltip: `Coordenadoria Regional de Saúde`"
+          },
+          {
+            "name": "geometry",
+            "description": "Polígono do território (WGS84)",
+            "role": "geometry"
+          }
+        ]
+      }
+    },
+    "camada_supervisoes_saude": {
+      "id": "camada_supervisoes_saude",
+      "collection_id": "geosampa",
+      "slug": "camada-supervisoes-saude",
+      "title": "Supervisões Técnicas de Saúde — camada do mapa",
+      "description": "As 26 Supervisões Técnicas de Saúde (STS), subdivisões das CRS, como polígonos, servidas à camada \"Supervisões de saúde (STS)\" do botão \"Camadas\" do mapa (`/api/camadas/supervisoes-saude`), desenhada só como contorno.",
+      "file": "src/data-source-static/data/polygons/supervisoes-saude.json",
+      "format": "JSON",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_supervisao_tecnica",
+        "notes": "Camada `geoportal:equipamento_saude_supervisao_tecnica` do GeoSampa (carga de 2026-05). Geometria simplificada por Douglas-Peucker com tolerância de 20 m e coordenadas arredondadas a 5 casas por `scripts/generateHealthTerritoriesData.ts`, que também converte os nomes de CRS e STS (em maiúsculas e sem acento na fonte) para a grafia da cidade e falha em qualquer nome que não conheça."
+      },
+      "generated_by": "scripts/generateHealthTerritoriesData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-29"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "supervisão (polígono)",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 26,
+        "size_bytes": 94736,
+        "checkSum": "sha256:e7087d6a4ec8a8f4b711fbc9a7030abe9f37bdbf920d3314205b6391f1915b0d"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–26) — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "nome",
+            "description": "Nome de exibição (`STS Butantã`), a partir de `nm_supervisao_tecnica_saude` com a grafia da cidade"
+          },
+          {
+            "name": "detalhe",
+            "description": "Linha secundária do tooltip: o tipo e a CRS da supervisão"
+          },
+          {
+            "name": "geometry",
+            "description": "Polígono do território (WGS84)",
+            "role": "geometry"
+          }
+        ]
+      }
+    },
+    "camada_abrangencia_ubs": {
+      "id": "camada_abrangencia_ubs",
+      "collection_id": "geosampa",
+      "slug": "camada-abrangencia-ubs",
+      "title": "Área de abrangência das UBS — camada do mapa",
+      "description": "As 487 áreas de abrangência das Unidades Básicas de Saúde, como polígonos, servidas à camada \"Abrangência UBS\" do botão \"Camadas\" do mapa (`/api/camadas/abrangencia-ubs`), desenhada só como contorno. Cada área traz, na fonte, o CNES da sua UBS (`cd_numero_cadastro_nacional`), que não entra no snapshot; 2 CNES aparecem em duas áreas cada.",
+      "file": "src/data-source-static/data/polygons/abrangencia-ubs.json",
+      "format": "JSON",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_abrangencia_ubs",
+        "notes": "Camada `geoportal:equipamento_saude_abrangencia_ubs` do GeoSampa (carga de 2026-05). Geometria simplificada por Douglas-Peucker com tolerância de 20 m e coordenadas arredondadas a 5 casas por `scripts/generateHealthTerritoriesData.ts`, que também converte os nomes de CRS e STS (em maiúsculas e sem acento na fonte) para a grafia da cidade e falha em qualquer nome que não conheça."
+      },
+      "generated_by": "scripts/generateHealthTerritoriesData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-29"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "área de abrangência (polígono)",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 487,
+        "size_bytes": 590513,
+        "checkSum": "sha256:97de020dc8e12bd573dc6bff0b24dc15a7893341775e43b4177efadcb89f34dd"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–487) — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "nome",
+            "description": "Nome da UBS (`nm_unidade_basica_saude`), como a fonte o escreve"
+          },
+          {
+            "name": "detalhe",
+            "description": "Linha secundária do tooltip: `Área de abrangência · STS … · CRS …`"
+          },
+          {
+            "name": "geometry",
+            "description": "Polígono do território (WGS84)",
+            "role": "geometry"
+          }
+        ]
+      }
+    },
+    "camada_saude_familia": {
+      "id": "camada_saude_familia",
+      "collection_id": "geosampa",
+      "slug": "camada-saude-familia",
+      "title": "Cobertura da Estratégia Saúde da Família — camada do mapa",
+      "description": "As 382 áreas cobertas por equipes da Estratégia Saúde da Família, como polígonos, servidas à camada \"Saúde da família\" do botão \"Camadas\" do mapa (`/api/camadas/saude-familia`), com contorno e preenchimento leve — o que fica sem preenchimento é o que as equipes não cobrem. Uma UBS pode ter mais de uma área: 36 CNES se repetem na fonte.",
+      "file": "src/data-source-static/data/polygons/saude-familia.json",
+      "format": "JSON",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_cobertura_familia",
+        "notes": "Camada `geoportal:equipamento_saude_cobertura_familia` do GeoSampa (carga de 2026-05). Geometria simplificada por Douglas-Peucker com tolerância de 20 m e coordenadas arredondadas a 5 casas por `scripts/generateHealthTerritoriesData.ts`, que também converte os nomes de CRS e STS (em maiúsculas e sem acento na fonte) para a grafia da cidade e falha em qualquer nome que não conheça."
+      },
+      "generated_by": "scripts/generateHealthTerritoriesData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-09-29"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "área de cobertura (polígono)",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 382,
+        "size_bytes": 416199,
+        "checkSum": "sha256:5985560829b8a8d3df591e463776f4e17177b24df8cec3de32428966d9f0cd41"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–382) — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "nome",
+            "description": "Nome da UBS responsável (`nm_unidade_basica_saude`), como a fonte o escreve"
+          },
+          {
+            "name": "detalhe",
+            "description": "Linha secundária do tooltip: `Saúde da Família · STS … · CRS …`"
+          },
+          {
+            "name": "geometry",
+            "description": "Polígono do território (WGS84)",
             "role": "geometry"
           }
         ]

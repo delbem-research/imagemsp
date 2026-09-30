@@ -5,6 +5,7 @@ import { legendLabelFormat } from '@/app/(features)/mapas/_components/mapLegend'
 import { buildMapRows, offerAgeShare } from '@/components/map/lib/mapRows';
 import {
   AGE_MENU_ID,
+  ageFor,
   buildWorkspaceConfig,
   GROUP_OPTIONS,
   mapDescription,
@@ -40,6 +41,13 @@ jest.mock('@/components/map/lib/icons', () => {
     ),
   };
 });
+
+/** The "Configurações" tab's inputs; no test here builds a ramp. */
+const COLOR_SETTINGS = {
+  customRamps: [],
+  onCreateRamp: jest.fn(),
+  onRemoveRamp: jest.fn(),
+};
 
 /** 21,380 residents aged 65+ and three UBS: 1.4 UBS per 10 thousand. */
 const AREA: DistrictCounts = {
@@ -192,6 +200,7 @@ describe('offer indicators — sidebar and legend', () => {
       years: [2000, 2025, 2050],
       defaultYear: 2025,
       elderlyHistogram: [],
+      colorSettings: COLOR_SETTINGS,
       sidebarInitiallyOpen: true,
     });
   };
@@ -261,7 +270,6 @@ describe('offer indicators — sidebar and legend', () => {
 describe('offer indicators — age filter', () => {
   test('each age group stands for the bands it spans', () => {
     expect(offerAgeBands('65')).toEqual(['65-69', '70-74', '75']);
-    expect(offerAgeBands('70')).toEqual(['70-74', '75']);
     expect(offerAgeBands('75')).toEqual(['75']);
     expect(offerAgeBands('65-69')).toEqual(['65-69']);
     expect(offerAgeBands('70-74')).toEqual(['70-74']);
@@ -342,17 +350,21 @@ describe('offer indicators — age filter', () => {
     ).toContain('para cada 10 mil pessoas com 65 a 69 anos');
   });
 
-  test('the offer indicators list an age menu below the service, the share ones do not', () => {
-    const blocks = (category: 'health-65plus' | 'cumulative-total') => {
+  test('every indicator ends on the one age menu; only the offer ones list a service', () => {
+    const blocks = (
+      category: 'health-65plus' | 'cumulative-total' | '5year-65plus',
+      age: '75' | '65' = '75'
+    ) => {
       const [variations] =
         buildWorkspaceConfig({
           level: 'distrito',
           category,
-          group: category === 'health-65plus' ? 'ubs' : '65',
-          age: '75',
+          group: 'ubs',
+          age,
           years: [2025],
           defaultYear: 2025,
           elderlyHistogram: [],
+          colorSettings: COLOR_SETTINGS,
           sidebarInitiallyOpen: true,
         }).leftSidebar?.sections ?? [];
       if (variations?.body.kind !== 'filters') {
@@ -372,14 +384,107 @@ describe('offer indicators — age filter', () => {
       menuId: AGE_MENU_ID,
       defaultValue: '75',
     });
-    expect(
-      blocks('cumulative-total').some((block) => {
+    const options = (
+      category: 'health-65plus' | 'cumulative-total' | '5year-65plus'
+    ) => {
+      const age = blocks(category).find((block) => {
         return block.id === AGE_MENU_ID;
+      });
+      if (age?.control.kind !== 'variations') throw new Error('no age menu');
+      return age.control.variations.map((variation) => {
+        return variation.label;
+      });
+    };
+    const all = ['Todos', '65 a 69 anos', '70 a 74 anos', '75 anos ou mais'];
+
+    expect(
+      blocks('cumulative-total').map((block) => {
+        return block.id;
       })
-    ).toBe(false);
+    ).toEqual(['level', 'category', AGE_MENU_ID]);
+    expect(options('health-65plus')).toEqual(all);
+    expect(options('cumulative-total')).toEqual(all);
+    // The 65+ as a share of itself would be 100% everywhere.
+    expect(options('5year-65plus')).toEqual(all.slice(1));
   });
 
-  test('the sidebar has no filters tab, only the variations and the timeline', () => {
+  test('the cumulative share lists its own "or older" ages', () => {
+    const [variations] =
+      buildWorkspaceConfig({
+        level: 'distrito',
+        category: 'cumulative-65plus',
+        group: 'ubs',
+        age: '65',
+        years: [2025],
+        defaultYear: 2025,
+        elderlyHistogram: [],
+        colorSettings: COLOR_SETTINGS,
+        sidebarInitiallyOpen: true,
+      }).leftSidebar?.sections ?? [];
+    if (variations?.body.kind !== 'filters') throw new Error('no filters body');
+    const age = variations.body.blocks.find((block) => {
+      return block.id === AGE_MENU_ID;
+    });
+    if (age?.control.kind !== 'variations') throw new Error('no age menu');
+
+    expect(
+      age.control.variations.map((variation) => {
+        return variation.label;
+      })
+    ).toEqual(['70 anos ou mais', '75 anos ou mais']);
+    // "Todos" has no place here, so the menu opens on 70+.
+    expect(age.control.defaultValue).toBe('70');
+  });
+
+  test('the cumulative share sets the 70+ against the 65+', () => {
+    const [row] = buildMapRows({
+      counts: [AREA],
+      year: 2025,
+      category: 'cumulative-65plus',
+      group: '70',
+    });
+
+    // 6,000 aged 70–74 and 5,380 aged 75+, over 21,380 aged 65+.
+    expect(row).toMatchObject({
+      value: 0.5323,
+      count: 11380,
+      totalCount: 21380,
+    });
+  });
+
+  test('moving between the shares keeps an age only where it is listed', () => {
+    expect(ageFor({ category: 'cumulative-65plus', age: '65' })).toBe('70');
+    expect(ageFor({ category: 'cumulative-65plus', age: '70-74' })).toBe('70');
+    expect(ageFor({ category: 'cumulative-65plus', age: '75' })).toBe('75');
+    expect(ageFor({ category: '5year-65plus', age: '70' })).toBe('65-69');
+    expect(ageFor({ category: 'cumulative-total', age: '70' })).toBe('65');
+  });
+
+  test('the share of the 65+ opens on its first band when "Todos" is selected', () => {
+    expect(ageFor({ category: '5year-65plus', age: '65' })).toBe('65-69');
+    expect(ageFor({ category: '5year-65plus', age: '75' })).toBe('75');
+    expect(ageFor({ category: 'cumulative-total', age: '65' })).toBe('65');
+  });
+
+  test('the whole population share lists every band', () => {
+    const [row] = buildMapRows({
+      counts: [AREA],
+      year: 2025,
+      category: 'cumulative-total',
+      group: '70-74',
+    });
+
+    // 6,000 residents aged 70–74 over 200,000.
+    expect(row).toMatchObject({ value: 0.03, count: 6000, totalCount: 200000 });
+    expect(
+      thresholdsFor({ category: 'cumulative-total', group: '65-69' })
+    ).toHaveLength(6);
+    expect(
+      thresholdsFor({ category: 'cumulative-total', group: '70-74' })
+    ).toHaveLength(6);
+  });
+
+  test('the sidebar has the variations, the timeline and the settings tabs', () => {
     const sections =
       buildWorkspaceConfig({
         level: 'distrito',
@@ -388,6 +493,7 @@ describe('offer indicators — age filter', () => {
         years: [2025],
         defaultYear: 2025,
         elderlyHistogram: [],
+        colorSettings: COLOR_SETTINGS,
         sidebarInitiallyOpen: true,
       }).leftSidebar?.sections ?? [];
 
@@ -395,6 +501,6 @@ describe('offer indicators — age filter', () => {
       sections.map((section) => {
         return section.id;
       })
-    ).toEqual(['Variações', 'Linha do tempo']);
+    ).toEqual(['Variações', 'Linha do tempo', 'Configurações']);
   });
 });

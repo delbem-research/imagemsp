@@ -5,39 +5,43 @@
  * from Vila Prudente in 2013 — so the map does not draw one fixed set of
  * subprefeituras: `public/subprefeituras.geojson` holds every version, and the
  * helpers here pick the ones of the year painted, by the same
- * {@link isInForce} rule the gateway sums the counts with.
+ * {@link versionsInForce} rule the gateway sums the counts with.
  */
 import type { LayerFilter } from '@ttoss/geovis';
 
-import { isInForce, type MapsDataContract } from '@/data-gateway/schema';
+import {
+  type MapsDataContract,
+  type Subprefeitura,
+  versionsInForce,
+} from '@/data-gateway/schema';
 
 import type { MapLevel } from './mapLevels';
 
 /**
- * The ids of the subprefeituras in force in a year — what the subprefeitura
- * layer's filter keeps.
+ * The versions of the subprefeituras in force in a year: for each one, the
+ * shape it had then.
  *
  * @param params.data - Canonical maps data from the gateway.
  * @param params.year - The year painted.
- * @returns Their ids; empty for a year before the division existed.
+ * @returns One version per subprefeitura; none before the division existed.
  *
  * @example
- * subprefeituraIdsInForce({ data, year: 2010 }); // [1, 2, …, 31, 33]
+ * subprefeiturasInForce({ data, year: 2010 }).length; // 31
  */
-export const subprefeituraIdsInForce = ({
+export const subprefeiturasInForce = ({
   data,
   year,
 }: {
   data: MapsDataContract;
   year: number;
-}): number[] => {
-  return data.subprefeituras
-    .filter((sub) => {
-      return isInForce(sub, year);
-    })
-    .map((sub) => {
+}): Subprefeitura[] => {
+  return versionsInForce({
+    areas: data.subprefeituras,
+    year,
+    idOf: (sub) => {
       return sub.geometryId;
-    });
+    },
+  });
 };
 
 /**
@@ -82,7 +86,7 @@ export const paintedLevelFor = ({
 }): { level: MapLevel; note?: string } => {
   if (
     level !== 'subprefeitura' ||
-    subprefeituraIdsInForce({ data, year }).length > 0
+    subprefeiturasInForce({ data, year }).length > 0
   ) {
     return { level };
   }
@@ -94,13 +98,15 @@ export const paintedLevelFor = ({
 };
 
 /**
- * The area layer's filter: for the subprefeitura level, the ids in force in the
- * year painted, so a year change swaps the filter and never the geometry. The
- * district level is not versioned and gets none.
+ * The area layer's filter: for the subprefeitura level, the versions in force
+ * in the year painted, so a year change swaps the filter and never the
+ * geometry. The district level is not versioned and gets none.
  *
- * Filtered by id rather than by `validFrom`/`validTo` directly because a geovis
- * `LayerFilter` compares a single property; the years are resolved here, with
- * the same rule the gateway sums by.
+ * Filtered by `versionKey` rather than by id, because the versions of one
+ * subprefeitura share its id — filtering by it would draw every shape it ever
+ * had at once — and rather than by `validFrom`, because a geovis `LayerFilter`
+ * compares a single property and a version's end is only known from the next
+ * one. The years are resolved here, with the same rule the gateway sums by.
  *
  * @param params.data - Canonical maps data from the gateway.
  * @param params.level - The level painted.
@@ -109,7 +115,7 @@ export const paintedLevelFor = ({
  *
  * @example
  * areaLayerFilter({ data, level: 'subprefeitura', year: 2010 });
- * // { filter: { property: 'id', operator: 'in', value: [1, …, 31, 33] } }
+ * // { filter: { property: 'versionKey', operator: 'in', value: ['1@2002', …, '18@2002', …] } }
  */
 export const areaLayerFilter = ({
   data,
@@ -126,9 +132,11 @@ export const areaLayerFilter = ({
 
   return {
     filter: {
-      property: 'id',
+      property: 'versionKey',
       operator: 'in',
-      value: subprefeituraIdsInForce({ data, year }),
+      value: subprefeiturasInForce({ data, year }).map((sub) => {
+        return sub.versionKey;
+      }),
     },
   };
 };

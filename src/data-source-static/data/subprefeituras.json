@@ -7,8 +7,7 @@
       "nome": "Pirituba-Jaraguá",
       "regiao": "Norte",
       "distritos": [42, 63, 95],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 2,
@@ -17,8 +16,7 @@
       "nome": "Freguesia-Brasilândia",
       "regiao": "Norte",
       "distritos": [11, 29],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 3,
@@ -27,8 +25,7 @@
       "nome": "Casa Verde-Limão-Cachoeirinha",
       "regiao": "Norte",
       "distritos": [13, 21, 50],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 4,
@@ -37,8 +34,7 @@
       "nome": "Santana-Tucuruvi",
       "regiao": "Norte",
       "distritos": [51, 70, 82],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 5,
@@ -47,8 +43,7 @@
       "nome": "Jaçanã-Tremembé",
       "regiao": "Norte",
       "distritos": [39, 81],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 6,
@@ -57,8 +52,7 @@
       "nome": "Vila Maria-Vila Guilherme",
       "regiao": "Norte",
       "distritos": [86, 89, 92],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 7,
@@ -67,8 +61,7 @@
       "nome": "Penha",
       "regiao": "Leste",
       "distritos": [5, 18, 59, 91],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 8,
@@ -77,8 +70,7 @@
       "nome": "Ermelino Matarazzo",
       "regiao": "Leste",
       "distritos": [28, 64],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 9,
@@ -87,8 +79,7 @@
       "nome": "São Miguel",
       "regiao": "Leste",
       "distritos": [44, 74, 87],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 10,
@@ -97,8 +88,7 @@
       "nome": "Itaim Paulista",
       "regiao": "Leste",
       "distritos": [36, 84],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 11,
@@ -107,8 +97,7 @@
       "nome": "Itaquera",
       "regiao": "Leste",
       "distritos": [24, 37, 47, 57],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 12,
@@ -117,8 +106,7 @@
       "nome": "Guaianases",
       "regiao": "Leste",
       "distritos": [31, 96],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 13,
@@ -127,8 +115,7 @@
       "nome": "Lapa",
       "regiao": "Oeste",
       "distritos": [6, 40, 41, 48, 60, 88],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 14,
@@ -137,8 +124,7 @@
       "nome": "Sé",
       "regiao": "Centro",
       "distritos": [7, 9, 14, 26, 49, 66, 69, 78],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 15,
@@ -147,8 +133,7 @@
       "nome": "Mooca",
       "regiao": "Leste",
       "distritos": [1, 8, 10, 53, 56, 80],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 16,
@@ -157,8 +142,7 @@
       "nome": "Aricanduva-Formosa-Carrão",
       "regiao": "Leste",
       "distritos": [4, 20, 85],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 17,
@@ -167,8 +151,16 @@
       "nome": "São Mateus",
       "regiao": "Leste",
       "distritos": [33, 73, 75],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
+    },
+    {
+      "id": 18,
+      "codigo": "29",
+      "sigla": "VP",
+      "nome": "Vila Prudente-Sapopemba",
+      "regiao": "Leste",
+      "distritos": [72, 76, 93],
+      "validFrom": 2002
     },
     {
       "id": 18,
@@ -177,8 +169,7 @@
       "nome": "Vila Prudente",
       "regiao": "Leste",
       "distritos": [72, 93],
-      "validFrom": 2013,
-      "validTo": null
+      "validFrom": 2013
     },
     {
       "id": 19,
@@ -187,8 +178,7 @@
       "nome": "Ipiranga",
       "regiao": "Sul",
       "distritos": [27, 34, 68],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 20,
@@ -197,8 +187,7 @@
       "nome": "Vila Mariana",
       "regiao": "Sul",
       "distritos": [32, 77, 90],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 21,
@@ -207,8 +196,7 @@
       "nome": "Butantã",
       "regiao": "Oeste",
       "distritos": [12, 54, 65, 67, 94],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 22,
@@ -217,8 +205,7 @@
       "nome": "Pinheiros",
       "regiao": "Oeste",
       "distritos": [2, 35, 45, 62],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 23,
@@ -227,8 +214,7 @@
       "nome": "Campo Limpo",
       "regiao": "Sul",
       "distritos": [17, 19, 83],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 24,
@@ -237,8 +223,7 @@
       "nome": "M'Boi Mirim",
       "regiao": "Sul",
       "distritos": [43, 46],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 25,
@@ -247,8 +232,7 @@
       "nome": "Capela do Socorro",
       "regiao": "Sul",
       "distritos": [23, 30, 79],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 26,
@@ -257,8 +241,7 @@
       "nome": "Cidade Ademar",
       "regiao": "Sul",
       "distritos": [22, 58],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 27,
@@ -267,8 +250,7 @@
       "nome": "Parelheiros",
       "regiao": "Sul",
       "distritos": [52, 55],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 28,
@@ -277,8 +259,7 @@
       "nome": "Jabaquara",
       "regiao": "Sul",
       "distritos": [38],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 29,
@@ -287,8 +268,7 @@
       "nome": "Santo Amaro",
       "regiao": "Sul",
       "distritos": [15, 16, 71],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 30,
@@ -297,8 +277,7 @@
       "nome": "Cidade Tiradentes",
       "regiao": "Leste",
       "distritos": [25],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 31,
@@ -307,8 +286,7 @@
       "nome": "Perus-Anhanguera",
       "regiao": "Norte",
       "distritos": [3, 61],
-      "validFrom": 2002,
-      "validTo": null
+      "validFrom": 2002
     },
     {
       "id": 32,
@@ -317,18 +295,7 @@
       "nome": "Sapopemba",
       "regiao": "Leste",
       "distritos": [76],
-      "validFrom": 2013,
-      "validTo": null
-    },
-    {
-      "id": 33,
-      "codigo": "29",
-      "sigla": "VP",
-      "nome": "Vila Prudente-Sapopemba",
-      "regiao": "Leste",
-      "distritos": [72, 76, 93],
-      "validFrom": 2002,
-      "validTo": 2012
+      "validFrom": 2013
     }
   ]
 }

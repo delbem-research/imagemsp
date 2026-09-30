@@ -124,10 +124,10 @@ export const OFFER_LABELS: Record<
     many: 'unidades de vigilância em saúde',
   },
   animais: {
-    menu: 'Animais (zoonoses e hospitais veterinários)',
-    title: 'EQUIPAMENTOS PARA ANIMAIS',
-    one: 'equipamento para animais',
-    many: 'equipamentos para animais',
+    menu: 'Hospitais veterinários',
+    title: 'HOSPITAIS VETERINÁRIOS',
+    one: 'hospital veterinário',
+    many: 'hospitais veterinários',
   },
   restaurantes: {
     menu: 'Restaurantes públicos',
@@ -164,16 +164,17 @@ const BAND_AGES: Record<OfferAgeBand, { from: number; to: number | null }> = {
 };
 
 /**
- * The bands each age-group option of the offer indicators stands for — the
- * same five options the share indicators list, read here as the population
- * the rate is set against: `65` is every band, `70` the two from 70 up.
+ * The bands each age-group option stands for, read by the offer indicators as
+ * the population the rate is set against: `65` ("Todos") is every band, and
+ * each other option its own band.
  */
 const OFFER_AGE_GROUP_BANDS: Record<AgeGroup, readonly OfferAgeBand[]> = {
   '65': OFFER_AGE_BANDS,
-  '70': ['70-74', '75'],
-  '75': ['75'],
   '65-69': ['65-69'],
   '70-74': ['70-74'],
+  // Listed by the cumulative share only, never by an offer indicator.
+  '70': ['70-74', '75'],
+  '75': ['75'],
 };
 
 /**
@@ -184,7 +185,7 @@ const OFFER_AGE_GROUP_BANDS: Record<AgeGroup, readonly OfferAgeBand[]> = {
  * @returns The bands, youngest first.
  *
  * @example
- * offerAgeBands('70'); // ['70-74', '75']
+ * offerAgeBands('65'); // ['65-69', '70-74', '75']
  */
 export const offerAgeBands = (age: AgeGroup): readonly OfferAgeBand[] => {
   return OFFER_AGE_GROUP_BANDS[age];

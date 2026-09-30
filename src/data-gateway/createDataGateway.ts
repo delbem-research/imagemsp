@@ -1,10 +1,15 @@
 import { OFFER_SERVICES } from '@/config/offer';
-import { isPointOverlayId, type OverlayId } from '@/config/overlays';
+import {
+  isPointOverlayId,
+  isTerritoryOverlayId,
+  type OverlayId,
+} from '@/config/overlays';
 
 import { readStaticMapsData } from '../data-source-static/readStaticMapsData';
 import { readStaticParks } from '../data-source-static/readStaticParks';
 import { readStaticPoints } from '../data-source-static/readStaticPoints';
 import { readStaticSubprefeituras } from '../data-source-static/readStaticSubprefeituras';
+import { readStaticTerritories } from '../data-source-static/readStaticTerritories';
 import type { MapsDataContract, OverlayContract } from './schema';
 import {
   type ServiceCounts,
@@ -12,12 +17,16 @@ import {
 } from './transformers/toAppMapsData';
 import { toAppParks } from './transformers/toAppParks';
 import { toAppPoints } from './transformers/toAppPoints';
+import { toAppTerritories } from './transformers/toAppTerritories';
 
 /** Gateway interface exposing canonical read functions. */
 export type DataGateway = {
   /** Returns the canonical maps data. */
   getMapsData: () => Promise<MapsDataContract>;
-  /** Returns one map overlay (points or parks) as a GeoJSON FeatureCollection. */
+  /**
+   * Returns one map overlay (points, parks or a health territory) as a GeoJSON
+   * FeatureCollection.
+   */
   getOverlay: (layer: OverlayId) => Promise<OverlayContract>;
 };
 
@@ -94,6 +103,10 @@ export const createDataGateway = (): DataGateway => {
         if (isPointOverlayId(layer)) {
           const source = await readStaticPoints(layer);
           return toAppPoints({ layer, source });
+        }
+
+        if (isTerritoryOverlayId(layer)) {
+          return toAppTerritories(await readStaticTerritories(layer));
         }
 
         return toAppParks(await readStaticParks());

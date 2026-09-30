@@ -17,9 +17,9 @@ import type { Category, Group } from '@/data-gateway/schema';
  *   the series meaningless to compare.
  * - **Per series, not global.** Each set spans its own indicator's full-period
  *   range, because the ranges are not comparable: the 65+ share of the total
- *   population runs 1.9%-42.4% over the period, while the 70+ share *of the
- *   elderly population* never leaves 51.3%-78.1%. One shared set leaves most of
- *   the palette unused on most series.
+ *   population runs 1.9%-42.4% over the period, while the 70-74 share of it
+ *   never passes 11.1%. One shared set leaves most of the palette unused on
+ *   most series.
  *
  * These replace the IMAGE:NYC breaks the map previously used for every series
  * (`[0.1, 0.2, 0.4, 0.6, 0.7, 0.8]`), which were calibrated for New York: on
@@ -40,29 +40,30 @@ export const SERIES_THRESHOLDS: Record<
   'cumulative-total': {
     /** 65+ over total. Observed 1.9%-42.4%; 5-point classes. */
     '65': [0.05, 0.1, 0.15, 0.2, 0.25, 0.3],
-    /** 70+ over total. Observed 1.0%-31.3%; shares the 65+ scale, so switching between them shows the smaller share as a lighter map. */
-    '70': [0.05, 0.1, 0.15, 0.2, 0.25, 0.3],
+    /** 65-69 over total. Observed 0.8%-13.2% (districts; subprefeituras 1.2%-11.0%); 2-point classes. */
+    '65-69': [0.02, 0.04, 0.06, 0.08, 0.1, 0.12],
+    /** 70-74 over total. Observed 0.6%-11.1% (districts; subprefeituras 0.7%-10.6%); 1.5-point classes, since 2-point ones would leave the top class empty. */
+    '70-74': [0.015, 0.03, 0.045, 0.06, 0.075, 0.09],
     /** 75+ over total. Observed 0.5%-20.9%; 2.5-point classes, since the 5-point scale would spend four classes on values it never reaches. */
     '75': [0.025, 0.05, 0.075, 0.1, 0.125, 0.15],
   },
-  /** Cumulative share of the district's own 65+ population. */
+  /** "X or older" as a share of the district's own 65+ population. */
   'cumulative-65plus': {
     /** 70+ over 65+. Observed 51.3%-78.1% — this share never approaches zero, so the scale starts at 50%. */
     '70': [0.5, 0.55, 0.6, 0.65, 0.7, 0.75],
-    /** 75+ over 65+. Observed 24.0%-55.7%; 5-point classes. */
+    /**
+     * 75+ over 65+. The same series as `5year-65plus/75` — the open top band is
+     * both the last band and a cumulative one — so it classifies the same way.
+     */
     '75': [0.25, 0.3, 0.35, 0.4, 0.45, 0.5],
   },
-  /** One closed five-year band as a share of the district's 65+ population. */
+  /** One age band as a share of the district's 65+ population. */
   '5year-65plus': {
     /** 65-69 over 65+. Observed 21.9%-48.7%; 5-point classes. */
     '65-69': [0.2, 0.25, 0.3, 0.35, 0.4, 0.45],
     /** 70-74 over 65+. Observed 20.7%-31.2% — the narrowest series in the app, so 2-point classes; anything wider paints it a single colour. */
     '70-74': [0.2, 0.22, 0.24, 0.26, 0.28, 0.3],
-    /**
-     * 75+ over 65+. Identical to `cumulative-65plus/75` — the open top band is
-     * both the last closed band and a cumulative one, so the two menu paths
-     * compute the same series and must classify it the same way.
-     */
+    /** 75+ over 65+. Observed 24.0%-55.7%; 5-point classes. */
     '75': [0.25, 0.3, 0.35, 0.4, 0.45, 0.5],
   },
   /**

@@ -10,7 +10,7 @@ export type {
   ShareCategory,
   Subprefeitura,
 } from './mapsData';
-export { isInForce } from './mapsData';
+export { versionKey, versionsInForce } from './mapsData';
 export type {
   OverlayContract,
   OverlayFeature,

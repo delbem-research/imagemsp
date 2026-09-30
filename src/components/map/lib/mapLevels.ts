@@ -52,7 +52,8 @@ export const MAP_LEVELS: Record<MapLevel, MapLevelConfig> = {
     geometryCredit: 'Distritos Municipais de São Paulo',
   },
   subprefeitura: {
-    // No count: it depends on the year (31 until 2012, 32 since).
+    // No count here: it depends on the year (31 until 2012, 32 since), so the
+    // "Recorte" menu appends the one in force (see `levelOptions`).
     label: 'Subprefeituras',
     sourceId: 'sp-subprefeituras',
     layerId: 'sp-subprefeituras-fill',
