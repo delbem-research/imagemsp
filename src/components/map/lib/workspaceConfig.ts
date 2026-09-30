@@ -67,7 +67,7 @@ const TIMELINE_SECTION_ID = 'Linha do tempo';
 const CATEGORY_OPTIONS: { value: Category; label: string; icon: string }[] = [
   {
     value: 'cumulative-total',
-    label: 'proporção (% da pop total)',
+    label: 'taxa cumulativa (% do total)',
     // A slice of the whole population.
     icon: ICONS.chartPieSlice,
   },
@@ -79,7 +79,7 @@ const CATEGORY_OPTIONS: { value: Category; label: string; icon: string }[] = [
   },
   {
     value: '5year-65plus',
-    label: 'proporção (% da pop 65+)',
+    label: 'faixa (% da pop 65+)',
     // A closed band rather than a cumulative total.
     icon: ICONS.chartBar,
   },
