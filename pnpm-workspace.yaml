@@ -2,9 +2,11 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
 minimumReleaseAgeExclude:
-  - '@ttoss/geovis-workspace@0.11.1 || 0.12.0 || 0.13.0 || 0.17.0'
-  - '@ttoss/geovis@0.19.1 || 0.19.2 || 0.19.4 || 0.24.0'
-  - '@ttoss/logger@0.9.0'
-  - '@ttoss/react-icons@0.10.0'
-  - '@ttoss/theme@2.13.1'
-  - '@ttoss/ui@6.10.1'
+  - '@ttoss/geovis-workspace@0.11.1 || 0.12.0 || 0.13.0 || 0.17.0 || 0.18.2'
+  - '@ttoss/geovis@0.19.1 || 0.19.2 || 0.19.4 || 0.24.0 || 0.25.2'
+  - '@ttoss/logger@0.9.0 || 0.10.0'
+  - '@ttoss/react-i18n@2.7.0'
+  - '@ttoss/react-icons@0.10.0 || 0.11.1'
+  - '@ttoss/theme@2.13.1 || 2.14.0'
+  - '@ttoss/ui@6.10.1 || 6.11.0'
+  - '@ttoss/i18n-core@0.7.0'
