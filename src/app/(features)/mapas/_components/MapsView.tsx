@@ -13,10 +13,6 @@ import { BruttalTheme } from '@ttoss/theme/Bruttal';
 import * as React from 'react';
 import { ThemeUIProvider } from 'theme-ui';
 
-import {
-  DEFAULT_COLOR_RAMP,
-  DEFAULT_FILL_OPACITY,
-} from '@/components/map/lib/colorRamps';
 import type { Category, Group } from '@/components/map/lib/indicators';
 import {
   DISTRICTS_CENTER,
@@ -40,7 +36,6 @@ import {
 } from '@/components/map/lib/subprefeituraDivision';
 import {
   buildWorkspaceConfig,
-  DEFAULT_AGE,
   mapDescription,
   mapTitle,
 } from '@/components/map/lib/workspaceConfig';
@@ -56,7 +51,6 @@ import type { MapsDataContract } from '@/data-gateway/schema';
 import { legendLabelFormat, legendReference } from './mapLegend';
 import MapPanel from './MapPanel';
 import {
-  initialYear,
   nextSelection,
   paintedYearFor,
   type Selection,
@@ -64,9 +58,10 @@ import {
   seriesGroupOf,
 } from './mapSelection';
 import { renderTooltipContent, TOOLTIP_STYLE } from './mapTooltips';
-import { buildOverlays, LAYER_CONTROL } from './overlays';
+import { buildOverlays } from './overlays';
 import { type OverlaysSnapshot, overlaysStore } from './overlaysStore';
 import { useColorSettings } from './useColorSettings';
+import { useInitialMapUrlState, useMapUrlSync } from './useMapUrlState';
 import {
   emptyViewportSnapshot,
   MAP_HEIGHT,
@@ -136,6 +131,8 @@ const LEGEND_ID = 'pop-legend';
  * @param params.colors - The class colours, from the "Configurações" tab's
  * ramp and opacity: the legend carries them, and geovis paints the fill from
  * the legend.
+ * @param params.control - The "Camadas" control, seeded with the layers a
+ * shared link switched on.
  * @returns A complete VisualizationSpec for GeoVis rendering.
  */
 const buildSpec = ({
@@ -148,6 +145,7 @@ const buildSpec = ({
   overlays,
   ages,
   colors,
+  control,
 }: {
   data: MapsDataContract;
   level: MapLevel;
@@ -158,6 +156,7 @@ const buildSpec = ({
   overlays: OverlaysSnapshot;
   ages: readonly OfferAgeBand[];
   colors: string[];
+  control: NonNullable<VisualizationSpec['control']>;
 }): VisualizationSpec => {
   const { level, note } = paintedLevelFor({ data, level: selectedLevel, year });
   const areas = MAP_LEVELS[level];
@@ -324,7 +323,7 @@ const buildSpec = ({
       // Last, so the overlays draw above the area fill.
       ...overlayLayers.layers,
     ],
-    control: LAYER_CONTROL,
+    control,
     images: overlayLayers.images,
     mapData: [
       {
@@ -396,18 +395,17 @@ export type MapsViewProps = {
  * @param props.mapsData - Canonical maps data from the gateway.
  */
 export const MapsView = ({ mapsData }: MapsViewProps) => {
-  const defaultYear = initialYear(mapsData.years);
-
-  const [selection, setSelection] = React.useState<Selection>({
-    level: 'distrito',
-    category: 'cumulative-total',
-    // The offer indicators' service; the share ones read the age group.
-    group: 'ubs',
-    year: defaultYear,
-    age: DEFAULT_AGE,
-    ramp: DEFAULT_COLOR_RAMP,
-    opacity: String(DEFAULT_FILL_OPACITY),
+  // A shared link opens on the sender's selection and layers.
+  const { defaults, layerControl, ...initial } = useInitialMapUrlState({
+    years: mapsData.years,
   });
+  // The timeline seeds its year from the config once, so it starts on the
+  // link's year too.
+  const defaultYear = initial.selection.year;
+
+  const [selection, setSelection] = React.useState<Selection>(
+    initial.selection
+  );
 
   const { colors, colorSettings } = useColorSettings({
     ramp: selection.ramp,
@@ -475,6 +473,9 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
     overlaysStore.getServerSnapshot
   );
 
+  // The address follows the selection and the layers switched on.
+  useMapUrlSync({ selection, active: overlays.active, defaults });
+
   const ages = offerAgeBands(selection.age);
   const seriesGroup = seriesGroupOf(selection);
 
@@ -495,6 +496,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
       overlays,
       ages,
       colors,
+      control: layerControl,
     });
   }, [
     mapsData,
@@ -506,6 +508,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
     overlays,
     ages,
     colors,
+    layerControl,
   ]);
 
   /*

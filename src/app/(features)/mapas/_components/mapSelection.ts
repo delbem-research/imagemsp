@@ -1,3 +1,7 @@
+import {
+  DEFAULT_COLOR_RAMP,
+  DEFAULT_FILL_OPACITY,
+} from '@/components/map/lib/colorRamps';
 import type {
   AgeGroup,
   Category,
@@ -14,6 +18,7 @@ import {
   ageFor,
   CATEGORY_MENU_ID,
   CUMULATIVE_AGE_OPTIONS,
+  DEFAULT_AGE,
   getDefaultService,
   GROUP_MENU_ID,
   LEVEL_MENU_ID,
@@ -68,6 +73,29 @@ export type Selection = {
   age: AgeGroup;
   ramp: string;
   opacity: string;
+};
+
+/**
+ * The selection the map opens on without a link — what a shared link is read
+ * over, and what the address leaves out (see `mapUrlState`).
+ *
+ * @param years - The projection years the snapshot carries.
+ * @returns The default selection.
+ *
+ * @example
+ * defaultSelection([2000, 2025]).category; // 'cumulative-total'
+ */
+export const defaultSelection = (years: number[]): Selection => {
+  return {
+    level: 'distrito',
+    category: 'cumulative-total',
+    // The offer indicators' service; the share ones read the age group.
+    group: 'ubs',
+    year: initialYear(years),
+    age: DEFAULT_AGE,
+    ramp: DEFAULT_COLOR_RAMP,
+    opacity: String(DEFAULT_FILL_OPACITY),
+  };
 };
 
 /** Whether a reported value is one of the age groups, of either list. */
