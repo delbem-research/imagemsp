@@ -5,6 +5,7 @@ import type {
   OfferService,
 } from '@/components/map/lib/indicators';
 import { isMapLevel } from '@/components/map/lib/mapLevels';
+import { isMapView, type MapView } from '@/components/map/lib/viewMode';
 import {
   AGE_OPTIONS,
   ageFor,
@@ -42,6 +43,12 @@ const AGE_SLUGS: Partial<Record<AgeGroup, string>> = { '65': 'todos' };
 
 const OPACITY_RANGE = { min: 30, max: 100 };
 
+/** The view a link asks for, if it is one the map draws. */
+const viewFrom = (value: string | null): MapView | undefined => {
+  const asked = value ?? undefined;
+  return isMapView(asked) ? asked : undefined;
+};
+
 /** The parameters this map owns; any other one in the address is left alone. */
 const PARAMS = [
   'recorte',
@@ -51,6 +58,7 @@ const PARAMS = [
   'ano',
   'cores',
   'opacidade',
+  'visualizacao',
   'camadas',
 ] as const;
 
@@ -169,6 +177,13 @@ export const mapUrlStateFromSearch = ({
     }),
     ramp: rampFrom(params.get('cores')) ?? defaults.ramp,
     opacity: opacityFrom(params.get('opacidade')) ?? defaults.opacity,
+    view: viewFrom(params.get('visualizacao')) ?? defaults.view,
+    // The 3D adjustments do not travel in a link yet: it opens on their
+    // defaults, as a shared map opened on the default ramp before `cores`.
+    height: defaults.height,
+    extrusionScale: defaults.extrusionScale,
+    pitch: defaults.pitch,
+    bearing: defaults.bearing,
   };
 
   return { selection, overlays: overlaysFrom(params.get('camadas')) };
@@ -233,6 +248,7 @@ export const mapUrlParams = ({
         : null,
     ],
     ['opacidade', unlessDefault(selection.opacity, defaults.opacity)],
+    ['visualizacao', unlessDefault(selection.view, defaults.view)],
     ['camadas', overlays.length > 0 ? overlays.join(',') : null],
   ];
 

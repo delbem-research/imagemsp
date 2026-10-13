@@ -1,10 +1,10 @@
 import type { GeovisWorkspaceConfig } from '@ttoss/geovis-workspace';
 
+import { DEFAULT_AGE } from '@/components/map/lib/ageOptions';
 import {
-  ageFor,
-  ageOptionsFor,
-  DEFAULT_AGE,
-} from '@/components/map/lib/ageOptions';
+  AGE_ICONS,
+  buildFiltersSection,
+} from '@/components/map/lib/filtersSection';
 import { ICONS } from '@/components/map/lib/icons';
 import type {
   AgeGroup,
@@ -22,6 +22,7 @@ import {
   buildSettingsSection,
   type ColorSettings,
 } from '@/components/map/lib/settingsSection';
+import { buildViewBlock } from '@/components/map/lib/viewMode';
 import {
   isOfferCategory,
   OFFER_AGE_BANDS,
@@ -39,9 +40,9 @@ export const LEVEL_MENU_ID = 'level';
 export const CATEGORY_MENU_ID = 'category';
 export const GROUP_MENU_ID = 'group';
 export const YEAR_MENU_ID = 'year';
-export const AGE_MENU_ID = 'age';
 
-// The age lists moved to `ageOptions`; re-exported so callers keep one import.
+// The age menu id and lists moved to `filtersSection` and `ageOptions`;
+// re-exported so callers keep one import.
 export {
   AGE_OPTIONS,
   ageFor,
@@ -49,6 +50,7 @@ export {
   CUMULATIVE_AGE_OPTIONS,
   DEFAULT_AGE,
 } from '@/components/map/lib/ageOptions';
+export { AGE_MENU_ID } from '@/components/map/lib/filtersSection';
 
 /**
  * Section ids, which double as the tab labels here.
@@ -184,17 +186,9 @@ export const GROUP_OPTIONS: Record<
   });
 });
 
-/**
- * Icon per age group and per service. For the ages the distinction that
- * matters is open vs closed: `65` ("Todos") and `75` are "X anos ou mais",
- * while `65-69`/`70-74` are bounded on both sides.
- */
+/** Icon per age group (see `AGE_ICONS`) and per service. */
 const GROUP_ICONS: Record<Group, string> = {
-  '65': ICONS.plusCircle,
-  '70': ICONS.plusCircle,
-  '75': ICONS.plusCircle,
-  '65-69': ICONS.arrowsInLineHorizontal,
-  '70-74': ICONS.arrowsInLineHorizontal,
+  ...AGE_ICONS,
   ubs: ICONS.firstAidKit,
   hospitais: ICONS.firstAid,
   urgencia: ICONS.pulse,
@@ -455,37 +449,6 @@ const buildServiceBlock = ({
 };
 
 /**
- * The "Faixa etária" block every indicator shows, last in the tab: one list of
- * ages everywhere (see {@link AGE_OPTIONS}), minus "Todos" for the share of the
- * 65+, where it would read 100% (see {@link ageOptionsFor}).
- *
- * @param params.category - The indicator, which decides the options.
- * @param params.age - The selected age group, the menu's default.
- * @returns The block for the variations tab's `filters` body.
- */
-const buildAgeBlock = ({
-  category,
-  age,
-}: {
-  category: Category;
-  age: AgeGroup;
-}) => {
-  return {
-    id: AGE_MENU_ID,
-    title: 'Faixa etária',
-    icon: ICONS.usersThree,
-    control: {
-      kind: 'variations' as const,
-      menuId: AGE_MENU_ID,
-      variations: ageOptionsFor(category).map((option) => {
-        return { ...option, icon: GROUP_ICONS[option.value] };
-      }),
-      defaultValue: ageFor({ category, age }),
-    },
-  };
-};
-
-/**
  * The workspace slots this map hides. The right sidebar is never configured
  * here, but that alone does not drop it: `hasRightSidebar` is derived from slot
  * CONTENT, not from `config.rightSidebar`. The `metadata` slot auto-fills from
@@ -507,14 +470,17 @@ const HIDDEN_SLOTS: GeovisWorkspaceConfig['slots'] = {
  * data sources live on the map itself, configured via the geovis spec (see
  * `buildSpec` in `MapsView.tsx`), so there is no right sidebar.
  *
- * Three tabs. The first holds the variation menus as blocks — geographic level,
- * indicator and age band (and, for the offer indicators, service) are read together, and the cascade between them is driven by React state
- * in `MapsView`, not by the sidebar's own navigation. The second is the
+ * Four tabs. The first holds the variation menus as blocks — geographic level
+ * and indicator (and, for the offer indicators, service) are read together, and
+ * the cascade between them is driven by React state in `MapsView`, not by the
+ * sidebar's own navigation. The second, "Filtros", holds the age band as chips
+ * (see `buildFiltersSection`). The third is the
  * projection-year timeline, which stays in a tab of its own as the workspace
  * recommends: it is the only control with playback, and it publishes
  * `variables[YEAR_MENU_ID]` on every tick, so it has nothing to gain from
- * sitting beside menus that are picked once. The third holds the choropleth's
- * drawing settings, its ramp and opacity (see `buildSettingsSection`).
+ * sitting beside menus that are picked once. The fourth holds the choropleth's
+ * drawing settings — the 2D/3D view, its opacity and ramp (see
+ * `buildSettingsSection`).
  *
  * No section declares `header.title`, so the sidebar draws no header band
  * and the tab bar takes the top of the card, close button included. Navigation
@@ -589,16 +555,17 @@ export const buildWorkspaceConfig = ({
           id: VARIATIONS_SECTION_ID,
           header: { icon: ICONS.layoutList },
           /*
-           * All three menus in one tab, as `variations` controls inside a
-           * `filters` body (geovis-workspace 0.12). They are read together — the age band
-           * only means something against a chosen indicator — and as separate
-           * `variations` bodies each would claim a tab of its own, so crossing
-           * from one to the other cost a tab switch.
+           * The variation menus in one tab, as `variations` controls inside a
+           * `filters` body (geovis-workspace 0.12). They are read together — the
+           * service only means something against a chosen indicator — and as
+           * separate `variations` bodies each would claim a tab of its own, so
+           * crossing from one to the other cost a tab switch. The age band
+           * narrows what the indicator counts rather than picking it, so it
+           * lives in the "Filtros" tab instead.
            *
            * The blocks carry fixed headers: geovis-workspace 0.13 stopped
            * collapsing filter blocks unless they declare `collapsible`, and
-           * neither opts in — both lists stay open, so the age band sits below
-           * the indicator list rather than behind a chevron.
+           * none opts in — every list stays open rather than behind a chevron.
            */
           body: {
             kind: 'filters',
@@ -633,12 +600,15 @@ export const buildWorkspaceConfig = ({
               ...(isOfferCategory(category)
                 ? [buildServiceBlock({ category, group })]
                 : []),
-              buildAgeBlock({ category, age }),
             ],
           },
         },
+        buildFiltersSection({ category, age }),
         buildYearSection({ years, defaultYear, elderlyHistogram }),
-        buildSettingsSection(colorSettings),
+        buildSettingsSection({
+          ...colorSettings,
+          viewBlock: buildViewBlock(),
+        }),
       ],
     },
   };

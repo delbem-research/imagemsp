@@ -24,12 +24,16 @@ import lucideChevronLeft from '@iconify/icons-lucide/chevron-left';
 import lucideChevronRight from '@iconify/icons-lucide/chevron-right';
 import lucideChevronsLeft from '@iconify/icons-lucide/chevrons-left';
 import lucideCircle from '@iconify/icons-lucide/circle';
+import lucideCompass from '@iconify/icons-lucide/compass';
+import lucideInfo from '@iconify/icons-lucide/info';
 import lucideLayers from '@iconify/icons-lucide/layers';
 import lucideLayoutList from '@iconify/icons-lucide/layout-list';
 import lucideMinus from '@iconify/icons-lucide/minus';
 import lucidePause from '@iconify/icons-lucide/pause';
 import lucidePlay from '@iconify/icons-lucide/play';
 import lucidePlus from '@iconify/icons-lucide/plus';
+import lucideRotateCcw from '@iconify/icons-lucide/rotate-ccw';
+import lucideRotateCw from '@iconify/icons-lucide/rotate-cw';
 import lucideSearch from '@iconify/icons-lucide/search';
 import lucideSlidersHorizontal from '@iconify/icons-lucide/sliders-horizontal';
 import lucideX from '@iconify/icons-lucide/x';
@@ -53,11 +57,13 @@ import phChartBar from '@iconify/icons-ph/chart-bar';
 import phChartDonut from '@iconify/icons-ph/chart-donut';
 import phChartPieSlice from '@iconify/icons-ph/chart-pie-slice';
 import phClock from '@iconify/icons-ph/clock';
+import phCube from '@iconify/icons-ph/cube';
 import phDropHalf from '@iconify/icons-ph/drop-half';
 import phFirstAid from '@iconify/icons-ph/first-aid';
 import phFirstAidFill from '@iconify/icons-ph/first-aid-fill';
 import phFirstAidKit from '@iconify/icons-ph/first-aid-kit';
 import phForkKnife from '@iconify/icons-ph/fork-knife';
+import phFunnel from '@iconify/icons-ph/funnel';
 import phGauge from '@iconify/icons-ph/gauge';
 import phGearSix from '@iconify/icons-ph/gear-six';
 import phHeartbeat from '@iconify/icons-ph/heartbeat';
@@ -96,7 +102,9 @@ addIcon('ph:plus-circle', phPlusCircle);
 addIcon('ph:arrows-in-line-horizontal', phArrowsInLineHorizontal);
 addIcon('ph:calendar-blank', phCalendarBlank);
 addIcon('ph:clock', phClock);
+addIcon('ph:cube', phCube);
 addIcon('ph:gear-six', phGearSix);
+addIcon('ph:funnel', phFunnel);
 addIcon('ph:palette', phPalette);
 addIcon('ph:drop-half', phDropHalf);
 addIcon('ph:map-trifold', phMapTrifold);
@@ -136,6 +144,12 @@ addIcon('lucide:pause', lucidePause);
 addIcon('lucide:plus', lucidePlus);
 addIcon('lucide:minus', lucideMinus);
 addIcon('lucide:check', lucideCheck);
+// The 3D view: the unavailable option's hint, and the camera rotation dial's
+// rotate and back-to-north buttons.
+addIcon('lucide:info', lucideInfo);
+addIcon('lucide:rotate-ccw', lucideRotateCcw);
+addIcon('lucide:rotate-cw', lucideRotateCw);
+addIcon('lucide:compass', lucideCompass);
 // Not rendered by the workspace: this one is ours, on the variations tab, and
 // matches the icon cozsolidarias uses for the same tab.
 addIcon('lucide:layout-list', lucideLayoutList);
@@ -165,11 +179,14 @@ export const ICONS = {
   usersThree: 'ph:users-three',
   calendarBlank: 'ph:calendar-blank',
   clock: 'ph:clock',
+  // The "Filtros" tab.
+  funnel: 'ph:funnel',
 
   // Map sidebar — the "Configurações" tab and its blocks
   gearSix: 'ph:gear-six',
   palette: 'ph:palette',
   dropHalf: 'ph:drop-half',
+  cube: 'ph:cube',
   // Lucide by exception (the convention above reserves it for geovis): the
   // variations tab shares its icon with the same tab in cozsolidarias.
   layoutList: 'lucide:layout-list',

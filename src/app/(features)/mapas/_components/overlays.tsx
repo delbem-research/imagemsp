@@ -403,9 +403,12 @@ export const buildLayerControl = (
     // button lines up with the card when the sidebar is closed.
     offset: 12,
     trigger: 'hover',
-    // Nineteen overlays outgrow the map in a single row of cards: show the first
-    // three and tuck the rest behind a "Ver mais" card.
+    // Nineteen overlays outgrow the map in a single row of cards: show three —
+    // the ones switched on first — and tuck the rest behind a "Ver mais" card.
     maxVisibleItems: 3,
+    // Three layers at once: a fourth switches off the one on longest, so the
+    // pins of a few services never bury the choropleth under them.
+    maxActiveItems: 3,
     items: OVERLAYS.map((config) => {
       return {
         id: config.id,

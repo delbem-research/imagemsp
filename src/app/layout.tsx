@@ -43,6 +43,9 @@ const sourceSerif = Source_Serif_4({
   style: ['normal', 'italic'],
   variable: '--font-editorial',
   display: 'swap',
+  // Not preloaded: no page renders it on first paint, so a preload is fetched
+  // and then flagged unused. It still loads, on demand, when text uses it.
+  preload: false,
 });
 
 /**
@@ -55,6 +58,8 @@ const atkinson = Atkinson_Hyperlegible({
   weight: ['400', '700'],
   variable: '--font-atkinson',
   display: 'swap',
+  // Not preloaded: only the accessibility mode reads it (see Source Serif 4).
+  preload: false,
 });
 
 /**
@@ -67,6 +72,9 @@ const sourceCodePro = Source_Code_Pro({
   weight: ['400', '500', '600'],
   variable: '--font-mono',
   display: 'swap',
+  // Not preloaded: only a few data readouts use it, off most pages' first
+  // paint (see Source Serif 4).
+  preload: false,
 });
 
 export const metadata: Metadata = {

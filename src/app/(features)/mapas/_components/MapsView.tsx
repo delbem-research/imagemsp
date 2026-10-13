@@ -6,49 +6,20 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import '@/components/map/lib/icons';
 
 import { Box } from '@chakra-ui/react';
-import type { MapHoverInfo, VisualizationSpec } from '@ttoss/geovis';
 import { GeovisWorkspace } from '@ttoss/geovis-workspace';
 import { I18nProvider } from '@ttoss/react-i18n';
 import { BruttalTheme } from '@ttoss/theme/Bruttal';
 import * as React from 'react';
 import { ThemeUIProvider } from 'theme-ui';
 
-import type { Category, Group } from '@/components/map/lib/indicators';
-import {
-  DISTRICTS_CENTER,
-  FALLBACK_ZOOM,
-  fitZoom,
-} from '@/components/map/lib/mapCamera';
-import {
-  MAP_LEVEL_IDS,
-  MAP_LEVELS,
-  type MapLevel,
-} from '@/components/map/lib/mapLevels';
-import {
-  buildElderlyHistogram,
-  buildMapRows,
-  offerAgeShare,
-} from '@/components/map/lib/mapRows';
-import {
-  areaLayerFilter,
-  paintedLevelFor,
-  subprefeiturasInForce,
-} from '@/components/map/lib/subprefeituraDivision';
-import {
-  buildWorkspaceConfig,
-  mapDescription,
-  mapTitle,
-} from '@/components/map/lib/workspaceConfig';
+import { FALLBACK_ZOOM, fitZoom } from '@/components/map/lib/mapCamera';
+import { buildElderlyHistogram } from '@/components/map/lib/mapRows';
+import { subprefeiturasInForce } from '@/components/map/lib/subprefeituraDivision';
+import { buildWorkspaceConfig } from '@/components/map/lib/workspaceConfig';
 import LoadingIndicator from '@/components/ui/LoadingIndicator';
-import {
-  isOfferCategory,
-  type OfferAgeBand,
-  offerAgeBands,
-} from '@/config/offer';
-import { scaleOfferThresholds, thresholdsFor } from '@/config/thresholds';
+import { offerAgeBands } from '@/config/offer';
 import type { MapsDataContract } from '@/data-gateway/schema';
 
-import { legendLabelFormat, legendReference } from './mapLegend';
 import MapPanel from './MapPanel';
 import {
   nextSelection,
@@ -57,9 +28,8 @@ import {
   selectionVariables,
   seriesGroupOf,
 } from './mapSelection';
-import { renderTooltipContent, TOOLTIP_STYLE } from './mapTooltips';
-import { buildOverlays } from './overlays';
-import { type OverlaysSnapshot, overlaysStore } from './overlaysStore';
+import { buildSpec, viewSettingsOf } from './mapSpec';
+import { overlaysStore } from './overlaysStore';
 import { useColorSettings } from './useColorSettings';
 import { useInitialMapUrlState, useMapUrlSync } from './useMapUrlState';
 import {
@@ -93,246 +63,6 @@ const scopedSidebarTheme = {
     ...BruttalTheme.config,
     useRootStyles: false,
   },
-};
-
-const LEGEND_ID = 'pop-legend';
-
-/**
- * Builds a GeoVis VisualizationSpec for rendering a choropleth map, including a
- * spec-driven hover tooltip on the area layer.
- *
- * Rebuilt on every timeline tick, so the work per call is one pass over the
- * year's areas (`buildMapRows`) — the class breaks are fixed per series and
- * never refitted, which is what keeps a colour comparable across years.
- *
- * Both levels' sources stay in the spec, so switching level never refetches a
- * geometry; only the active level has a fill layer and a join. The two levels
- * share the class breaks: a colour means the same share whether it paints a
- * district or a subprefeitura, at the cost of a flatter subprefeitura map,
- * since summing districts smooths out their extremes.
- *
- * @param params.data - Canonical maps data from the gateway.
- * @param params.level - The geographic level selected. A year with no
- * subprefeitura division paints the districts instead, with a note in the
- * legend subtitle (see `paintedLevelFor`).
- * @param params.category - The demographic category to visualize.
- * @param params.group - The age group to visualize.
- * The subprefeitura level is versioned — the division changed over the
- * series — so its layer is filtered to the subprefeituras in force in the year
- * painted: one GeoJSON holds every version, and a year change only swaps the
- * filter, never the geometry.
- *
- * @param params.year - The projection year to visualize — for an offer
- * indicator, the fixed year it is painted for, whatever the timeline says.
- * @param params.overlays - The overlays' toggles and loaded data.
- * @param params.ages - For an offer indicator, the age bands its rate is set
- * against (its "Faixa etária" menu). Its class breaks are scaled to them, since a
- * narrower population raises every rate.
- * @param params.colors - The class colours, from the "Configurações" tab's
- * ramp and opacity: the legend carries them, and geovis paints the fill from
- * the legend.
- * @param params.control - The "Camadas" control, seeded with the layers a
- * shared link switched on.
- * @returns A complete VisualizationSpec for GeoVis rendering.
- */
-const buildSpec = ({
-  data,
-  level: selectedLevel,
-  category,
-  group,
-  year,
-  zoom,
-  overlays,
-  ages,
-  colors,
-  control,
-}: {
-  data: MapsDataContract;
-  level: MapLevel;
-  category: Category;
-  group: Group;
-  year: number;
-  zoom: number;
-  overlays: OverlaysSnapshot;
-  ages: readonly OfferAgeBand[];
-  colors: string[];
-  control: NonNullable<VisualizationSpec['control']>;
-}): VisualizationSpec => {
-  const { level, note } = paintedLevelFor({ data, level: selectedLevel, year });
-  const areas = MAP_LEVELS[level];
-  const rows = buildMapRows({
-    counts: level === 'distrito' ? data.counts : data.subprefeituraCounts,
-    year,
-    category,
-    group,
-    ages,
-  });
-
-  // geovis MapDataRow is strictly `{ geometryId, value }` and its runtime
-  // schema sets `additionalProperties: false`. The derived row also carries
-  // `name`, `count` and `totalCount` for the tooltip, so those must be
-  // stripped here or the spec is rejected and the map never renders. The
-  // tooltip is unaffected: it reads the full rows from `rowLookup` below.
-  const mapDataRows = rows.map(({ geometryId, value }) => {
-    return { geometryId, value };
-  });
-
-  const offer = isOfferCategory(category);
-  // Scaled against the district counts at either level, so both share one
-  // set of breaks as they do for every series.
-  const thresholds = offer
-    ? scaleOfferThresholds({
-        thresholds: thresholdsFor({ category, group }),
-        share: offerAgeShare({ counts: data.counts, year, ages }),
-      })
-    : thresholdsFor({ category, group });
-
-  const indicator = mapTitle({ category, group, ages });
-  // The year belongs in the legend's own heading: during playback it is the
-  // only thing on screen that changes, and a title that omits it leaves the
-  // reader watching colours shift with no idea which year they are looking at.
-  // An offer title already reads "… POR 10 MIL IDOSOS", so the level follows
-  // as "EM CADA …" rather than a second "POR".
-  const levelPhrase = `${offer ? 'EM CADA' : 'POR'} ${areas.titleNoun}`;
-  const title = indicator
-    ? `${indicator} ${levelPhrase} — ${year}`
-    : String(year);
-  const description = [mapDescription({ category, group, level, ages }), note]
-    .filter(Boolean)
-    .join(' ');
-
-  // Lookup used by the spec-driven hover tooltip to resolve a feature's row.
-  const rowLookup = new Map(
-    rows.map((row) => {
-      return [row.geometryId, row] as const;
-    })
-  );
-
-  // Only the aggregated level lists what each area is made of — the districts
-  // of the version in force that year, since one id can have had several.
-  const members =
-    level === 'subprefeitura'
-      ? new Map(
-          subprefeiturasInForce({ data, year }).map((sub) => {
-            return [sub.geometryId, sub.districtNames] as const;
-          })
-        )
-      : undefined;
-
-  const overlayLayers = buildOverlays({
-    layers: overlays,
-    tooltipStyle: TOOLTIP_STYLE,
-  });
-  const anyOverlay = Object.values(overlays.active).some(Boolean);
-
-  return {
-    engine: 'maplibre',
-    basemap: {
-      styleUrl: 'https://tiles.openfreemap.org/styles/positron',
-    },
-    /*
-     * Drops MapLibre's attribution control — the round button in the map's
-     * bottom-right corner — which crowded the legend panel. The basemap credit
-     * it carried moves to the legend's own reference footer (see
-     * legendReference); the ODbL obligation is satisfied there, not waived.
-     */
-    attributionControlEnabled: false,
-    view: {
-      center: DISTRICTS_CENTER,
-      /*
-       * Fitted to the container by the caller, so the whole mesh is framed on
-       * any screen. Only ever set once per mount (and again on rotation): geovis
-       * syncs `view` on every spec change, so recomputing it as the window
-       * resizes would yank the camera away from wherever the user had panned to.
-       */
-      zoom,
-    },
-    sources: [
-      ...MAP_LEVEL_IDS.map((id) => {
-        return {
-          id: MAP_LEVELS[id].sourceId,
-          type: 'geojson' as const,
-          data: MAP_LEVELS[id].geojson,
-        };
-      }),
-      ...overlayLayers.sources,
-    ],
-    layers: [
-      {
-        id: areas.layerId,
-        sourceId: areas.sourceId,
-        geometry: 'polygon',
-        ...areaLayerFilter({ data, level, year }),
-        mapDataId: areas.mapDataId,
-        activeLegendId: LEGEND_ID,
-        legends: [
-          {
-            id: LEGEND_ID,
-            title,
-            subtitle: description,
-            // geovis' provider auto-renders any legend that carries a
-            // `position`, so this appears as an overlay in the map's bottom-right
-            // corner — replacing the old right sidebar with no extra wiring.
-            position: 'bottom-right',
-            // Inset from the anchored map edges, in pixels — a single value
-            // applies to both axes (geovis defaults to 24).
-            //
-            // 12 is exactly the left sidebar card's own inset, so the legend
-            // keeps the same distance from the map edges as the card does:
-            // SidebarOverlay insets it with `padding: [0, "3"]`, and theme
-            // space `3` is 0.75rem. No allowance for maplibre's attribution
-            // toggle is needed anymore — the spec drops that control (see
-            // `attributionControlEnabled` above), which is what previously
-            // claimed this same bottom-right corner.
-            offset: 12,
-            colorBy: {
-              type: 'quantitative',
-              property: 'value',
-              scale: 'threshold',
-              thresholds,
-              colors,
-            },
-            // Values are proportions in [0, 1]; render each bin as a percent
-            // range (`< 5%`, `5% – 10%`, … `> 30%`) instead of raw breaks.
-            labelFormat: legendLabelFormat(category),
-            reference: legendReference({
-              level,
-              year,
-              years: data.years,
-              overlays: anyOverlay,
-              offer,
-            }),
-          },
-        ],
-        hoverTooltip: {
-          render: (info: MapHoverInfo) => {
-            return renderTooltipContent({
-              featureId: info.featureId,
-              rowLookup,
-              members,
-              category,
-              group,
-              thresholds,
-              ages,
-              colors,
-            });
-          },
-          style: TOOLTIP_STYLE,
-        },
-      },
-      // Last, so the overlays draw above the area fill.
-      ...overlayLayers.layers,
-    ],
-    control,
-    images: overlayLayers.images,
-    mapData: [
-      {
-        mapDataId: areas.mapDataId,
-        mapId: areas.sourceId,
-        data: mapDataRows,
-      },
-    ],
-  };
 };
 
 /**
@@ -377,6 +107,29 @@ const isClient = () => {
 };
 const isServer = () => {
   return false;
+};
+
+/**
+ * The zoom that frames the whole mesh in the map's viewport.
+ *
+ * The viewport is re-read on rotation only (see `subscribeToOrientation`),
+ * which is what makes the fit a load-time framing rather than something that
+ * fights the user's own panning.
+ *
+ * @returns The fitted zoom, or the fallback before the viewport is known.
+ */
+const useFittedZoom = () => {
+  const viewport = React.useSyncExternalStore(
+    subscribeToOrientation,
+    mapViewportSnapshot,
+    emptyViewportSnapshot
+  );
+
+  return React.useMemo(() => {
+    const [width, height] = viewport.split('x').map(Number);
+
+    return width && height ? fitZoom({ width, height }) : FALLBACK_ZOOM;
+  }, [viewport]);
 };
 
 export type MapsViewProps = {
@@ -429,22 +182,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
     isServer
   );
 
-  /*
-   * Re-read on rotation only (see `subscribeToOrientation`), which is what makes
-   * the fit below a load-time framing rather than something that fights the
-   * user's own panning.
-   */
-  const viewport = React.useSyncExternalStore(
-    subscribeToOrientation,
-    mapViewportSnapshot,
-    emptyViewportSnapshot
-  );
-
-  const zoom = React.useMemo(() => {
-    const [width, height] = viewport.split('x').map(Number);
-
-    return width && height ? fitZoom({ width, height }) : FALLBACK_ZOOM;
-  }, [viewport]);
+  const zoom = useFittedZoom();
 
   /*
    * The sidebar starts open only where it does not cover the map: below the
@@ -485,6 +223,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
     years: mapsData.years,
   });
 
+  const { view, extrusionScale, pitch, bearing } = selection;
   const spec = React.useMemo(() => {
     return buildSpec({
       data: mapsData,
@@ -497,6 +236,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
       ages,
       colors,
       control: layerControl,
+      view: viewSettingsOf({ view, extrusionScale, pitch, bearing }),
     });
   }, [
     mapsData,
@@ -509,6 +249,10 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
     ages,
     colors,
     layerControl,
+    view,
+    extrusionScale,
+    pitch,
+    bearing,
   ]);
 
   /*
@@ -526,10 +270,10 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
   /*
    * Deliberately not keyed on `selection.year`: the sidebar config only seeds
    * the timeline's initial value, so rebuilding it on every playback tick would
-   * re-render the whole sidebar eleven times per run and change nothing.
+   * re-render the whole sidebar eleven times per run and change nothing. The
+   * subprefeitura count feeds it instead: it changes only where the division
+   * does.
    */
-  // The count, not the year, feeds the config below: it changes only where the
-  // division does, so playback does not rebuild the sidebar on every tick.
   const subprefeituraCount = subprefeiturasInForce({
     data: mapsData,
     year: paintedYear,
