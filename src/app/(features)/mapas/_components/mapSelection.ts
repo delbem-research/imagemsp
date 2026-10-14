@@ -13,6 +13,20 @@ import {
   RAMP_MENU_ID,
 } from '@/components/map/lib/settingsSection';
 import {
+  BEARING_MENU_ID,
+  DEFAULT_BEARING,
+  DEFAULT_EXTRUSION_SCALE,
+  DEFAULT_PITCH,
+  DEFAULT_VIEW,
+  EXTRUSION_SCALE_MENU_ID,
+  HEIGHT_MENU_ID,
+  HEIGHT_TOTAL_POPULATION,
+  isMapView,
+  type MapView,
+  PITCH_MENU_ID,
+  VIEW_MENU_ID,
+} from '@/components/map/lib/viewMode';
+import {
   AGE_MENU_ID,
   AGE_OPTIONS,
   ageFor,
@@ -56,7 +70,7 @@ export const initialYear = (years: number[]): number => {
 
 /**
  * What the sidebar selects: level, indicator, the offer indicators' service
- * (`group`), year, age group, and the choropleth's ramp and opacity (the
+ * (`group`), year, age group, and the choropleth's view, ramp and opacity (the
  * "Configurações" tab). The age group is every indicator's: the share
  * indicators read it as their numerator, the offer ones as the population
  * their rate is set against (see {@link seriesGroupOf}).
@@ -73,6 +87,17 @@ export type Selection = {
   age: AgeGroup;
   ramp: string;
   opacity: string;
+  /** Flat, or the areas lifted by their population (see `viewMode`). */
+  view: MapView;
+  /**
+   * The 3D adjustments — what the height reads, its multiple, the camera pitch
+   * and bearing in degrees — kept exactly as their controls publish them, for
+   * the reason `ramp` and `opacity` are.
+   */
+  height: string;
+  extrusionScale: string;
+  pitch: string;
+  bearing: string;
 };
 
 /**
@@ -95,6 +120,11 @@ export const defaultSelection = (years: number[]): Selection => {
     age: DEFAULT_AGE,
     ramp: DEFAULT_COLOR_RAMP,
     opacity: String(DEFAULT_FILL_OPACITY),
+    view: DEFAULT_VIEW,
+    height: HEIGHT_TOTAL_POPULATION,
+    extrusionScale: String(DEFAULT_EXTRUSION_SCALE),
+    pitch: String(DEFAULT_PITCH),
+    bearing: String(DEFAULT_BEARING),
   };
 };
 
@@ -145,6 +175,52 @@ export const selectionVariables = (
     // Echoed exactly as their controls published them (see `Selection`).
     [RAMP_MENU_ID]: selection.ramp,
     [OPACITY_MENU_ID]: selection.opacity,
+    [VIEW_MENU_ID]: selection.view,
+    // Echoed even while hidden in 2D: a menu the sidebar publishes and the
+    // page does not echo back would be republished on every render.
+    [HEIGHT_MENU_ID]: selection.height,
+    [EXTRUSION_SCALE_MENU_ID]: selection.extrusionScale,
+    [PITCH_MENU_ID]: selection.pitch,
+    [BEARING_MENU_ID]: selection.bearing,
+  };
+};
+
+/**
+ * The "Configurações" tab's part of the selection after the sidebar reports:
+ * the ramp, the opacity, the view and its 3D adjustments, each kept from
+ * `prev` when the sidebar does not report it. Apart from `nextSelection` so
+ * the menus that pick the indicator read on their own.
+ *
+ * @param params.prev - The current selection.
+ * @param params.next - The sidebar's values, keyed by menu id.
+ * @returns The drawing settings of the next selection.
+ */
+const nextDrawingSettings = ({
+  prev,
+  next,
+}: {
+  prev: Selection;
+  next: Record<string, string | undefined>;
+}): Pick<
+  Selection,
+  | 'ramp'
+  | 'opacity'
+  | 'view'
+  | 'height'
+  | 'extrusionScale'
+  | 'pitch'
+  | 'bearing'
+> => {
+  const reportedView = next[VIEW_MENU_ID];
+
+  return {
+    ramp: next[RAMP_MENU_ID] ?? prev.ramp,
+    opacity: next[OPACITY_MENU_ID] ?? prev.opacity,
+    view: isMapView(reportedView) ? reportedView : prev.view,
+    height: next[HEIGHT_MENU_ID] ?? prev.height,
+    extrusionScale: next[EXTRUSION_SCALE_MENU_ID] ?? prev.extrusionScale,
+    pitch: next[PITCH_MENU_ID] ?? prev.pitch,
+    bearing: next[BEARING_MENU_ID] ?? prev.bearing,
   };
 };
 
@@ -199,10 +275,14 @@ export const nextSelection = ({
     age: isAgeGroup(reportedAge) ? reportedAge : prev.age,
   });
 
-  const ramp = next[RAMP_MENU_ID] ?? prev.ramp;
-  const opacity = next[OPACITY_MENU_ID] ?? prev.opacity;
-
-  return { level, category, group, year, age, ramp, opacity };
+  return {
+    level,
+    category,
+    group,
+    year,
+    age,
+    ...nextDrawingSettings({ prev, next }),
+  };
 };
 
 /**

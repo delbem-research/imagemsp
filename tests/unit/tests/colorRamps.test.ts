@@ -114,7 +114,7 @@ describe('settings tab', () => {
     if (settings?.body.kind !== 'settings') {
       throw new Error('expected a settings body');
     }
-    const [opacity, ramp] = settings.body.blocks;
+    const [, opacity, ramp] = settings.body.blocks;
     expect(ramp?.control).toMatchObject({
       kind: 'colorRamp',
       menuId: RAMP_MENU_ID,

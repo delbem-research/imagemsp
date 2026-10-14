@@ -350,90 +350,113 @@ describe('offer indicators — age filter', () => {
     ).toContain('para cada 10 mil pessoas com 65 a 69 anos');
   });
 
-  test('every indicator ends on the one age menu; only the offer ones list a service', () => {
-    const blocks = (
-      category: 'health-65plus' | 'cumulative-total' | '5year-65plus',
-      age: '75' | '65' = '75'
-    ) => {
-      const [variations] =
-        buildWorkspaceConfig({
-          level: 'distrito',
-          category,
-          group: 'ubs',
-          age,
-          years: [2025],
-          defaultYear: 2025,
-          elderlyHistogram: [],
-          colorSettings: COLOR_SETTINGS,
-          sidebarInitiallyOpen: true,
-        }).leftSidebar?.sections ?? [];
-      if (variations?.body.kind !== 'filters') {
-        throw new Error('expected a filters body');
-      }
-      return variations.body.blocks;
-    };
-
-    const offerBlocks = blocks('health-65plus');
-    expect(
-      offerBlocks.map((block) => {
-        return block.id;
-      })
-    ).toEqual(['level', 'category', 'group', AGE_MENU_ID]);
-    expect(offerBlocks[3]?.control).toMatchObject({
-      kind: 'variations',
-      menuId: AGE_MENU_ID,
-      defaultValue: '75',
-    });
-    const options = (
-      category: 'health-65plus' | 'cumulative-total' | '5year-65plus'
-    ) => {
-      const age = blocks(category).find((block) => {
-        return block.id === AGE_MENU_ID;
-      });
-      if (age?.control.kind !== 'variations') throw new Error('no age menu');
-      return age.control.variations.map((variation) => {
-        return variation.label;
-      });
-    };
-    const all = ['Todos', '65 a 69 anos', '70 a 74 anos', '75 anos ou mais'];
-
-    expect(
-      blocks('cumulative-total').map((block) => {
-        return block.id;
-      })
-    ).toEqual(['level', 'category', AGE_MENU_ID]);
-    expect(options('health-65plus')).toEqual(all);
-    expect(options('cumulative-total')).toEqual(all);
-    // The 65+ as a share of itself would be 100% everywhere.
-    expect(options('5year-65plus')).toEqual(all.slice(1));
-  });
-
-  test('the cumulative share lists its own "or older" ages', () => {
-    const [variations] =
+  /** The blocks of one sidebar tab, built for an indicator. */
+  const tabBlocks = ({
+    category,
+    age = '75',
+    tab,
+  }: {
+    category:
+      | 'health-65plus'
+      | 'cumulative-total'
+      | '5year-65plus'
+      | 'cumulative-65plus';
+    age?: '75' | '65';
+    tab: 'Variações' | 'Filtros';
+  }) => {
+    const section = (
       buildWorkspaceConfig({
         level: 'distrito',
-        category: 'cumulative-65plus',
+        category,
         group: 'ubs',
-        age: '65',
+        age,
         years: [2025],
         defaultYear: 2025,
         elderlyHistogram: [],
         colorSettings: COLOR_SETTINGS,
         sidebarInitiallyOpen: true,
-      }).leftSidebar?.sections ?? [];
-    if (variations?.body.kind !== 'filters') throw new Error('no filters body');
-    const age = variations.body.blocks.find((block) => {
-      return block.id === AGE_MENU_ID;
+      }).leftSidebar?.sections ?? []
+    ).find((candidate) => {
+      return candidate.id === tab;
     });
-    if (age?.control.kind !== 'variations') throw new Error('no age menu');
+    if (section?.body.kind !== 'filters') {
+      throw new Error(`expected a filters body in ${tab}`);
+    }
+    return section.body.blocks;
+  };
+
+  /** The age chips of the "Filtros" tab, built for an indicator. */
+  const ageChips = (category: Parameters<typeof tabBlocks>[0]['category']) => {
+    const [age] = tabBlocks({ category, tab: 'Filtros' });
+    if (age?.control.kind !== 'chips') throw new Error('no age chips');
+    return age.control;
+  };
+
+  test('only the offer indicators list a service; the age moved to the filters tab', () => {
+    const ids = (category: 'health-65plus' | 'cumulative-total') => {
+      return tabBlocks({ category, tab: 'Variações' }).map((block) => {
+        return block.id;
+      });
+    };
+
+    expect(ids('health-65plus')).toEqual(['level', 'category', 'group']);
+    expect(ids('cumulative-total')).toEqual(['level', 'category']);
+    expect(
+      tabBlocks({ category: 'health-65plus', tab: 'Filtros' }).map((block) => {
+        return block.id;
+      })
+    ).toEqual([AGE_MENU_ID]);
+  });
+
+  test('the age is a required single choice of chips in two columns', () => {
+    expect(ageChips('health-65plus')).toMatchObject({
+      kind: 'chips',
+      menuId: AGE_MENU_ID,
+      multiple: false,
+      required: true,
+      defaultSelected: ['75'],
+      layout: { kind: 'grid', columns: 2 },
+    });
+
+    const labels = (
+      category: 'health-65plus' | 'cumulative-total' | '5year-65plus'
+    ) => {
+      return ageChips(category).options.map((option) => {
+        return option.label;
+      });
+    };
+    const all = ['Todos', '65 a 69 anos', '70 a 74 anos', '75 anos ou mais'];
+
+    expect(labels('health-65plus')).toEqual(all);
+    expect(labels('cumulative-total')).toEqual(all);
+    // The 65+ as a share of itself would be 100% everywhere.
+    expect(labels('5year-65plus')).toEqual(all.slice(1));
+    // Chip ids are the age groups the selection carries.
+    expect(
+      ageChips('health-65plus').options.map((option) => {
+        return option.id;
+      })
+    ).toEqual(['65', '65-69', '70-74', '75']);
+  });
+
+  test('the cumulative share lists its own "or older" ages', () => {
+    const chips = (() => {
+      const [age] = tabBlocks({
+        category: 'cumulative-65plus',
+        age: '65',
+        tab: 'Filtros',
+      });
+      if (age?.control.kind !== 'chips') throw new Error('no age chips');
+      return age.control;
+    })();
 
     expect(
-      age.control.variations.map((variation) => {
-        return variation.label;
+      chips.options.map((option) => {
+        return option.label;
       })
     ).toEqual(['70 anos ou mais', '75 anos ou mais']);
-    // "Todos" has no place here, so the menu opens on 70+.
-    expect(age.control.defaultValue).toBe('70');
+    // "Todos" has no place here, so the chips open on 70+.
+    expect(chips.defaultSelected).toEqual(['70']);
   });
 
   test('the cumulative share sets the 70+ against the 65+', () => {
@@ -484,7 +507,7 @@ describe('offer indicators — age filter', () => {
     ).toHaveLength(6);
   });
 
-  test('the sidebar has the variations, the timeline and the settings tabs', () => {
+  test('the sidebar has the variations, filters, timeline and settings tabs', () => {
     const sections =
       buildWorkspaceConfig({
         level: 'distrito',
@@ -501,6 +524,6 @@ describe('offer indicators — age filter', () => {
       sections.map((section) => {
         return section.id;
       })
-    ).toEqual(['Variações', 'Linha do tempo', 'Configurações']);
+    ).toEqual(['Variações', 'Filtros', 'Linha do tempo', 'Configurações']);
   });
 });
