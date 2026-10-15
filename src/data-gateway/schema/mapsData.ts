@@ -121,6 +121,27 @@ export type MapsDataContract = {
    * the ones of a year with {@link versionsInForce}.
    */
   subprefeituras: Subprefeitura[];
+  /**
+   * One entry per health supervision (STS) per year: the sums of its
+   * districts' counts, as {@link MapsDataContract.subprefeituraCounts} are.
+   * Today's division in every year: GeoSampa keeps no history of it.
+   */
+  supervisaoCounts: DistrictCounts[];
+  /** One entry per health coordination (CRS) per year, summed the same way. */
+  coordenadoriaCounts: DistrictCounts[];
+  /** Every STS and the districts it groups, for the tooltip. */
+  supervisoes: AreaMembers[];
+  /** Every CRS and the districts it groups, for the tooltip. */
+  coordenadorias: AreaMembers[];
+};
+
+/** An aggregated area and the districts it groups, for the map's tooltip. */
+export type AreaMembers = {
+  /** Feature id of its polygon in its level's GeoJSON. */
+  geometryId: number;
+  name: string;
+  /** Names of the districts it groups, alphabetically. */
+  districtNames: string[];
 };
 
 /**

@@ -81,14 +81,12 @@ describe('overlay registry', () => {
 
     // Polygons first, bottom to top: the finest territory beneath, the solid
     // parks — first in the control — above them.
-    expect(ids.slice(0, 5)).toEqual([
+    expect(ids.slice(0, 3)).toEqual([
       'saude-familia',
       'abrangencia-ubs',
-      'supervisoes-saude',
-      'coordenadorias-saude',
       'parques',
     ]);
-    expect(ids[5]).toBe('pontos-onibus');
+    expect(ids[3]).toBe('pontos-onibus');
     expect(ids[ids.length - 1]).toBe('hospitais');
   });
 });
@@ -226,10 +224,10 @@ describe('health territories', () => {
     jest.resetModules();
   });
 
-  const CRS_OESTE = {
+  const UBS_MARSILAC = {
     id: 1,
-    nome: 'CRS Oeste',
-    detalhe: 'Coordenadoria Regional de Saúde',
+    nome: 'UBS MARSILAC',
+    detalhe: 'Área de abrangência · STS Parelheiros · CRS Sul',
     geometry: {
       type: 'Polygon' as const,
       coordinates: [
@@ -253,42 +251,30 @@ describe('health territories', () => {
     }
   });
 
-  test('the administrative tiers are outlines only, heaviest for the CRS', () => {
-    const byId = new Map(
-      OVERLAYS.map((config) => {
-        return [config.id, config] as const;
-      })
-    );
-    const widths = [
-      'coordenadorias-saude',
-      'supervisoes-saude',
-      'abrangencia-ubs',
-    ].map((id) => {
-      const config = byId.get(id as (typeof TERRITORY_OVERLAY_IDS)[number]);
-      if (config?.kind !== 'polygon') throw new Error(`${id} is not a polygon`);
-      expect(config.fillOpacity).toBe(0);
-      return config.lineWidth;
+  test('the UBS catchments are an outline only, the CRS and STS no overlay', () => {
+    const config = OVERLAYS.find((overlay) => {
+      return overlay.id === 'abrangencia-ubs';
     });
 
-    expect(widths).toEqual(
-      [...widths].sort((a, b) => {
-        return b - a;
-      })
-    );
+    expect(config).toMatchObject({ kind: 'polygon', fillOpacity: 0 });
+    // The coordinations and supervisions are levels of the choropleth now.
+    expect(TERRITORY_OVERLAY_IDS).toEqual(['abrangencia-ubs', 'saude-familia']);
+    expect(isOverlayId('coordenadorias-saude')).toBe(false);
+    expect(isOverlayId('supervisoes-saude')).toBe(false);
   });
 
   test('toAppTerritories labels each territory with its name and detail', () => {
-    expect(toAppTerritories({ territorios: [CRS_OESTE] })).toEqual({
+    expect(toAppTerritories({ territorios: [UBS_MARSILAC] })).toEqual({
       type: 'FeatureCollection',
       features: [
         {
           type: 'Feature',
           id: 1,
           properties: {
-            name: 'CRS Oeste',
-            detail: 'Coordenadoria Regional de Saúde',
+            name: 'UBS MARSILAC',
+            detail: 'Área de abrangência · STS Parelheiros · CRS Sul',
           },
-          geometry: CRS_OESTE.geometry,
+          geometry: UBS_MARSILAC.geometry,
         },
       ],
     });
@@ -302,11 +288,14 @@ describe('health territories', () => {
 
   test('readStaticTerritories rejects a territory without a polygon', async () => {
     jest.doMock(
-      '@/data-source-static/data/polygons/coordenadorias-saude.json',
+      '@/data-source-static/data/polygons/abrangencia-ubs.json',
       () => {
         return {
           territorios: [
-            { ...CRS_OESTE, geometry: { type: 'Point', coordinates: [0, 0] } },
+            {
+              ...UBS_MARSILAC,
+              geometry: { type: 'Point', coordinates: [0, 0] },
+            },
           ],
         };
       }
@@ -315,22 +304,18 @@ describe('health territories', () => {
     const { readStaticTerritories } =
       await import('@/data-source-static/readStaticTerritories');
 
-    await expect(readStaticTerritories('coordenadorias-saude')).rejects.toThrow(
+    await expect(readStaticTerritories('abrangencia-ubs')).rejects.toThrow(
       '[data-source-static]'
     );
   });
 
   test.each([
-    ['coordenadorias-saude', 5],
-    ['supervisoes-saude', 26],
     ['abrangencia-ubs', 487],
     ['saude-familia', 382],
   ] as const)(
     'the versioned %s snapshot passes its own validation',
     async (layer, count) => {
-      jest.dontMock(
-        '@/data-source-static/data/polygons/coordenadorias-saude.json'
-      );
+      jest.dontMock('@/data-source-static/data/polygons/abrangencia-ubs.json');
 
       const { readStaticTerritories } =
         await import('@/data-source-static/readStaticTerritories');

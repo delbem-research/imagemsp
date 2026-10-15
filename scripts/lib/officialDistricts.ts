@@ -41,7 +41,7 @@ export const foldName = (name: string): string => {
     .trim();
 };
 
-type District = {
+export type District = {
   /** The district's name as the project spells it. */
   name: string;
   bbox: [number, number, number, number];
@@ -142,16 +142,17 @@ const contains = (district: District, position: Position): boolean => {
  * Downloads the official districts and names them as the project does.
  *
  * @param mapsDataPath - The project's district snapshot, read for its names.
- * @returns A lookup from a coordinate to the district it lies in.
+ * @returns The 96 districts, each with its project name, bounding box and
+ * polygons at full GeoSampa detail.
  * @throws Unless all 96 official districts match a project district by name.
  *
  * @example
- * const districtAt = await loadOfficialDistricts(MAPS_DATA);
- * districtAt([-46.655783, -23.54127602]); // 'Santa Cecília'
+ * const districts = await fetchOfficialDistricts(MAPS_DATA);
+ * districts[0]?.name; // 'Rio Pequeno'
  */
-export const loadOfficialDistricts = async (
+export const fetchOfficialDistricts = async (
   mapsDataPath: string
-): Promise<(position: Position) => string | undefined> => {
+): Promise<District[]> => {
   const snapshot = JSON.parse(readFileSync(mapsDataPath, 'utf8')) as {
     districts: { nome: string }[];
   };
@@ -187,6 +188,25 @@ export const loadOfficialDistricts = async (
       `[officialDistricts] expected ${EXPECTED_DISTRICTS} distinct districts, got ${names.size}`
     );
   }
+
+  return districts;
+};
+
+/**
+ * Downloads the official districts as a point lookup.
+ *
+ * @param mapsDataPath - The project's district snapshot, read for its names.
+ * @returns A lookup from a coordinate to the district it lies in.
+ * @throws Unless all 96 official districts match a project district by name.
+ *
+ * @example
+ * const districtAt = await loadOfficialDistricts(MAPS_DATA);
+ * districtAt([-46.655783, -23.54127602]); // 'Santa Cecília'
+ */
+export const loadOfficialDistricts = async (
+  mapsDataPath: string
+): Promise<(position: Position) => string | undefined> => {
+  const districts = await fetchOfficialDistricts(mapsDataPath);
 
   return (position) => {
     return districts.find((district) => {

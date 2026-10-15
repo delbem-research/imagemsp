@@ -174,6 +174,17 @@ type MapsDataContract = {
 
 `buildMapRows` (`src/components/map/lib/mapRows.ts`) turns those counts into the map's `MapDataRow[]` for the active year and series — the category decides the denominator (the district's whole population, or its own 65+ population) and the group decides the numerator.
 
+### Geographic levels
+
+The "Recorte" menu paints the choropleth by district, subprefeitura, health supervision (STS, 26) or health coordination (CRS, 5). Every level above the districts is a sum of whole districts, done by the gateway per request, so the levels never disagree and every rate is re-derived from summed counts. The groupings come from GeoSampa and are generated offline, with their polygons in `public/`:
+
+```bash
+node scripts/generateSubprefeituras.ts          # subprefeituras.json + subprefeituras.geojson
+node scripts/generateHealthTerritoriesData.ts   # health-divisions.json + CRS/STS GeoJSON, and the UBS and Saúde da Família overlays
+```
+
+The subprefeitura division is versioned by year (Sapopemba split from Vila Prudente in 2013). The health division has no history in GeoSampa, so today's applies to the whole series. No GeoSampa layer tags a district with its STS, so the generator assigns each district by area and fails if any falls less than 95% inside one STS, or if its STS and CRS disagree.
+
 ---
 
 ## Development

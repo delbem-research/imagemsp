@@ -149,6 +149,18 @@ const byService = <T>(
 };
 
 /**
+ * Icon per level in the "Recorte" menu: many small areas for the districts, a
+ * few large ones for the subprefeituras, and their own pair for the health
+ * divisions, so the two kinds of grouping read apart.
+ */
+const LEVEL_ICONS: Record<MapLevel, string> = {
+  distrito: ICONS.squaresFour,
+  subprefeitura: ICONS.polygon,
+  'supervisao-saude': ICONS.hexagon,
+  'coordenadoria-saude': ICONS.shapes,
+};
+
+/**
  * Geographic level options, one per {@link MapLevel}. The subprefeitura label
  * carries the count in force in the year painted, as the districts' carries its
  * fixed 96 — 31 until 2012, 32 since — and none before the division existed.
@@ -170,8 +182,7 @@ export const levelOptions = (
       label: counted
         ? `${MAP_LEVELS[level].label} (${subprefeituraCount})`
         : MAP_LEVELS[level].label,
-      // Many small areas vs a few large ones.
-      icon: level === 'distrito' ? ICONS.squaresFour : ICONS.polygon,
+      icon: LEVEL_ICONS[level],
     };
   });
 };

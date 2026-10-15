@@ -1,5 +1,6 @@
 export type {
   AgeGroup,
+  AreaMembers,
   Category,
   DistrictCounts,
   Group,

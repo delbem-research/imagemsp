@@ -4,9 +4,23 @@
  * class breaks — is shared, so switching level only swaps the areas painted.
  */
 
-export type MapLevel = 'distrito' | 'subprefeitura';
+export type MapLevel =
+  | 'distrito'
+  | 'subprefeitura'
+  | 'supervisao-saude'
+  | 'coordenadoria-saude';
 
-export const MAP_LEVEL_IDS: readonly MapLevel[] = ['distrito', 'subprefeitura'];
+/**
+ * The levels in the "Recorte" menu's order: the districts, then the two
+ * divisions that group them — the administrative one, then the health one,
+ * finest first.
+ */
+export const MAP_LEVEL_IDS: readonly MapLevel[] = [
+  'distrito',
+  'subprefeitura',
+  'supervisao-saude',
+  'coordenadoria-saude',
+];
 
 /**
  * Narrows a sidebar value to a known level.
@@ -65,5 +79,33 @@ export const MAP_LEVELS: Record<MapLevel, MapLevelConfig> = {
       'Dados agregados por subprefeitura, somando os distritos municipais',
     geometryCredit:
       'Subprefeituras de São Paulo ({link:GeoSampa|https://geosampa.prefeitura.sp.gov.br})',
+  },
+  // The two health levels. Their counts are fixed in the labels: the
+  // generator fails unless GeoSampa carries exactly 26 STS and 5 CRS.
+  'supervisao-saude': {
+    label: 'Supervisões de saúde (26)',
+    sourceId: 'sp-supervisoes-saude',
+    layerId: 'sp-supervisoes-saude-fill',
+    mapDataId: 'pop-data-supervisoes-saude',
+    geojson: '/supervisoes-saude.geojson',
+    titleNoun: 'SUPERVISÃO DE SAÚDE',
+    ofArea: 'da supervisão de saúde',
+    dataCredit:
+      'Dados agregados por Supervisão Técnica de Saúde, somando os distritos municipais',
+    geometryCredit:
+      'Supervisões Técnicas de Saúde de São Paulo ({link:GeoSampa|https://geosampa.prefeitura.sp.gov.br}), na divisão atual',
+  },
+  'coordenadoria-saude': {
+    label: 'Coordenadorias de saúde (5)',
+    sourceId: 'sp-coordenadorias-saude',
+    layerId: 'sp-coordenadorias-saude-fill',
+    mapDataId: 'pop-data-coordenadorias-saude',
+    geojson: '/coordenadorias-saude.geojson',
+    titleNoun: 'COORDENADORIA DE SAÚDE',
+    ofArea: 'da coordenadoria de saúde',
+    dataCredit:
+      'Dados agregados por Coordenadoria Regional de Saúde, somando os distritos municipais',
+    geometryCredit:
+      'Coordenadorias Regionais de Saúde de São Paulo ({link:GeoSampa|https://geosampa.prefeitura.sp.gov.br}), na divisão atual',
   },
 };

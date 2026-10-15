@@ -67,12 +67,14 @@ import phFunnel from '@iconify/icons-ph/funnel';
 import phGauge from '@iconify/icons-ph/gauge';
 import phGearSix from '@iconify/icons-ph/gear-six';
 import phHeartbeat from '@iconify/icons-ph/heartbeat';
+import phHexagon from '@iconify/icons-ph/hexagon';
 import phMapTrifold from '@iconify/icons-ph/map-trifold';
 import phPalette from '@iconify/icons-ph/palette';
 import phPawPrint from '@iconify/icons-ph/paw-print';
 import phPlusCircle from '@iconify/icons-ph/plus-circle';
 import phPolygon from '@iconify/icons-ph/polygon';
 import phPulse from '@iconify/icons-ph/pulse';
+import phShapes from '@iconify/icons-ph/shapes';
 import phShieldCheck from '@iconify/icons-ph/shield-check';
 import phSiren from '@iconify/icons-ph/siren';
 import phSoccerBall from '@iconify/icons-ph/soccer-ball';
@@ -110,6 +112,8 @@ addIcon('ph:drop-half', phDropHalf);
 addIcon('ph:map-trifold', phMapTrifold);
 addIcon('ph:squares-four', phSquaresFour);
 addIcon('ph:polygon', phPolygon);
+addIcon('ph:hexagon', phHexagon);
+addIcon('ph:shapes', phShapes);
 addIcon('ph:heartbeat', phHeartbeat);
 addIcon('ph:storefront', phStorefront);
 addIcon('ph:first-aid-kit', phFirstAidKit);
@@ -199,6 +203,9 @@ export const ICONS = {
   // Map sidebar — geographic-level variations
   squaresFour: 'ph:squares-four',
   polygon: 'ph:polygon',
+  // The health levels: the STS, then the five CRS they make up.
+  hexagon: 'ph:hexagon',
+  shapes: 'ph:shapes',
 
   // Map sidebar — offer indicators and their services
   heartbeat: 'ph:heartbeat',

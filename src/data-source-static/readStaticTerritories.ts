@@ -10,12 +10,6 @@ const SNAPSHOTS: Record<
   TerritoryOverlayId,
   () => Promise<{ default: unknown }>
 > = {
-  'coordenadorias-saude': () => {
-    return import('./data/polygons/coordenadorias-saude.json');
-  },
-  'supervisoes-saude': () => {
-    return import('./data/polygons/supervisoes-saude.json');
-  },
   'abrangencia-ubs': () => {
     return import('./data/polygons/abrangencia-ubs.json');
   },
@@ -84,8 +78,8 @@ const isStaticTerritoriesDataSource = (
  * @throws If the data does not match the expected shape.
  *
  * @example
- * const { territorios } = await readStaticTerritories('coordenadorias-saude');
- * // [{ id: 1, nome: 'CRS Oeste', detalhe: 'Coordenadoria Regional de Saúde', ... }, ...]
+ * const { territorios } = await readStaticTerritories('abrangencia-ubs');
+ * // [{ id: 1, nome: 'UBS MARSILAC', detalhe: 'Área de abrangência · STS Parelheiros · CRS Sul', ... }, ...]
  */
 export const readStaticTerritories = async (
   layer: TerritoryOverlayId

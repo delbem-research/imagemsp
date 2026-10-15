@@ -26,6 +26,8 @@ import {
   toAppMapsData,
 } from '@/data-gateway/transformers/toAppMapsData';
 
+import { oneHealthDivision } from '../helpers/oneHealthDivision';
+
 // `workspaceConfig` reads icon names from `icons.ts`, which also registers the
 // icons through `@ttoss/react-icons` — an ESM-only package Jest does not
 // transform. The names are all these tests need.
@@ -174,7 +176,8 @@ describe('offer indicators — contract', () => {
     const contract = toAppMapsData(
       source,
       subprefeituras,
-      services(new Map([['Água Rasa', 2]]))
+      services(new Map([['Água Rasa', 2]])),
+      oneHealthDivision(source)
     );
 
     expect(contract.counts[0]?.services.ubs).toBe(2);
@@ -185,7 +188,8 @@ describe('offer indicators — contract', () => {
       return toAppMapsData(
         source,
         subprefeituras,
-        services(new Map([['Agua Rasa', 2]]))
+        services(new Map([['Agua Rasa', 2]])),
+        oneHealthDivision(source)
       );
     }).toThrow('which the maps snapshot does not carry');
   });
