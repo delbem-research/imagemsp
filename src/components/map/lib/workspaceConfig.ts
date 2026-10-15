@@ -13,11 +13,7 @@ import type {
   OfferCategory,
   OfferService,
 } from '@/components/map/lib/indicators';
-import {
-  MAP_LEVEL_IDS,
-  MAP_LEVELS,
-  type MapLevel,
-} from '@/components/map/lib/mapLevels';
+import { MAP_LEVELS, type MapLevel } from '@/components/map/lib/mapLevels';
 import {
   buildSettingsSection,
   type ColorSettings,
@@ -36,7 +32,6 @@ import {
 } from '@/config/offer';
 
 /** Menu ids used by the GeovisWorkspace left sidebar and selection record. */
-export const LEVEL_MENU_ID = 'level';
 export const CATEGORY_MENU_ID = 'category';
 export const GROUP_MENU_ID = 'group';
 export const YEAR_MENU_ID = 'year';
@@ -50,7 +45,11 @@ export {
   CUMULATIVE_AGE_OPTIONS,
   DEFAULT_AGE,
 } from '@/components/map/lib/ageOptions';
-export { AGE_MENU_ID } from '@/components/map/lib/filtersSection';
+export {
+  AGE_MENU_ID,
+  LEVEL_MENU_ID,
+  levelOptions,
+} from '@/components/map/lib/filtersSection';
 
 /**
  * Section ids, which double as the tab labels here.
@@ -146,45 +145,6 @@ const byService = <T>(
       return [service, value(service)];
     })
   );
-};
-
-/**
- * Icon per level in the "Recorte" menu: many small areas for the districts, a
- * few large ones for the subprefeituras, and their own pair for the health
- * divisions, so the two kinds of grouping read apart.
- */
-const LEVEL_ICONS: Record<MapLevel, string> = {
-  distrito: ICONS.squaresFour,
-  subprefeitura: ICONS.polygon,
-  'supervisao-saude': ICONS.hexagon,
-  'coordenadoria-saude': ICONS.shapes,
-};
-
-/**
- * Geographic level options, one per {@link MapLevel}. The subprefeitura label
- * carries the count in force in the year painted, as the districts' carries its
- * fixed 96 — 31 until 2012, 32 since — and none before the division existed.
- *
- * @param subprefeituraCount - Subprefeituras in force in the year painted.
- * @returns The "Recorte" menu's options.
- *
- * @example
- * levelOptions(31)[1]?.label; // 'Subprefeituras (31)'
- * levelOptions(0)[1]?.label; // 'Subprefeituras'
- */
-export const levelOptions = (
-  subprefeituraCount: number
-): { value: MapLevel; label: string; icon: string }[] => {
-  return MAP_LEVEL_IDS.map((level) => {
-    const counted = level === 'subprefeitura' && subprefeituraCount > 0;
-    return {
-      value: level,
-      label: counted
-        ? `${MAP_LEVELS[level].label} (${subprefeituraCount})`
-        : MAP_LEVELS[level].label,
-      icon: LEVEL_ICONS[level],
-    };
-  });
 };
 
 /** The services each offer category lists in its "Serviço" menu (cascading). */
@@ -513,7 +473,7 @@ const HIDDEN_SLOTS: GeovisWorkspaceConfig['slots'] = {
  * timeline's mini bars.
  * @param params.colorSettings - The "Configurações" tab's ramps and handlers.
  * @param params.subprefeituraCount - Subprefeituras in force in the year
- * painted, shown in the "Recorte" menu (see `levelOptions`). A count rather
+ * painted, shown in the "Recorte" chips (see `levelOptions`). A count rather
  * than the year, so the config is rebuilt only when the division changes
  * (2002, 2013) and not on every playback tick.
  * @param params.sidebarInitiallyOpen - Whether the left sidebar starts open.
@@ -570,9 +530,9 @@ export const buildWorkspaceConfig = ({
            * `filters` body (geovis-workspace 0.12). They are read together — the
            * service only means something against a chosen indicator — and as
            * separate `variations` bodies each would claim a tab of its own, so
-           * crossing from one to the other cost a tab switch. The age band
-           * narrows what the indicator counts rather than picking it, so it
-           * lives in the "Filtros" tab instead.
+           * crossing from one to the other cost a tab switch. The level and
+           * the age band narrow where and whom the indicator counts rather
+           * than picking it, so they live in the "Filtros" tab instead.
            *
            * The blocks carry fixed headers: geovis-workspace 0.13 stopped
            * collapsing filter blocks unless they declare `collapsible`, and
@@ -581,19 +541,6 @@ export const buildWorkspaceConfig = ({
           body: {
             kind: 'filters',
             blocks: [
-              {
-                // First, because it frames the rest: it decides which areas
-                // are painted, before the indicator decides what they show.
-                id: LEVEL_MENU_ID,
-                title: 'Recorte',
-                icon: ICONS.mapTrifold,
-                control: {
-                  kind: 'variations',
-                  menuId: LEVEL_MENU_ID,
-                  variations: levelOptions(subprefeituraCount),
-                  defaultValue: level,
-                },
-              },
               {
                 id: CATEGORY_MENU_ID,
                 title: 'Indicador',
@@ -614,7 +561,7 @@ export const buildWorkspaceConfig = ({
             ],
           },
         },
-        buildFiltersSection({ category, age }),
+        buildFiltersSection({ level, category, age, subprefeituraCount }),
         buildYearSection({ years, defaultYear, elderlyHistogram }),
         buildSettingsSection({
           ...colorSettings,

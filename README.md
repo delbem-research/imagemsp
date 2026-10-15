@@ -176,7 +176,7 @@ type MapsDataContract = {
 
 ### Geographic levels
 
-The "Recorte" menu paints the choropleth by district, subprefeitura, health supervision (STS, 26) or health coordination (CRS, 5). Every level above the districts is a sum of whole districts, done by the gateway per request, so the levels never disagree and every rate is re-derived from summed counts. The groupings come from GeoSampa and are generated offline, with their polygons in `public/`:
+The "Recorte" chips, in the "Filtros" tab, paint the choropleth by district, subprefeitura, health supervision (STS, 26) or health coordination (CRS, 5). Every level above the districts is a sum of whole districts, done by the gateway per request, so the levels never disagree and every rate is re-derived from summed counts. The groupings come from GeoSampa and are generated offline, with their polygons in `public/`:
 
 ```bash
 node scripts/generateSubprefeituras.ts          # subprefeituras.json + subprefeituras.geojson

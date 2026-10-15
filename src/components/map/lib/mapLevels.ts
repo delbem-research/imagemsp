@@ -11,7 +11,7 @@ export type MapLevel =
   | 'coordenadoria-saude';
 
 /**
- * The levels in the "Recorte" menu's order: the districts, then the two
+ * The levels in the order of the "Recorte" chips: the districts, then the two
  * divisions that group them — the administrative one, then the health one,
  * finest first.
  */
@@ -67,7 +67,7 @@ export const MAP_LEVELS: Record<MapLevel, MapLevelConfig> = {
   },
   subprefeitura: {
     // No count here: it depends on the year (31 until 2012, 32 since), so the
-    // "Recorte" menu appends the one in force (see `levelOptions`).
+    // "Recorte" chips append the one in force (see `levelOptions`).
     label: 'Subprefeituras',
     sourceId: 'sp-subprefeituras',
     layerId: 'sp-subprefeituras-fill',
