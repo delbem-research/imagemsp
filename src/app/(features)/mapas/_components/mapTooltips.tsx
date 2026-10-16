@@ -125,8 +125,8 @@ const swatchColorFor = ({
 };
 
 /**
- * Renders the tooltip content for an area feature — a district or a
- * subprefeitura.
+ * Renders the tooltip content for an area feature — a district or an area
+ * grouping districts (a subprefeitura, an STS or a CRS).
  *
  * @param params.featureId - The feature ID from the hover event.
  * @param params.rowLookup - Map of geometryId to MapDataRow.
@@ -196,11 +196,14 @@ export const renderTooltipContent = ({
       )}
 
       {memberNames && memberNames.length > 0 && (
+        // `whiteSpace` reset: the tooltip's container does not wrap, and a
+        // CRS lists up to 26 districts.
         <Text
           fontSize="xs"
           color="text.muted"
           lineHeight="tight"
           maxWidth="260px"
+          whiteSpace="normal"
         >
           Distritos: {memberNames.join(', ')}
         </Text>

@@ -16,6 +16,8 @@ import {
   toAppMapsData,
 } from '@/data-gateway/transformers/toAppMapsData';
 
+import { oneHealthDivision } from '../helpers/oneHealthDivision';
+
 // `workspaceConfig` reads icon names from `icons.ts`, which also registers the
 // icons through `@ttoss/react-icons` — an ESM-only package Jest does not
 // transform. The names are all these tests need.
@@ -105,7 +107,12 @@ const SUBPREFEITURAS = {
 
 describe('toAppMapsData — subprefeitura aggregation', () => {
   test('sums the districts counts per subprefeitura and year', () => {
-    const contract = toAppMapsData(SOURCE, SUBPREFEITURAS, SERVICES);
+    const contract = toAppMapsData(
+      SOURCE,
+      SUBPREFEITURAS,
+      SERVICES,
+      oneHealthDivision(SOURCE)
+    );
 
     expect(contract.subprefeituraCounts).toEqual([
       {
@@ -156,7 +163,12 @@ describe('toAppMapsData — subprefeitura aggregation', () => {
   });
 
   test('the rate painted is weighted by population, not a mean of rates', () => {
-    const contract = toAppMapsData(SOURCE, SUBPREFEITURAS, SERVICES);
+    const contract = toAppMapsData(
+      SOURCE,
+      SUBPREFEITURAS,
+      SERVICES,
+      oneHealthDivision(SOURCE)
+    );
     const [alfa] = buildMapRows({
       counts: contract.subprefeituraCounts,
       year: 2025,
@@ -169,7 +181,12 @@ describe('toAppMapsData — subprefeitura aggregation', () => {
   });
 
   test('lists each subprefeitura districts alphabetically', () => {
-    const contract = toAppMapsData(SOURCE, SUBPREFEITURAS, SERVICES);
+    const contract = toAppMapsData(
+      SOURCE,
+      SUBPREFEITURAS,
+      SERVICES,
+      oneHealthDivision(SOURCE)
+    );
 
     expect(contract.subprefeituras[0]).toEqual({
       geometryId: 10,
@@ -185,7 +202,8 @@ describe('toAppMapsData — subprefeitura aggregation', () => {
       return toAppMapsData(
         SOURCE,
         { subprefeituras: [SUBPREFEITURAS.subprefeituras[0]!] },
-        SERVICES
+        SERVICES,
+        oneHealthDivision(SOURCE)
       );
     }).toThrow('belongs to no subprefeitura');
   });
@@ -200,7 +218,8 @@ describe('toAppMapsData — subprefeitura aggregation', () => {
             { ...SUBPREFEITURAS.subprefeituras[1]!, id: 12, distritos: [3] },
           ],
         },
-        SERVICES
+        SERVICES,
+        oneHealthDivision(SOURCE)
       );
     }).toThrow('more than one subprefeitura');
   });
@@ -215,7 +234,8 @@ describe('toAppMapsData — subprefeitura aggregation', () => {
             { ...SUBPREFEITURAS.subprefeituras[1]!, id: 10 },
           ],
         },
-        SERVICES
+        SERVICES,
+        oneHealthDivision(SOURCE)
       );
     }).toThrow('both begin in 2002');
   });
@@ -230,7 +250,8 @@ describe('toAppMapsData — subprefeitura aggregation', () => {
             { ...SUBPREFEITURAS.subprefeituras[1]!, id: 12, distritos: [99] },
           ],
         },
-        SERVICES
+        SERVICES,
+        oneHealthDivision(SOURCE)
       );
     }).toThrow('has no counts');
   });
@@ -263,7 +284,7 @@ describe('toAppMapsData — a division that changes over the series', () => {
   };
 
   const areasOf = (year: number) => {
-    return toAppMapsData(source, versioned, SERVICES)
+    return toAppMapsData(source, versioned, SERVICES, oneHealthDivision(source))
       .subprefeituraCounts.filter((entry) => {
         return entry.year === year;
       })
@@ -296,7 +317,8 @@ describe('toAppMapsData — a division that changes over the series', () => {
             { ...beta!, id: 13, validFrom: 2010 },
           ],
         },
-        SERVICES
+        SERVICES,
+        oneHealthDivision(source)
       );
     }).toThrow('more than one subprefeitura in 2010');
   });
@@ -306,7 +328,8 @@ describe('toAppMapsData — a division that changes over the series', () => {
       return toAppMapsData(
         source,
         { subprefeituras: versioned.subprefeituras.slice(0, 2) },
-        SERVICES
+        SERVICES,
+        oneHealthDivision(source)
       );
     }).toThrow('belongs to no subprefeitura in 2015');
   });
@@ -513,9 +536,11 @@ describe('readStaticSubprefeituras — validation', () => {
 });
 
 describe('map levels', () => {
-  test('isMapLevel accepts the two levels only', () => {
+  test('isMapLevel accepts the four levels only', () => {
     expect(isMapLevel('distrito')).toBe(true);
     expect(isMapLevel('subprefeitura')).toBe(true);
+    expect(isMapLevel('supervisao-saude')).toBe(true);
+    expect(isMapLevel('coordenadoria-saude')).toBe(true);
     expect(isMapLevel('regiao')).toBe(false);
     expect(isMapLevel(undefined)).toBe(false);
   });
@@ -527,10 +552,20 @@ describe('map levels', () => {
       });
     };
 
-    expect(labels(32)).toEqual(['Distritos (96)', 'Subprefeituras (32)']);
-    expect(labels(31)).toEqual(['Distritos (96)', 'Subprefeituras (31)']);
+    const health = ['Supervisões de saúde (26)', 'Coordenadorias de saúde (5)'];
+
+    expect(labels(32)).toEqual([
+      'Distritos (96)',
+      'Subprefeituras (32)',
+      ...health,
+    ]);
+    expect(labels(31)).toEqual([
+      'Distritos (96)',
+      'Subprefeituras (31)',
+      ...health,
+    ]);
     // Before the division existed there is nothing to count.
-    expect(labels(0)).toEqual(['Distritos (96)', 'Subprefeituras']);
+    expect(labels(0)).toEqual(['Distritos (96)', 'Subprefeituras', ...health]);
   });
 
   test('the legend subtitle names the level painted', () => {

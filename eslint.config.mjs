@@ -50,6 +50,10 @@ export default [
             'preferredRegion',
             'maxDuration',
             'generateStaticParams',
+            // Metadata image files (`opengraph-image.tsx`).
+            'alt',
+            'size',
+            'contentType',
           ],
         },
       ],

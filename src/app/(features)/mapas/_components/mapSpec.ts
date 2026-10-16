@@ -1,6 +1,7 @@
 import type { MapHoverInfo, VisualizationSpec } from '@ttoss/geovis';
 
 import type { Category, Group } from '@/components/map/lib/indicators';
+import { countsFor, membersFor } from '@/components/map/lib/levelData';
 import { DISTRICTS_CENTER } from '@/components/map/lib/mapCamera';
 import {
   MAP_LEVEL_IDS,
@@ -11,7 +12,6 @@ import { buildMapRows, offerAgeShare } from '@/components/map/lib/mapRows';
 import {
   areaLayerFilter,
   paintedLevelFor,
-  subprefeiturasInForce,
 } from '@/components/map/lib/subprefeituraDivision';
 import {
   DEFAULT_BEARING,
@@ -347,16 +347,8 @@ const buildHoverTooltip = ({
     })
   );
 
-  // Only the aggregated level lists what each area is made of — the districts
-  // of the version in force that year, since one id can have had several.
-  const members =
-    level === 'subprefeitura'
-      ? new Map(
-          subprefeiturasInForce({ data, year }).map((sub) => {
-            return [sub.geometryId, sub.districtNames] as const;
-          })
-        )
-      : undefined;
+  // Only an aggregated level lists what each area is made of.
+  const members = membersFor({ data, level, year });
 
   return {
     render: (info: MapHoverInfo) => {
@@ -457,11 +449,12 @@ const buildAreaLayer = ({
  * year's areas (`buildMapRows`) — the class breaks are fixed per series and
  * never refitted, which is what keeps a colour comparable across years.
  *
- * Both levels' sources stay in the spec, so switching level never refetches a
- * geometry; only the active level has a fill layer and a join. The two levels
+ * Every level's source stays in the spec, so switching level never refetches
+ * a geometry; only the active level has a fill layer and a join. The levels
  * share the class breaks: a colour means the same share whether it paints a
- * district or a subprefeitura, at the cost of a flatter subprefeitura map,
- * since summing districts smooths out their extremes.
+ * district or an area grouping districts, at the cost of flatter maps for the
+ * coarser levels — the five CRS most of all — since summing districts smooths
+ * out their extremes.
  *
  * @param params.data - Canonical maps data from the gateway.
  * @param params.level - The geographic level selected. A year with no
@@ -513,7 +506,7 @@ export const buildSpec = ({
 }): VisualizationSpec => {
   const { level, note } = paintedLevelFor({ data, level: selectedLevel, year });
   const areas = MAP_LEVELS[level];
-  const counts = level === 'distrito' ? data.counts : data.subprefeituraCounts;
+  const counts = countsFor({ data, level });
   const rows = buildMapRows({ counts, year, ...indicator });
   const thresholds = thresholdsOf({ data, year, ...indicator });
   const extrusion = buildExtrusion({

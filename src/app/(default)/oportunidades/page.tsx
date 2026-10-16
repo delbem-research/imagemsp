@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 
+import { pageOpenGraph } from '@/config/metadata';
+
 import AccessibilityNote from './_components/AccessibilityNote';
 import HowSelectionWorks from './_components/HowSelectionWorks';
 import OfficialLinks from './_components/OfficialLinks';
@@ -13,12 +15,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/oportunidades',
   },
-  openGraph: {
+  openGraph: pageOpenGraph({
     title: 'Oportunidades — Vagas, bolsas e formas de colaboração | IMAGEM:SP',
     description:
       'Veja vagas, bolsas, oportunidades de treinamento técnico e formas de colaboração com o IMAGEM:SP, um atlas digital público sobre envelhecimento, território, dados e políticas públicas em São Paulo.',
-    type: 'website',
-  },
+    path: '/oportunidades',
+  }),
 };
 
 /**

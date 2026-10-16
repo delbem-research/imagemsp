@@ -63,6 +63,20 @@ describe('mapUrlStateFromSearch', () => {
     ).toEqual({ selection: defaults, overlays: [] });
   });
 
+  test('reads the health levels, and drops the layers they replaced', () => {
+    expect(read('?recorte=supervisao-saude').selection.level).toBe(
+      'supervisao-saude'
+    );
+    expect(read('?recorte=coordenadoria-saude').selection.level).toBe(
+      'coordenadoria-saude'
+    );
+    // A link saved while the CRS and STS were overlays opens without them.
+    expect(
+      read('?camadas=coordenadorias-saude,supervisoes-saude,abrangencia-ubs')
+        .overlays
+    ).toEqual(['abrangencia-ubs']);
+  });
+
   test('reads "todos" as every age', () => {
     expect(read('?idade=todos').selection.age).toBe('65');
   });

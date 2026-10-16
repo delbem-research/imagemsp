@@ -47,8 +47,8 @@ export const legendLabelFormat = (category: Category): LabelFormatSpec => {
 /**
  * Data-source attribution rendered under the legend swatches. `reference`
  * supports an inline link with the `{link:text|url}` syntax, so the SEADE
- * source keeps its hyperlink, as does GeoSampa for the subprefeitura polygons
- * (the district geometry is plain text).
+ * source keeps its hyperlink, as does GeoSampa for the subprefeitura and health
+ * polygons (the district geometry is plain text).
  *
  * It also carries the basemap credit, because the spec sets
  * `attributionControlEnabled: false` (see `buildSpec` in `MapsView`): OpenFreeMap serves
@@ -68,8 +68,9 @@ export const legendLabelFormat = (category: Category): LabelFormatSpec => {
  * the footer never cites a source for something the map is not showing.
  *
  * The aggregation and geometry credits follow the level painted: the
- * subprefeitura polygons come from GeoSampa, the district ones do not, and the
- * subprefeitura ones are dated, since the division changed within the series.
+ * subprefeitura and health polygons come from GeoSampa, the district ones do
+ * not, and the subprefeitura ones are dated, since the division changed within
+ * the series (the health ones say they are today's).
  *
  * @param params.level - The geographic level painted.
  * @param params.year - The projection year currently painted.

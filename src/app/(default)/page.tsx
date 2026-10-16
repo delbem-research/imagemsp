@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 
+import { pageOpenGraph } from '@/config/metadata';
+
 import ClosingCtaSection from './_components/ClosingCtaSection';
 import DataTrustSection from './_components/DataTrustSection';
 import HeroSection from './_components/HeroSection';
@@ -11,12 +13,12 @@ export const metadata: Metadata = {
   title: 'IMAGEM:SP — Mapa Inteligente do Envelhecimento de São Paulo',
   description:
     'Plataforma pública para entender o envelhecimento em São Paulo pelo território, com dados sobre população idosa, serviços, mobilidade, saúde, moradia e condições urbanas.',
-  openGraph: {
+  openGraph: pageOpenGraph({
     title: 'IMAGEM:SP — Mapa Inteligente do Envelhecimento de São Paulo',
     description:
       'Plataforma pública para entender o envelhecimento em São Paulo pelo território, com dados sobre população idosa, serviços, mobilidade, saúde, moradia e condições urbanas.',
-    type: 'website',
-  },
+    path: '/',
+  }),
 };
 
 /**

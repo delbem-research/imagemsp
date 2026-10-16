@@ -7,6 +7,9 @@ import {
   Source_Serif_4,
 } from 'next/font/google';
 
+import { pageOpenGraph } from '@/config/metadata';
+import { SITE_URL } from '@/config/site';
+
 import { Providers } from './providers';
 
 /**
@@ -77,10 +80,21 @@ const sourceCodePro = Source_Code_Pro({
   preload: false,
 });
 
+const ROOT_TITLE = 'IMAGEM:SP — Mapa Interativo do Envelhecimento';
+const ROOT_DESCRIPTION =
+  'Atlas digital de inteligência territorial sobre o envelhecimento em São Paulo. Dados públicos para apoiar compreensão, pesquisa, planejamento e políticas baseadas em evidências.';
+
 export const metadata: Metadata = {
-  title: 'IMAGEM:SP — Mapa Interativo do Envelhecimento',
-  description:
-    'Atlas digital de inteligência territorial sobre o envelhecimento em São Paulo. Dados públicos para apoiar compreensão, pesquisa, planejamento e políticas baseadas em evidências.',
+  metadataBase: new URL(SITE_URL),
+  title: ROOT_TITLE,
+  description: ROOT_DESCRIPTION,
+  openGraph: pageOpenGraph({
+    title: ROOT_TITLE,
+    description: ROOT_DESCRIPTION,
+    path: '/',
+  }),
+  // A large card: the preview image is the point of sharing a map.
+  twitter: { card: 'summary_large_image' },
 };
 
 export default function RootLayout({

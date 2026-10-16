@@ -5,6 +5,7 @@ import {
   type OverlayId,
 } from '@/config/overlays';
 
+import { readStaticHealthDivisions } from '../data-source-static/readStaticHealthDivisions';
 import { readStaticMapsData } from '../data-source-static/readStaticMapsData';
 import { readStaticParks } from '../data-source-static/readStaticParks';
 import { readStaticPoints } from '../data-source-static/readStaticPoints';
@@ -92,12 +93,19 @@ export const createDataGateway = (): DataGateway => {
   if (raw === 'static') {
     return {
       getMapsData: async () => {
-        const [source, subprefeituras, serviceCounts] = await Promise.all([
-          readStaticMapsData(),
-          readStaticSubprefeituras(),
-          countStaticServices(),
-        ]);
-        return toAppMapsData(source, subprefeituras, serviceCounts);
+        const [source, subprefeituras, serviceCounts, healthDivisions] =
+          await Promise.all([
+            readStaticMapsData(),
+            readStaticSubprefeituras(),
+            countStaticServices(),
+            readStaticHealthDivisions(),
+          ]);
+        return toAppMapsData(
+          source,
+          subprefeituras,
+          serviceCounts,
+          healthDivisions
+        );
       },
       getOverlay: async (layer) => {
         if (isPointOverlayId(layer)) {

@@ -26,6 +26,8 @@ import {
   toAppMapsData,
 } from '@/data-gateway/transformers/toAppMapsData';
 
+import { oneHealthDivision } from '../helpers/oneHealthDivision';
+
 // `workspaceConfig` reads icon names from `icons.ts`, which also registers the
 // icons through `@ttoss/react-icons` — an ESM-only package Jest does not
 // transform. The names are all these tests need.
@@ -174,7 +176,8 @@ describe('offer indicators — contract', () => {
     const contract = toAppMapsData(
       source,
       subprefeituras,
-      services(new Map([['Água Rasa', 2]]))
+      services(new Map([['Água Rasa', 2]])),
+      oneHealthDivision(source)
     );
 
     expect(contract.counts[0]?.services.ubs).toBe(2);
@@ -185,7 +188,8 @@ describe('offer indicators — contract', () => {
       return toAppMapsData(
         source,
         subprefeituras,
-        services(new Map([['Agua Rasa', 2]]))
+        services(new Map([['Agua Rasa', 2]])),
+        oneHealthDivision(source)
       );
     }).toThrow('which the maps snapshot does not carry');
   });
@@ -387,25 +391,40 @@ describe('offer indicators — age filter', () => {
 
   /** The age chips of the "Filtros" tab, built for an indicator. */
   const ageChips = (category: Parameters<typeof tabBlocks>[0]['category']) => {
-    const [age] = tabBlocks({ category, tab: 'Filtros' });
+    const age = tabBlocks({ category, tab: 'Filtros' }).find((block) => {
+      return block.id === AGE_MENU_ID;
+    });
     if (age?.control.kind !== 'chips') throw new Error('no age chips');
     return age.control;
   };
 
-  test('only the offer indicators list a service; the age moved to the filters tab', () => {
+  test('only the offer indicators list a service; the level and age live in the filters tab', () => {
     const ids = (category: 'health-65plus' | 'cumulative-total') => {
       return tabBlocks({ category, tab: 'Variações' }).map((block) => {
         return block.id;
       });
     };
 
-    expect(ids('health-65plus')).toEqual(['level', 'category', 'group']);
-    expect(ids('cumulative-total')).toEqual(['level', 'category']);
+    expect(ids('health-65plus')).toEqual(['category', 'group']);
+    expect(ids('cumulative-total')).toEqual(['category']);
     expect(
       tabBlocks({ category: 'health-65plus', tab: 'Filtros' }).map((block) => {
         return block.id;
       })
-    ).toEqual([AGE_MENU_ID]);
+    ).toEqual(['level', AGE_MENU_ID]);
+  });
+
+  test('the level is a required single choice of chips', () => {
+    const [level] = tabBlocks({ category: 'cumulative-total', tab: 'Filtros' });
+
+    expect(level?.control).toMatchObject({
+      kind: 'chips',
+      menuId: 'level',
+      multiple: false,
+      required: true,
+      defaultSelected: ['distrito'],
+      layout: { kind: 'grid', columns: 1 },
+    });
   });
 
   test('the age is a required single choice of chips in two columns', () => {
@@ -441,7 +460,7 @@ describe('offer indicators — age filter', () => {
 
   test('the cumulative share lists its own "or older" ages', () => {
     const chips = (() => {
-      const [age] = tabBlocks({
+      const [, age] = tabBlocks({
         category: 'cumulative-65plus',
         age: '65',
         tab: 'Filtros',

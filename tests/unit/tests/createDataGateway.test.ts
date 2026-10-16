@@ -2,14 +2,17 @@
  * @jest-environment node
  */
 import { createDataGateway } from '@/data-gateway/createDataGateway';
+import { readStaticHealthDivisions } from '@/data-source-static/readStaticHealthDivisions';
 import { readStaticMapsData } from '@/data-source-static/readStaticMapsData';
 import { readStaticPoints } from '@/data-source-static/readStaticPoints';
 import { readStaticSubprefeituras } from '@/data-source-static/readStaticSubprefeituras';
 
+jest.mock('@/data-source-static/readStaticHealthDivisions');
 jest.mock('@/data-source-static/readStaticMapsData');
 jest.mock('@/data-source-static/readStaticPoints');
 jest.mock('@/data-source-static/readStaticSubprefeituras');
 
+const mockReadStaticHealthDivisions = jest.mocked(readStaticHealthDivisions);
 const mockReadStaticMapsData = jest.mocked(readStaticMapsData);
 const mockReadStaticPoints = jest.mocked(readStaticPoints);
 const mockReadStaticSubprefeituras = jest.mocked(readStaticSubprefeituras);
@@ -36,6 +39,19 @@ const MOCK_SUBPREFEITURAS = {
       regiao: 'Leste',
       distritos: [8],
       validFrom: 2002,
+    },
+  ],
+};
+
+/** The fixture's one district (Belém, geometry 8) in its real STS and CRS. */
+const MOCK_HEALTH_DIVISIONS = {
+  coordenadorias: [{ id: 5, nome: 'CRS Sudeste', distritos: [8] }],
+  supervisoes: [
+    {
+      id: 14,
+      nome: 'STS Mooca/Aricanduva',
+      coordenadoria: 5,
+      distritos: [8],
     },
   ],
 };
@@ -78,6 +94,7 @@ describe('createDataGateway', () => {
     savedDataSource = process.env['DATA_SOURCE'];
     mockReadStaticMapsData.mockResolvedValue(MOCK_SOURCE);
     mockReadStaticSubprefeituras.mockResolvedValue(MOCK_SUBPREFEITURAS);
+    mockReadStaticHealthDivisions.mockResolvedValue(MOCK_HEALTH_DIVISIONS);
     mockReadStaticPoints.mockImplementation(async (layer) => {
       return { points: layer === 'ubs' ? [ubsInBelem(1), ubsInBelem(2)] : [] };
     });
@@ -210,6 +227,38 @@ describe('createDataGateway', () => {
           restaurantes: 0,
           esporte: 0,
         },
+      });
+    });
+
+    test('carries the health levels alongside the districts', async () => {
+      delete process.env['DATA_SOURCE'];
+      const data = await createDataGateway().getMapsData();
+
+      expect(data.supervisoes).toEqual([
+        {
+          geometryId: 14,
+          name: 'STS Mooca/Aricanduva',
+          districtNames: ['Belém'],
+        },
+      ]);
+      expect(data.coordenadorias).toEqual([
+        { geometryId: 5, name: 'CRS Sudeste', districtNames: ['Belém'] },
+      ]);
+      // Today's division, summed in every year: GeoSampa keeps no history.
+      expect(
+        data.supervisaoCounts.map(({ geometryId, year, total }) => {
+          return { geometryId, year, total };
+        })
+      ).toEqual([
+        { geometryId: 14, year: 2020, total: 47000 },
+        { geometryId: 14, year: 2025, total: 47772 },
+      ]);
+      expect(data.coordenadoriaCounts[1]).toMatchObject({
+        geometryId: 5,
+        name: 'CRS Sudeste',
+        year: 2025,
+        count75plus: 2659,
+        services: expect.objectContaining({ ubs: 2 }),
       });
     });
 
