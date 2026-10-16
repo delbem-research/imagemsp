@@ -1,18 +1,28 @@
 import type { Metadata } from 'next';
 
+import { pageOpenGraph } from '@/config/metadata';
+
 import ContactEmailBlock from './_components/ContactEmailBlock';
 import ContactHero from './_components/ContactHero';
 import RelatedLinks from './_components/RelatedLinks';
 import ScopeNotice from './_components/ScopeNotice';
 import SubjectPrefixList from './_components/SubjectPrefixList';
 
+const TITLE = 'Contato | IMAGEM:SP';
+const DESCRIPTION =
+  'Entre em contato com a equipe do IMAGEM:SP para dúvidas sobre o projeto, dados, parcerias, imprensa, acessibilidade e oportunidades.';
+
 export const metadata: Metadata = {
-  title: 'Contato | IMAGEM:SP',
-  description:
-    'Entre em contato com a equipe do IMAGEM:SP para dúvidas sobre o projeto, dados, parcerias, imprensa, acessibilidade e oportunidades.',
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: {
     canonical: '/contato',
   },
+  openGraph: pageOpenGraph({
+    title: TITLE,
+    description: DESCRIPTION,
+    path: '/contato',
+  }),
 };
 
 /**
