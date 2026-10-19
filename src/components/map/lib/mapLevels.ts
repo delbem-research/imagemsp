@@ -11,7 +11,7 @@ export type MapLevel =
   | 'coordenadoria-saude';
 
 /**
- * The levels in the order of the "Recorte" chips: the districts, then the two
+ * The levels in the order of the "Recortes" list: the districts, then the two
  * divisions that group them — the administrative one, then the health one,
  * finest first.
  */
@@ -38,6 +38,13 @@ export const isMapLevel = (value: string | undefined): value is MapLevel => {
 export type MapLevelConfig = {
   /** Menu option label. */
   label: string;
+  /** Line under the label in the "Recortes" list: what the division is. */
+  description: string;
+  /**
+   * How many areas the level has, on the option's right. Absent where it
+   * depends on the year — the subprefeituras (see `levelOptions`).
+   */
+  count?: number;
   /** Spec ids: each level has its own source, layer and join. */
   sourceId: string;
   layerId: string;
@@ -55,7 +62,9 @@ export type MapLevelConfig = {
 
 export const MAP_LEVELS: Record<MapLevel, MapLevelConfig> = {
   distrito: {
-    label: 'Distritos (96)',
+    label: 'Distritos',
+    description: 'Divisão administrativa básica',
+    count: 96,
     sourceId: 'sp-districts',
     layerId: 'sp-districts-fill',
     mapDataId: 'pop-data',
@@ -67,8 +76,9 @@ export const MAP_LEVELS: Record<MapLevel, MapLevelConfig> = {
   },
   subprefeitura: {
     // No count here: it depends on the year (31 until 2012, 32 since), so the
-    // "Recorte" chips append the one in force (see `levelOptions`).
+    // "Recortes" list shows the one in force (see `levelOptions`).
     label: 'Subprefeituras',
+    description: 'Gestão regional do município',
     sourceId: 'sp-subprefeituras',
     layerId: 'sp-subprefeituras-fill',
     mapDataId: 'pop-data-subprefeituras',
@@ -80,10 +90,12 @@ export const MAP_LEVELS: Record<MapLevel, MapLevelConfig> = {
     geometryCredit:
       'Subprefeituras de São Paulo ({link:GeoSampa|https://geosampa.prefeitura.sp.gov.br})',
   },
-  // The two health levels. Their counts are fixed in the labels: the
-  // generator fails unless GeoSampa carries exactly 26 STS and 5 CRS.
+  // The two health levels. Their counts are fixed: the generator fails unless
+  // GeoSampa carries exactly 26 STS and 5 CRS.
   'supervisao-saude': {
-    label: 'Supervisões de saúde (26)',
+    label: 'Supervisões de saúde',
+    description: 'Território da rede de saúde',
+    count: 26,
     sourceId: 'sp-supervisoes-saude',
     layerId: 'sp-supervisoes-saude-fill',
     mapDataId: 'pop-data-supervisoes-saude',
@@ -96,7 +108,9 @@ export const MAP_LEVELS: Record<MapLevel, MapLevelConfig> = {
       'Supervisões Técnicas de Saúde de São Paulo ({link:GeoSampa|https://geosampa.prefeitura.sp.gov.br}), na divisão atual',
   },
   'coordenadoria-saude': {
-    label: 'Coordenadorias de saúde (5)',
+    label: 'Coordenadorias de saúde',
+    description: 'Macrorregiões de saúde',
+    count: 5,
     sourceId: 'sp-coordenadorias-saude',
     layerId: 'sp-coordenadorias-saude-fill',
     mapDataId: 'pop-data-coordenadorias-saude',

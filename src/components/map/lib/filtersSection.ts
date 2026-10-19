@@ -7,10 +7,10 @@ import {
   type MapLevel,
 } from '@/components/map/lib/mapLevels';
 
-/** Menu id of the "Faixa etária" chips, in the selection record. */
+/** Menu id of the "Faixa etária" choice, in the selection record. */
 export const AGE_MENU_ID = 'age';
 
-/** Menu id of the "Recorte" chips, in the selection record. */
+/** Menu id of the "Recortes" choice, in the selection record. */
 export const LEVEL_MENU_ID = 'level';
 
 /**
@@ -21,63 +21,48 @@ export const LEVEL_MENU_ID = 'level';
 const FILTERS_SECTION_ID = 'Filtros';
 
 /**
- * Icon per age group. The distinction that matters is open vs closed: `65`
- * ("Todos") and `75` are "X anos ou mais", while `65-69`/`70-74` are bounded
- * on both sides.
- */
-export const AGE_ICONS: Record<AgeGroup, string> = {
-  '65': ICONS.plusCircle,
-  '70': ICONS.plusCircle,
-  '75': ICONS.plusCircle,
-  '65-69': ICONS.arrowsInLineHorizontal,
-  '70-74': ICONS.arrowsInLineHorizontal,
-};
-
-/**
- * Icon per level in the "Recorte" chips: many small areas for the districts, a
- * few large ones for the subprefeituras, and their own pair for the health
- * divisions, so the two kinds of grouping read apart.
- */
-const LEVEL_ICONS: Record<MapLevel, string> = {
-  distrito: ICONS.squaresFour,
-  subprefeitura: ICONS.polygon,
-  'supervisao-saude': ICONS.hexagon,
-  'coordenadoria-saude': ICONS.shapes,
-};
-
-/**
- * Geographic level options, one per {@link MapLevel}. The subprefeitura label
- * carries the count in force in the year painted, as the districts' carries its
- * fixed 96 — 31 until 2012, 32 since — and none before the division existed.
+ * Geographic level options, one per {@link MapLevel}: the level's name, what
+ * the division is under it, and how many areas it has on the right. The
+ * subprefeituras' count is the one in force in the year painted — 31 until
+ * 2012, 32 since — and none before the division existed.
  *
  * @param subprefeituraCount - Subprefeituras in force in the year painted.
- * @returns The "Recorte" chips' options.
+ * @returns The "Recortes" options.
  *
  * @example
- * levelOptions(31)[1]?.label; // 'Subprefeituras (31)'
- * levelOptions(0)[1]?.label; // 'Subprefeituras'
+ * levelOptions(31)[1]?.count; // 31
+ * levelOptions(0)[1]?.count; // undefined
  */
 export const levelOptions = (
   subprefeituraCount: number
-): { value: MapLevel; label: string; icon: string }[] => {
+): {
+  value: MapLevel;
+  label: string;
+  sublabel: string;
+  count?: number;
+}[] => {
   return MAP_LEVEL_IDS.map((level) => {
-    const counted = level === 'subprefeitura' && subprefeituraCount > 0;
+    const { label, description, count } = MAP_LEVELS[level];
+    const inForce =
+      level === 'subprefeitura' && subprefeituraCount > 0
+        ? subprefeituraCount
+        : count;
     return {
       value: level,
-      label: counted
-        ? `${MAP_LEVELS[level].label} (${subprefeituraCount})`
-        : MAP_LEVELS[level].label,
-      icon: LEVEL_ICONS[level],
+      label,
+      sublabel: description,
+      ...(inForce === undefined ? {} : { count: inForce }),
     };
   });
 };
 
 /**
- * The "Recorte" block, first in the "Filtros" tab because it frames the rest:
- * it decides which areas are painted. Chips like the ages', a required single
- * choice; one column, since the level labels are too long to share a row.
+ * The "Recortes" block, first in the "Filtros" tab because it frames the rest:
+ * it decides which areas are painted. A `choice` — exactly one level always
+ * painted — laid out as a list, each row with what the division is and how
+ * many areas it has.
  *
- * @param params.level - The selected level, the chips' default.
+ * @param params.level - The selected level, the choice's default.
  * @param params.subprefeituraCount - See {@link levelOptions}.
  * @returns The block for the filters tab's `filters` body.
  */
@@ -90,18 +75,15 @@ const buildLevelBlock = ({
 }) => {
   return {
     id: LEVEL_MENU_ID,
-    title: 'Recorte',
+    title: 'Recortes',
     icon: ICONS.mapTrifold,
+    collapsible: true,
     control: {
-      kind: 'chips' as const,
+      kind: 'choice' as const,
       menuId: LEVEL_MENU_ID,
-      options: levelOptions(subprefeituraCount).map((option) => {
-        return { id: option.value, label: option.label, icon: option.icon };
-      }),
-      multiple: false,
-      required: true,
-      defaultSelected: [level],
-      layout: { kind: 'grid' as const, columns: 1 },
+      layout: 'list' as const,
+      options: levelOptions(subprefeituraCount),
+      defaultValue: level,
     },
   };
 };
@@ -111,16 +93,14 @@ const buildLevelBlock = ({
  * list of ages everywhere (see `AGE_OPTIONS`), minus "Todos" for the share of
  * the 65+, where it would read 100% (see `ageOptionsFor`).
  *
- * Chips rather than a variations list: the ages are short labels read at a
- * glance, and a two-column grid shows all four without the scroll a list
- * costs. `multiple: false` with `required` makes them a required single
- * choice — exactly one age is always painted — and `menuId` publishes the
- * chosen id under `AGE_MENU_ID` as the list did, so `MapsView` reads it
- * unchanged. With a `menuId` the chips also follow the selection, so the age
- * `ageFor` fits to a new indicator shows as active.
+ * A `choice` in a two-column grid: the ages are short labels read at a glance,
+ * and the grid shows all four without the scroll a list costs. Exactly one age
+ * is always painted, and `menuId` publishes the chosen one under `AGE_MENU_ID`,
+ * so `MapsView` reads it unchanged. The choice follows the selection, so the
+ * age `ageFor` fits to a new indicator shows as chosen.
  *
  * @param params.category - The indicator, which decides the options.
- * @param params.age - The selected age group, the chips' default.
+ * @param params.age - The selected age group, the choice's default.
  * @returns The block for the filters tab's `filters` body.
  */
 const buildAgeBlock = ({
@@ -134,20 +114,15 @@ const buildAgeBlock = ({
     id: AGE_MENU_ID,
     title: 'Faixa etária',
     icon: ICONS.usersThree,
+    collapsible: true,
     control: {
-      kind: 'chips' as const,
+      kind: 'choice' as const,
       menuId: AGE_MENU_ID,
-      options: ageOptionsFor(category).map((option) => {
-        return {
-          id: option.value,
-          label: option.label,
-          icon: AGE_ICONS[option.value],
-        };
-      }),
-      multiple: false,
-      required: true,
-      defaultSelected: [ageFor({ category, age })],
       layout: { kind: 'grid' as const, columns: 2 },
+      options: ageOptionsFor(category).map((option) => {
+        return { value: option.value, label: option.label };
+      }),
+      defaultValue: ageFor({ category, age }),
     },
   };
 };

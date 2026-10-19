@@ -1,10 +1,7 @@
 import type { GeovisWorkspaceConfig } from '@ttoss/geovis-workspace';
 
 import { DEFAULT_AGE } from '@/components/map/lib/ageOptions';
-import {
-  AGE_ICONS,
-  buildFiltersSection,
-} from '@/components/map/lib/filtersSection';
+import { buildFiltersSection } from '@/components/map/lib/filtersSection';
 import { ICONS } from '@/components/map/lib/icons';
 import type {
   AgeGroup,
@@ -156,6 +153,19 @@ export const GROUP_OPTIONS: Record<
     return { value: service, label: OFFER_LABELS[service].menu };
   });
 });
+
+/**
+ * Icon per age group. The distinction that matters is open vs closed: `65`
+ * ("Todos") and `75` are "X anos ou mais", while `65-69`/`70-74` are bounded
+ * on both sides.
+ */
+const AGE_ICONS: Record<AgeGroup, string> = {
+  '65': ICONS.plusCircle,
+  '70': ICONS.plusCircle,
+  '75': ICONS.plusCircle,
+  '65-69': ICONS.arrowsInLineHorizontal,
+  '70-74': ICONS.arrowsInLineHorizontal,
+};
 
 /** Icon per age group (see `AGE_ICONS`) and per service. */
 const GROUP_ICONS: Record<Group, string> = {
@@ -441,11 +451,11 @@ const HIDDEN_SLOTS: GeovisWorkspaceConfig['slots'] = {
  * data sources live on the map itself, configured via the geovis spec (see
  * `buildSpec` in `MapsView.tsx`), so there is no right sidebar.
  *
- * Four tabs. The first holds the variation menus as blocks — geographic level
- * and indicator (and, for the offer indicators, service) are read together, and
- * the cascade between them is driven by React state in `MapsView`, not by the
- * sidebar's own navigation. The second, "Filtros", holds the age band as chips
- * (see `buildFiltersSection`). The third is the
+ * Four tabs. The first holds the variation menus as blocks — the indicator
+ * and, for the offer indicators, the service are read together, and the
+ * cascade between them is driven by React state in `MapsView`, not by the
+ * sidebar's own navigation. The second, "Filtros", holds the geographic level
+ * and the age band as choices (see `buildFiltersSection`). The third is the
  * projection-year timeline, which stays in a tab of its own as the workspace
  * recommends: it is the only control with playback, and it publishes
  * `variables[YEAR_MENU_ID]` on every tick, so it has nothing to gain from
@@ -473,7 +483,7 @@ const HIDDEN_SLOTS: GeovisWorkspaceConfig['slots'] = {
  * timeline's mini bars.
  * @param params.colorSettings - The "Configurações" tab's ramps and handlers.
  * @param params.subprefeituraCount - Subprefeituras in force in the year
- * painted, shown in the "Recorte" chips (see `levelOptions`). A count rather
+ * painted, shown in the "Recortes" list (see `levelOptions`). A count rather
  * than the year, so the config is rebuilt only when the division changes
  * (2002, 2013) and not on every playback tick.
  * @param params.sidebarInitiallyOpen - Whether the left sidebar starts open.

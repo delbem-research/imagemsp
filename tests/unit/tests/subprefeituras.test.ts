@@ -546,26 +546,27 @@ describe('map levels', () => {
   });
 
   test('the level menu counts the subprefeituras of the year, as it does the districts', () => {
-    const labels = (count: number) => {
+    const counts = (count: number) => {
       return levelOptions(count).map((option) => {
-        return option.label;
+        return option.count;
       });
     };
 
-    const health = ['Supervisões de saúde (26)', 'Coordenadorias de saúde (5)'];
-
-    expect(labels(32)).toEqual([
-      'Distritos (96)',
-      'Subprefeituras (32)',
-      ...health,
-    ]);
-    expect(labels(31)).toEqual([
-      'Distritos (96)',
-      'Subprefeituras (31)',
-      ...health,
-    ]);
+    // Districts, subprefeituras, then the 26 STS and 5 CRS.
+    expect(counts(32)).toEqual([96, 32, 26, 5]);
+    expect(counts(31)).toEqual([96, 31, 26, 5]);
     // Before the division existed there is nothing to count.
-    expect(labels(0)).toEqual(['Distritos (96)', 'Subprefeituras', ...health]);
+    expect(counts(0)).toEqual([96, undefined, 26, 5]);
+    expect(
+      levelOptions(32).map((option) => {
+        return option.label;
+      })
+    ).toEqual([
+      'Distritos',
+      'Subprefeituras',
+      'Supervisões de saúde',
+      'Coordenadorias de saúde',
+    ]);
   });
 
   test('the legend subtitle names the level painted', () => {
