@@ -2,6 +2,7 @@ import { OFFER_SERVICES } from '@/config/offer';
 import { SERIES_THRESHOLDS } from '@/config/thresholds';
 
 import type {
+  StaticHealthDivisionsDataSource,
   StaticMapsDataSource,
   StaticSubprefeiturasDataSource,
 } from '../../data-source-static/types';
@@ -13,6 +14,8 @@ import {
   versionKey,
   versionsInForce,
 } from '../schema';
+import { aggregateHealthDivisions } from './aggregateHealthDivisions';
+import { addCounts, emptyCounts } from './countSums';
 
 /** One version of a subprefeitura, as the static snapshot carries it. */
 type SubprefeituraVersion =
@@ -20,15 +23,6 @@ type SubprefeituraVersion =
 
 /** Facilities per service, keyed by district name as the point CSVs spell it. */
 export type ServiceCounts = Record<OfferService, Map<string, number>>;
-
-/** A zero for every service, the start of each area's tally. */
-const noServices = (): Record<OfferService, number> => {
-  return Object.fromEntries(
-    OFFER_SERVICES.map((service) => {
-      return [service, 0];
-    })
-  ) as Record<OfferService, number>;
-};
 
 /**
  * Asserts every district a facility was counted in is a district of the
@@ -225,22 +219,6 @@ const assertUniqueVersions = (
 };
 
 /**
- * Adds one district's counts into its subprefeitura's running sum.
- *
- * @param sum - The subprefeitura's sum for the entry's year, mutated.
- * @param entry - The district's counts.
- */
-const addCounts = (sum: DistrictCounts, entry: DistrictCounts): void => {
-  sum.count65to69 += entry.count65to69;
-  sum.count70to74 += entry.count70to74;
-  sum.count75plus += entry.count75plus;
-  sum.total += entry.total;
-  for (const service of OFFER_SERVICES) {
-    sum.services[service] += entry.services[service];
-  }
-};
-
-/**
  * Sums district counts into subprefeitura counts, year by year, each year into
  * the division in force that year — so 2010 sums Vila Prudente, São Lucas and
  * Sapopemba into the one subprefeitura they formed then, and 2000, before the
@@ -301,16 +279,9 @@ const aggregateSubprefeituras = ({
     }
 
     const key = `${entry.year}|${sub.id}`;
-    const sum = sums.get(key) ?? {
-      geometryId: sub.id,
-      name: sub.nome,
-      year: entry.year,
-      count65to69: 0,
-      count70to74: 0,
-      count75plus: 0,
-      total: 0,
-      services: noServices(),
-    };
+    const sum =
+      sums.get(key) ??
+      emptyCounts({ geometryId: sub.id, name: sub.nome, year: entry.year });
 
     addCounts(sum, entry);
     sums.set(key, sum);
@@ -348,8 +319,9 @@ const aggregateSubprefeituras = ({
  * Thresholds are injected from {@link SERIES_THRESHOLDS} rather than read from
  * JSON, keeping classification decisions in the application layer.
  *
- * Subprefeitura counts are the sums of their districts' counts, computed here
- * once per request rather than stored, so the two levels cannot disagree.
+ * Subprefeitura, STS and CRS counts are the sums of their districts' counts,
+ * computed here once per request rather than stored, so the levels cannot
+ * disagree.
  * Facility counts ride on every year's row: they are today's network, the same
  * whatever year the population is projected for.
  *
@@ -358,20 +330,24 @@ const aggregateSubprefeituras = ({
  * data-source-static.
  * @param serviceCounts - Facilities per offer service per district name,
  * counted from the point snapshots.
+ * @param healthDivisionsSource - Raw CRS and STS record from
+ * data-source-static.
  * @returns Canonical {@link MapsDataContract}.
  * @throws If the snapshot's years are unusable by the timeline (see
  * {@link validateYears}), the districts and subprefeituras do not match one to
- * one (see {@link aggregateSubprefeituras}), or a facility was counted in a
+ * one (see {@link aggregateSubprefeituras}), nor the districts and the CRS or
+ * STS (see `aggregateHealthDivisions`), or a facility was counted in a
  * district the snapshot does not carry.
  *
  * @example
- * const contract = toAppMapsData(source, subprefeiturasSource, serviceCounts);
+ * const contract = toAppMapsData(source, subprefeiturasSource, serviceCounts, healthDivisionsSource);
  * // { years: [2000, ..., 2050], thresholds: { ... }, counts: [ ... ], subprefeituraCounts: [ ... ], subprefeituras: [ ... ] }
  */
 export const toAppMapsData = (
   source: StaticMapsDataSource,
   subprefeiturasSource: StaticSubprefeiturasDataSource,
-  serviceCounts: ServiceCounts
+  serviceCounts: ServiceCounts,
+  healthDivisionsSource: StaticHealthDivisionsDataSource
 ): MapsDataContract => {
   if (source.districts.length === 0) {
     throw new Error(
@@ -413,5 +389,6 @@ export const toAppMapsData = (
       counts,
       subprefeituras: subprefeiturasSource.subprefeituras,
     }),
+    ...aggregateHealthDivisions({ counts, divisions: healthDivisionsSource }),
   };
 };

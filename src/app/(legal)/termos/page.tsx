@@ -2,9 +2,20 @@ import { Box, List, Stack, Text } from '@chakra-ui/react';
 import type { Metadata } from 'next';
 
 import Container from '@/components/ui/Container';
+import { pageOpenGraph } from '@/config/metadata';
+
+const TITLE = 'Termos de Uso — IMAGEM:SP';
+const DESCRIPTION =
+  'Termos de uso do IMAGEM:SP, mapa interativo do envelhecimento de São Paulo.';
 
 export const metadata: Metadata = {
-  title: 'Termos de Uso — IMAGEM:SP',
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: pageOpenGraph({
+    title: TITLE,
+    description: DESCRIPTION,
+    path: '/termos',
+  }),
 };
 
 /** "Uso permitido" section — allowed uses and prohibitions. */

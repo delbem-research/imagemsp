@@ -24,13 +24,13 @@ const layers = () => {
 describe('polygon overlay outlines', () => {
   test('an outline-only territory is stroked by a line layer at its weight', () => {
     const outline = layers().find((layer) => {
-      return layer.id === 'coordenadorias-saude-overlay-outline';
+      return layer.id === 'abrangencia-ubs-overlay-outline';
     });
 
     expect(outline).toMatchObject({
-      sourceId: 'coordenadorias-saude',
+      sourceId: 'abrangencia-ubs',
       geometry: 'line',
-      paint: { lineColor: '#1A1A1A', lineWidth: 3 },
+      paint: { lineColor: '#4D4D4D', lineWidth: 0.7 },
     });
   });
 

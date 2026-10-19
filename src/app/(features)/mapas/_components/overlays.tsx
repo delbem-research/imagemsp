@@ -154,8 +154,8 @@ const pinMark = (config: OverlayConfig & { kind: 'point' }): string => {
 
 /**
  * Two patches in the overlay's fill and outline, the outline scaled from its
- * map weight so the thumbnails tell the CRS, STS and UBS outlines apart the
- * way the map does.
+ * map weight so the thumbnails tell thin and thick outlines apart the way the
+ * map does.
  */
 const polygonMark = (config: OverlayConfig & { kind: 'polygon' }): string => {
   const style = `fill='${config.color}' fill-opacity='${config.fillOpacity}' stroke='${config.color}' stroke-width='${Math.max(1, config.lineWidth * 1.2)}'`;
@@ -241,7 +241,7 @@ const drawing = (
       lineColor: config.color,
     },
     // Thicker than the resting outline whatever its weight, so the hovered
-    // territory stands out from its neighbours even on the thick CRS lines.
+    // territory stands out from its neighbours whatever its outline's weight.
     hoverPaint: { lineColor: config.color, lineWidth: config.lineWidth + 2 },
   };
 };

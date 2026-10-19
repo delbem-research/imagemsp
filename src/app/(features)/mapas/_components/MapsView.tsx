@@ -1,6 +1,9 @@
 'use client';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
+// Side-effect import: points maplibre-gl at its bundled worker before any map
+// is created (see the module for why the default URL fails).
+import '@/components/map/lib/maplibreWorker';
 // Side-effect import: registers the Lucide icons GeovisWorkspace renders by
 // name, so they resolve from the bundle instead of the Iconify API at runtime.
 import '@/components/map/lib/icons';

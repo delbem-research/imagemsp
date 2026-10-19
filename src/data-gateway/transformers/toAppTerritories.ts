@@ -14,7 +14,7 @@ import type { OverlayContract } from '../schema';
  *
  * @example
  * toAppTerritories(source);
- * // { type: 'FeatureCollection', features: [{ id: 1, properties: { name: 'CRS Oeste', detail: 'Coordenadoria Regional de Saúde' }, geometry: { type: 'Polygon', ... } }] }
+ * // { type: 'FeatureCollection', features: [{ id: 1, properties: { name: 'UBS MARSILAC', detail: 'Área de abrangência · STS Parelheiros · CRS Sul' }, geometry: { type: 'Polygon', ... } }] }
  */
 export const toAppTerritories = (
   source: StaticTerritoriesDataSource

@@ -1,0 +1,195 @@
+{
+  "coordenadorias": [
+    {
+      "id": 2,
+      "nome": "CRS Leste",
+      "distritos": [
+        24, 25, 28, 31, 33, 36, 37, 44, 47, 57, 64, 73, 74, 75, 84, 87, 96
+      ]
+    },
+    {
+      "id": 3,
+      "nome": "CRS Norte",
+      "distritos": [
+        3, 7, 9, 11, 13, 14, 21, 26, 29, 39, 42, 49, 50, 51, 61, 63, 66, 69, 70,
+        78, 81, 82, 86, 89, 92, 95
+      ]
+    },
+    {
+      "id": 4,
+      "nome": "CRS Oeste",
+      "distritos": [2, 6, 12, 35, 40, 41, 45, 48, 54, 60, 62, 65, 67, 88, 94]
+    },
+    {
+      "id": 5,
+      "nome": "CRS Sudeste",
+      "distritos": [
+        1, 4, 5, 8, 10, 18, 20, 27, 32, 34, 38, 53, 56, 59, 68, 72, 76, 77, 80,
+        85, 90, 91, 93
+      ]
+    },
+    {
+      "id": 6,
+      "nome": "CRS Sul",
+      "distritos": [15, 16, 17, 19, 22, 23, 30, 43, 46, 52, 55, 58, 71, 79, 83]
+    }
+  ],
+  "supervisoes": [
+    {
+      "id": 1,
+      "nome": "STS Butantã",
+      "coordenadoria": 4,
+      "distritos": [12, 54, 65, 67, 94]
+    },
+    {
+      "id": 2,
+      "nome": "STS Campo Limpo",
+      "coordenadoria": 6,
+      "distritos": [17, 19, 83]
+    },
+    {
+      "id": 3,
+      "nome": "STS Capela do Socorro",
+      "coordenadoria": 6,
+      "distritos": [23, 30, 79]
+    },
+    {
+      "id": 4,
+      "nome": "STS Casa Verde/Cachoeirinha",
+      "coordenadoria": 3,
+      "distritos": [13, 21, 50]
+    },
+    {
+      "id": 5,
+      "nome": "STS Cidade Tiradentes",
+      "coordenadoria": 2,
+      "distritos": [25]
+    },
+    {
+      "id": 6,
+      "nome": "STS Ermelino Matarazzo",
+      "coordenadoria": 2,
+      "distritos": [28, 64]
+    },
+    {
+      "id": 7,
+      "nome": "STS Freguesia/Brasilândia",
+      "coordenadoria": 3,
+      "distritos": [11, 29]
+    },
+    {
+      "id": 8,
+      "nome": "STS Guaianases",
+      "coordenadoria": 2,
+      "distritos": [31, 96]
+    },
+    {
+      "id": 9,
+      "nome": "STS Ipiranga",
+      "coordenadoria": 5,
+      "distritos": [27, 34, 68]
+    },
+    {
+      "id": 10,
+      "nome": "STS Itaim Paulista",
+      "coordenadoria": 2,
+      "distritos": [36, 84]
+    },
+    {
+      "id": 11,
+      "nome": "STS Itaquera",
+      "coordenadoria": 2,
+      "distritos": [24, 37, 47, 57]
+    },
+    {
+      "id": 12,
+      "nome": "STS Lapa/Pinheiros",
+      "coordenadoria": 4,
+      "distritos": [2, 6, 35, 40, 41, 45, 48, 60, 62, 88]
+    },
+    {
+      "id": 13,
+      "nome": "STS M'Boi Mirim",
+      "coordenadoria": 6,
+      "distritos": [43, 46]
+    },
+    {
+      "id": 14,
+      "nome": "STS Mooca/Aricanduva",
+      "coordenadoria": 5,
+      "distritos": [1, 4, 8, 10, 20, 53, 56, 80, 85]
+    },
+    {
+      "id": 15,
+      "nome": "STS Parelheiros",
+      "coordenadoria": 6,
+      "distritos": [52, 55]
+    },
+    {
+      "id": 16,
+      "nome": "STS Penha",
+      "coordenadoria": 5,
+      "distritos": [5, 18, 59, 91]
+    },
+    {
+      "id": 17,
+      "nome": "STS Perus",
+      "coordenadoria": 3,
+      "distritos": [3, 61]
+    },
+    {
+      "id": 18,
+      "nome": "STS Pirituba",
+      "coordenadoria": 3,
+      "distritos": [42, 63, 95]
+    },
+    {
+      "id": 19,
+      "nome": "STS Sé/Santa Cecília",
+      "coordenadoria": 3,
+      "distritos": [7, 9, 14, 26, 49, 66, 69, 78]
+    },
+    {
+      "id": 20,
+      "nome": "STS Santana/Tucuruvi/Jaçanã/Tremembé",
+      "coordenadoria": 3,
+      "distritos": [39, 51, 70, 81, 82]
+    },
+    {
+      "id": 21,
+      "nome": "STS Santo Amaro/Cidade Ademar",
+      "coordenadoria": 6,
+      "distritos": [15, 16, 22, 58, 71]
+    },
+    {
+      "id": 22,
+      "nome": "STS São Mateus",
+      "coordenadoria": 2,
+      "distritos": [33, 73, 75]
+    },
+    {
+      "id": 23,
+      "nome": "STS São Miguel",
+      "coordenadoria": 2,
+      "distritos": [44, 74, 87]
+    },
+    {
+      "id": 25,
+      "nome": "STS Vila Maria/Vila Guilherme",
+      "coordenadoria": 3,
+      "distritos": [86, 89, 92]
+    },
+    {
+      "id": 26,
+      "nome": "STS Vila Mariana/Jabaquara",
+      "coordenadoria": 5,
+      "distritos": [32, 38, 77, 90]
+    },
+    {
+      "id": 27,
+      "nome": "STS Vila Prudente/Sapopemba",
+      "coordenadoria": 5,
+      "distritos": [72, 76, 93]
+    }
+  ]
+}

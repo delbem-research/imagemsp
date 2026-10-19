@@ -2,9 +2,20 @@ import { Box, List, Stack, Text } from '@chakra-ui/react';
 import type { Metadata } from 'next';
 
 import Container from '@/components/ui/Container';
+import { pageOpenGraph } from '@/config/metadata';
+
+const TITLE = 'Política de Cookies — IMAGEM:SP';
+const DESCRIPTION =
+  'Política de cookies do IMAGEM:SP: tipos de cookies, finalidades e conformidade com a LGPD.';
 
 export const metadata: Metadata = {
-  title: 'Política de Cookies — IMAGEM:SP',
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: pageOpenGraph({
+    title: TITLE,
+    description: DESCRIPTION,
+    path: '/cookies',
+  }),
 };
 
 /**
