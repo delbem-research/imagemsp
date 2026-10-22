@@ -3,3 +3,4 @@ pnpm-lock.yaml
 # pretty-printing would grow them by ~40% and break the catalogue checksums.
 src/data-source-static/data/points/
 src/data-source-static/data/polygons/
+i18n/compiled/
