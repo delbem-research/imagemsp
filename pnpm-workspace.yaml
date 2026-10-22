@@ -10,3 +10,4 @@ minimumReleaseAgeExclude:
   - '@ttoss/theme@2.13.1 || 2.14.0 || 5.0.1'
   - '@ttoss/ui@6.10.1 || 6.11.0 || 9.0.1'
   - '@ttoss/i18n-core@0.7.0 || 0.10.0'
+  - '@ttoss/i18n-cli@0.16.0'

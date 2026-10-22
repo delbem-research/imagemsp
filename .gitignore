@@ -54,7 +54,6 @@ Thumbs.db
 # Vercel
 .vercel/
 
-**/i18n/compiled/
 **/i18n/missing/
 **/i18n/unused/
 
