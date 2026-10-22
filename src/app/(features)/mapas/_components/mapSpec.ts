@@ -52,6 +52,8 @@ const BASE_SPEC = {
   engine: 'maplibre' as const,
   basemap: { styleUrl: 'https://tiles.openfreemap.org/styles/positron' },
   attributionControlEnabled: false,
+  // The "Modo do mapa" button: split the map in two to compare overlays.
+  mapModeControl: true,
 };
 
 /**

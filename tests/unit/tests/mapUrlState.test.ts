@@ -32,7 +32,11 @@ const read = (search: string) => {
 
 describe('mapUrlStateFromSearch', () => {
   test('an address without parameters opens on the defaults', () => {
-    expect(read('')).toEqual({ selection: defaults, overlays: [] });
+    expect(read('')).toEqual({
+      selection: defaults,
+      overlays: [],
+      split: null,
+    });
   });
 
   test('reads every parameter', () => {
@@ -52,6 +56,7 @@ describe('mapUrlStateFromSearch', () => {
       },
       // In registry order, not the link's.
       overlays: ['hospitais', 'samu'],
+      split: null,
     });
   });
 
@@ -60,7 +65,7 @@ describe('mapUrlStateFromSearch', () => {
       read(
         '?recorte=bairro&indicador=nada&idade=12&ano=1999&cores=meus&opacidade=5&camadas=nada'
       )
-    ).toEqual({ selection: defaults, overlays: [] });
+    ).toEqual({ selection: defaults, overlays: [], split: null });
   });
 
   test('reads the health levels, and drops the layers they replaced', () => {
@@ -87,6 +92,14 @@ describe('mapUrlStateFromSearch', () => {
     ).toBe('70');
   });
 
+  test('reads a split map and the layer on each side', () => {
+    expect(read('?modo=dividido&esquerda=ubs&direita=nada').split).toEqual({
+      a: 'ubs',
+      b: null,
+    });
+    expect(read('?esquerda=ubs').split).toBeNull();
+  });
+
   test('reads a service under an offer indicator only', () => {
     expect(read('?indicador=saude&servico=samu').selection.group).toBe('samu');
     expect(read('?indicador=saude&servico=nada').selection.group).toBe('ubs');
@@ -97,7 +110,10 @@ describe('mapUrlStateFromSearch', () => {
 describe('mapUrlParams', () => {
   test('an untouched map has no parameters', () => {
     expect(
-      mapUrlParams({ state: { selection: defaults, overlays: [] }, defaults })
+      mapUrlParams({
+        state: { selection: defaults, overlays: [], split: null },
+        defaults,
+      })
     ).toEqual([]);
   });
 
@@ -112,6 +128,7 @@ describe('mapUrlParams', () => {
             year: 2020,
           },
           overlays: [],
+          split: null,
         },
         defaults,
       })
@@ -124,7 +141,11 @@ describe('mapUrlParams', () => {
   test('leaves a ramp the reader built out', () => {
     expect(
       mapUrlParams({
-        state: { selection: { ...defaults, ramp: 'custom-1' }, overlays: [] },
+        state: {
+          selection: { ...defaults, ramp: 'custom-1' },
+          overlays: [],
+          split: null,
+        },
         defaults,
       })
     ).toEqual([]);
@@ -136,12 +157,29 @@ describe('mapUrlParams', () => {
         state: {
           selection: { ...defaults, category: 'cumulative-65plus', age: '75' },
           overlays: [],
+          split: null,
         },
         defaults,
       })
     ).toEqual([
       ['indicador', 'proporcao-cumulativa'],
       ['idade', '75'],
+    ]);
+  });
+
+  test('writes a split map, leaving an empty side out', () => {
+    expect(
+      mapUrlParams({
+        state: {
+          selection: defaults,
+          overlays: [],
+          split: { a: null, b: 'ubs' },
+        },
+        defaults,
+      })
+    ).toEqual([
+      ['modo', 'dividido'],
+      ['direita', 'ubs'],
     ]);
   });
 
@@ -165,6 +203,7 @@ describe('mapUrlFor', () => {
         state: {
           selection: { ...defaults, age: '70-74' },
           overlays: ['hospitais', 'samu'],
+          split: null,
         },
         defaults,
       })
@@ -175,7 +214,7 @@ describe('mapUrlFor', () => {
     expect(
       mapUrlFor({
         href: 'https://x.test/mapas?idade=75',
-        state: { selection: defaults, overlays: [] },
+        state: { selection: defaults, overlays: [], split: null },
         defaults,
       })
     ).toBe('/mapas');

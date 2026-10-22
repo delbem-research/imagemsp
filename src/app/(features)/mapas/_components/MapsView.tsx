@@ -215,7 +215,12 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
   );
 
   // The address follows the selection and the layers switched on.
-  useMapUrlSync({ selection, active: overlays.active, defaults });
+  useMapUrlSync({
+    selection,
+    active: overlays.active,
+    split: overlays.split,
+    defaults,
+  });
 
   const ages = offerAgeBands(selection.age);
   const seriesGroup = seriesGroupOf(selection);

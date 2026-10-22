@@ -15,14 +15,22 @@ export const overlayUrl = (layer: OverlayId): string => {
 };
 
 /**
+ * The layer each side of the split map mode shows — `a` left, `b` right —
+ * `null` for a side showing none.
+ */
+export type SplitSides = { a: OverlayId | null; b: OverlayId | null };
+
+/**
  * State of the overlays, as `useSyncExternalStore` reads it.
  *
  * `active` mirrors each layer's toggle in the "Camadas" control; `data` holds
- * each layer's collection once its first request has settled.
+ * each layer's collection once its first request has settled; `split` is the
+ * layer on each side while the map is split in two, `null` for a single map.
  */
 export type OverlaysSnapshot = {
   active: Readonly<Record<OverlayId, boolean>>;
   data: Readonly<Partial<Record<OverlayId, OverlayContract>>>;
+  split: Readonly<SplitSides> | null;
 };
 
 const INITIAL_SNAPSHOT: OverlaysSnapshot = {
@@ -32,6 +40,7 @@ const INITIAL_SNAPSHOT: OverlaysSnapshot = {
     })
   ) as Record<OverlayId, boolean>,
   data: {},
+  split: null,
 };
 
 /**
@@ -128,6 +137,30 @@ export const createOverlaysStore = (
       if (active && !snapshot.data[layer] && !inFlight.has(layer)) {
         load(layer);
       }
+    },
+
+    /**
+     * Fetches a layer's data without switching it on: a split side draws a
+     * layer the "Camadas" control may have off, and switching it on there
+     * would put it on the single map and in the link's `camadas` too.
+     */
+    prefetch: (layer: OverlayId) => {
+      if (!snapshot.data[layer] && !inFlight.has(layer)) {
+        load(layer);
+      }
+    },
+
+    /** Records the split sides (or `null` for a single map), for the link. */
+    setSplit: (split: SplitSides | null) => {
+      const same =
+        split === snapshot.split ||
+        (split !== null &&
+          snapshot.split !== null &&
+          split.a === snapshot.split.a &&
+          split.b === snapshot.split.b);
+      if (same) return;
+      snapshot = { ...snapshot, split };
+      notify();
     },
   };
 };
