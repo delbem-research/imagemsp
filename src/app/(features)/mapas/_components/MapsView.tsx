@@ -20,6 +20,7 @@ import { buildElderlyHistogram } from '@/components/map/lib/mapRows';
 import { subprefeiturasInForce } from '@/components/map/lib/subprefeituraDivision';
 import { buildWorkspaceConfig } from '@/components/map/lib/workspaceConfig';
 import LoadingIndicator from '@/components/ui/LoadingIndicator';
+import { loadLocaleData, LOCALE } from '@/config/i18n';
 import { offerAgeBands } from '@/config/offer';
 import type { MapsDataContract } from '@/data-gateway/schema';
 
@@ -215,7 +216,12 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
   );
 
   // The address follows the selection and the layers switched on.
-  useMapUrlSync({ selection, active: overlays.active, defaults });
+  useMapUrlSync({
+    selection,
+    active: overlays.active,
+    split: overlays.split,
+    defaults,
+  });
 
   const ages = offerAgeBands(selection.age);
   const seriesGroup = seriesGroupOf(selection);
@@ -341,7 +347,7 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
       overflow="hidden"
       css={GEOVIS_FILL_CSS}
     >
-      <I18nProvider locale="pt-BR">
+      <I18nProvider locale={LOCALE} loadLocaleData={loadLocaleData}>
         {/*
          * Scope the GeovisWorkspace sidebars to theme-ui's provider ONLY, with
          * global root styles disabled (see scopedSidebarTheme). @ttoss/ui's own

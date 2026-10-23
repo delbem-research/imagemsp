@@ -1,8 +1,10 @@
-import { GeoVisCanvas, useGeoVis } from '@ttoss/geovis';
+import { GeoVisCanvas, useGeoVis, useGeoVisMapMode } from '@ttoss/geovis';
+import { useGeovisWorkspace } from '@ttoss/geovis-workspace';
 import * as React from 'react';
 
-import { OVERLAYS } from '@/config/overlays';
+import { isOverlayId, OVERLAYS } from '@/config/overlays';
 
+import { splitFromSearch } from './mapUrlState';
 import { overlaySpecId } from './overlays';
 import { overlaysStore } from './overlaysStore';
 
@@ -17,6 +19,11 @@ import { overlaysStore } from './overlaysStore';
  * outside that tree; this component relays each flip to
  * {@link overlaysStore}, which fetches a layer on its first activation.
  *
+ * It relays the "Modo do mapa" state the same way: a link that asks for a split
+ * map opens split, on its sides, and the sides chosen afterwards are written
+ * to the store so the link carries them. Switching to the split map closes the
+ * left sidebar, which would otherwise cover most of the left side.
+ *
  * Overriding the slot gives up geovis-workspace's cold-start panel, which
  * covers the window before the first spec resolves. `MapsView` already holds
  * its own loading indicator until the map mounts, so nothing is lost.
@@ -29,6 +36,8 @@ import { overlaysStore } from './overlaysStore';
  */
 const MapPanel = () => {
   const { spec } = useGeoVis();
+  const { enabled, mode, sides, setMode } = useGeoVisMapMode();
+  const { setLeftSidebarOpen } = useGeovisWorkspace();
 
   // A string, so the effect below re-runs only when a toggle actually flips —
   // not on every timeline tick, which rebuilds `spec.layers` each time.
@@ -51,6 +60,45 @@ const MapPanel = () => {
       overlaysStore.setActive(config.id, visible.has(config.id));
     }
   }, [visibleLayers]);
+
+  // A shared link that asks for a split map opens split, on its sides. Once:
+  // after that the reader's own choices are what the link follows.
+  const openedFromLink = React.useRef(false);
+  React.useEffect(() => {
+    if (openedFromLink.current || !enabled) return;
+    openedFromLink.current = true;
+    const split = splitFromSearch(window.location.search);
+    if (split) setMode('split', split);
+  }, [enabled, setMode]);
+
+  // Closes the left sidebar on the switch to split only, so the reader can
+  // still open it again while the map stays split.
+  const previousMode = React.useRef(mode);
+  React.useEffect(() => {
+    if (mode === 'split' && previousMode.current !== 'split') {
+      setLeftSidebarOpen({ open: false });
+    }
+    previousMode.current = mode;
+  }, [mode, setLeftSidebarOpen]);
+
+  // Split, each side draws the overlay its picker chose without switching it
+  // on in the layer control: its data is fetched here, and the sides go to the
+  // store for the link.
+  // Empty for a single map, a lone comma for a split with both sides empty.
+  const splitSides =
+    mode === 'split' ? `${sides.a ?? ''},${sides.b ?? ''}` : '';
+  React.useEffect(() => {
+    if (!splitSides) {
+      overlaysStore.setSplit(null);
+      return;
+    }
+    const [a, b] = splitSides.split(',').map((id) => {
+      return isOverlayId(id) ? id : null;
+    });
+    if (a) overlaysStore.prefetch(a);
+    if (b) overlaysStore.prefetch(b);
+    overlaysStore.setSplit({ a: a ?? null, b: b ?? null });
+  }, [splitSides]);
 
   return <GeoVisCanvas style={{ width: '100%', height: '100%' }} />;
 };

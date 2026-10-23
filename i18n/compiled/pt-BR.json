@@ -1,0 +1,792 @@
+{
+  "+YBKEN": [
+    {
+      "type": 0,
+      "value": "Próximo passo"
+    }
+  ],
+  "+cy6i0": [
+    {
+      "type": 0,
+      "value": "Duas entradas de dados do mapa declaram a mesma dimensão para a mesma fonte."
+    }
+  ],
+  "/LbTu2": [
+    {
+      "type": 0,
+      "value": "Nova escala de cor"
+    }
+  ],
+  "/NbUv5": [
+    {
+      "type": 0,
+      "value": "Este recurso de visualização não é suportado."
+    }
+  ],
+  "/iua3l": [
+    {
+      "type": 0,
+      "value": "Avançar grupos"
+    }
+  ],
+  "0tNse0": [
+    {
+      "type": 0,
+      "value": "Limpar seleção"
+    }
+  ],
+  "1DwZsQ": [
+    {
+      "type": 0,
+      "value": "s"
+    }
+  ],
+  "1cnQMu": [
+    {
+      "type": 0,
+      "value": "Aumentar"
+    }
+  ],
+  "26nzWk": [
+    {
+      "type": 0,
+      "value": "Não foi possível exibir o mapa"
+    }
+  ],
+  "2WYBl8": [
+    {
+      "type": 1,
+      "value": "width"
+    },
+    {
+      "type": 0,
+      "value": " × "
+    },
+    {
+      "type": 1,
+      "value": "height"
+    },
+    {
+      "type": 0,
+      "value": " px"
+    }
+  ],
+  "2a5j+J": [
+    {
+      "type": 0,
+      "value": "Este mapa viola a política cartográfica."
+    }
+  ],
+  "2vN9Fa": [
+    {
+      "type": 0,
+      "value": "Voltar ao norte"
+    }
+  ],
+  "35Dt1p": [
+    {
+      "type": 0,
+      "value": "Detalhes"
+    }
+  ],
+  "3Jc+Ry": [
+    {
+      "type": 0,
+      "value": "Voltar grupos"
+    }
+  ],
+  "3wGIVX": [
+    {
+      "type": 0,
+      "value": "Aplicar"
+    }
+  ],
+  "4Kaze0": [
+    {
+      "type": 0,
+      "value": "Uma camada faz referência a uma fonte que não existe."
+    }
+  ],
+  "5vQsIP": [
+    {
+      "type": 5,
+      "value": "point",
+      "options": {
+        "n": {
+          "value": [
+            {
+              "type": 0,
+              "value": "N"
+            }
+          ]
+        },
+        "ne": {
+          "value": [
+            {
+              "type": 0,
+              "value": "NE"
+            }
+          ]
+        },
+        "e": {
+          "value": [
+            {
+              "type": 0,
+              "value": "L"
+            }
+          ]
+        },
+        "se": {
+          "value": [
+            {
+              "type": 0,
+              "value": "SE"
+            }
+          ]
+        },
+        "s": {
+          "value": [
+            {
+              "type": 0,
+              "value": "S"
+            }
+          ]
+        },
+        "sw": {
+          "value": [
+            {
+              "type": 0,
+              "value": "SO"
+            }
+          ]
+        },
+        "w": {
+          "value": [
+            {
+              "type": 0,
+              "value": "O"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 0,
+              "value": "NO"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": 0,
+      "value": " · "
+    },
+    {
+      "type": 1,
+      "value": "degrees"
+    },
+    {
+      "type": 0,
+      "value": "°"
+    }
+  ],
+  "6Rj6DM": [
+    {
+      "type": 0,
+      "value": "Sem valor"
+    }
+  ],
+  "6eNUHi": [
+    {
+      "type": 0,
+      "value": "Cor personalizada"
+    }
+  ],
+  "87ss09": [
+    {
+      "type": 0,
+      "value": "Cancelar"
+    }
+  ],
+  "8Drt0l": [
+    {
+      "type": 0,
+      "value": "Buscas recentes"
+    }
+  ],
+  "8TPNSp": [
+    {
+      "type": 0,
+      "value": "Matiz"
+    }
+  ],
+  "9RwXzX": [
+    {
+      "type": 0,
+      "value": "Modo do mapa"
+    }
+  ],
+  "9WPqwF": [
+    {
+      "type": 0,
+      "value": "Escolha a cor base"
+    }
+  ],
+  "AVBgd7": [
+    {
+      "type": 0,
+      "value": "Duas fontes entram em conflito."
+    }
+  ],
+  "B53J1J": [
+    {
+      "type": 0,
+      "value": "Girar 45° para a esquerda"
+    }
+  ],
+  "BJLxvK": [
+    {
+      "type": 0,
+      "value": "Fechar linha do tempo"
+    }
+  ],
+  "BWeqQA": [
+    {
+      "type": 0,
+      "value": "Selecionado"
+    }
+  ],
+  "CBHuv6": [
+    {
+      "type": 0,
+      "value": "Não foi possível exportar o mapa. Os tiles podem não permitir a captura da imagem."
+    }
+  ],
+  "CI5FMY": [
+    {
+      "type": 0,
+      "value": "Remover escala"
+    }
+  ],
+  "DNZbIV": [
+    {
+      "type": 0,
+      "value": "Gerando prévia…"
+    }
+  ],
+  "GT4LWE": [
+    {
+      "type": 0,
+      "value": "Adicionar"
+    }
+  ],
+  "H3hZ4p": [
+    {
+      "type": 0,
+      "value": "Um mapa em tela cheia"
+    }
+  ],
+  "IQKWdb": [
+    {
+      "type": 0,
+      "value": "Nenhuma camada"
+    }
+  ],
+  "IU+fm9": [
+    {
+      "type": 0,
+      "value": "Abrir detalhes"
+    }
+  ],
+  "IUwKDh": [
+    {
+      "type": 0,
+      "value": "Este campo não pode ser atualizado sem uma atualização completa da especificação."
+    }
+  ],
+  "JEHTGl": [
+    {
+      "type": 0,
+      "value": "Cancelar"
+    }
+  ],
+  "JJGB2O": [
+    {
+      "type": 0,
+      "value": "Compare lado a lado"
+    }
+  ],
+  "KAQU1v": [
+    {
+      "type": 0,
+      "value": "Uma camada faz referência a um id de dados do mapa que não existe."
+    }
+  ],
+  "KHJV+u": [
+    {
+      "type": 0,
+      "value": "Um valor de limite da legenda é inválido."
+    }
+  ],
+  "KTW4ts": [
+    {
+      "type": 0,
+      "value": "Este recurso de dados não é suportado."
+    }
+  ],
+  "KvV4pR": [
+    {
+      "type": 0,
+      "value": "Nada corresponde a \""
+    },
+    {
+      "type": 1,
+      "value": "query"
+    },
+    {
+      "type": 0,
+      "value": "\""
+    }
+  ],
+  "NNlALX": [
+    {
+      "type": 0,
+      "value": "Pausar"
+    }
+  ],
+  "Ng1Mep": [
+    {
+      "type": 0,
+      "value": "Este motor de mapa não é suportado."
+    }
+  ],
+  "OlaRV/": [
+    {
+      "type": 0,
+      "value": "Duas entradas de dados do mapa colidem na mesma chave de estado."
+    }
+  ],
+  "Rdl2hc": [
+    {
+      "type": 0,
+      "value": "Limpar busca"
+    }
+  ],
+  "SypGjh": [
+    {
+      "type": 0,
+      "value": "Duas entradas de dados do mapa têm o mesmo id."
+    }
+  ],
+  "TWTWvW": [
+    {
+      "type": 0,
+      "value": "Prévia · visualização atual"
+    }
+  ],
+  "TaaBBa": [
+    {
+      "type": 0,
+      "value": "Fechar"
+    }
+  ],
+  "TzOKEV": [
+    {
+      "type": 0,
+      "value": "Os limites da legenda devem estar em ordem crescente."
+    }
+  ],
+  "U20GSl": [
+    {
+      "type": 0,
+      "value": "Reproduzir"
+    }
+  ],
+  "V3z2n/": [
+    {
+      "type": 0,
+      "value": "A configuração do modo de tamanho é inválida."
+    }
+  ],
+  "VNccNh": [
+    {
+      "type": 0,
+      "value": "Exportar mapa"
+    }
+  ],
+  "Vd+Q3o": [
+    {
+      "type": 1,
+      "value": "count"
+    },
+    {
+      "type": 0,
+      "value": " rec."
+    }
+  ],
+  "WXH5zK": [
+    {
+      "type": 0,
+      "value": "Girar 45° para a direita"
+    }
+  ],
+  "Ws/Os5": [
+    {
+      "type": 0,
+      "value": "Feição nº "
+    },
+    {
+      "type": 1,
+      "value": "feature_id"
+    }
+  ],
+  "Wuofl/": [
+    {
+      "type": 0,
+      "value": "Camada do mapa "
+    },
+    {
+      "type": 1,
+      "value": "side"
+    },
+    {
+      "type": 0,
+      "value": ": "
+    },
+    {
+      "type": 1,
+      "value": "layer"
+    }
+  ],
+  "X4guJB": [
+    {
+      "type": 0,
+      "value": "Tons · clique para ajustar"
+    }
+  ],
+  "XNN1t0": [
+    {
+      "type": 0,
+      "value": "Gerando…"
+    }
+  ],
+  "XaODNr": [
+    {
+      "type": 0,
+      "value": "Baixar PNG"
+    }
+  ],
+  "XzPKNh": [
+    {
+      "type": 0,
+      "value": "Prévia do mapa exportado"
+    }
+  ],
+  "YQPd8E": [
+    {
+      "type": 0,
+      "value": "Limpar "
+    },
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " filtro"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " filtros"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    }
+  ],
+  "Z+sHcw": [
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " fonte"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " fontes"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    }
+  ],
+  "ZBWmDx": [
+    {
+      "type": 0,
+      "value": "A especificação da visualização não corresponde ao esquema esperado."
+    }
+  ],
+  "ZoQ4ZH": [
+    {
+      "type": 0,
+      "value": "Duas entradas do controle de camadas têm o mesmo id; cada alternância e categoria precisa do seu."
+    }
+  ],
+  "Ztp5cY": [
+    {
+      "type": 0,
+      "value": "Rotação da câmera"
+    }
+  ],
+  "b+PIz+": [
+    {
+      "type": 0,
+      "value": "Remover seleção"
+    }
+  ],
+  "bVxrZo": [
+    {
+      "type": 0,
+      "value": "Nome da escala"
+    }
+  ],
+  "c+KiO6": [
+    {
+      "type": 0,
+      "value": "Customizar estilos"
+    }
+  ],
+  "c5T3as": [
+    {
+      "type": 0,
+      "value": "Incluir legenda"
+    }
+  ],
+  "cDAeJo": [
+    {
+      "type": 0,
+      "value": "Este tipo de fonte não é suportado."
+    }
+  ],
+  "cculTE": [
+    {
+      "type": 0,
+      "value": "Selecione um item para ver os detalhes."
+    }
+  ],
+  "cmGJ47": [
+    {
+      "type": 0,
+      "value": "O intervalo de tamanho dos círculos proporcionais é inválido."
+    }
+  ],
+  "e0csSw": [
+    {
+      "type": 0,
+      "value": "Alternar visibilidade da camada "
+    },
+    {
+      "type": 1,
+      "value": "layer_id"
+    }
+  ],
+  "ebJRt+": [
+    {
+      "type": 0,
+      "value": "Abrir menu"
+    }
+  ],
+  "emipod": [
+    {
+      "type": 0,
+      "value": "Exportar mapa como PNG"
+    }
+  ],
+  "iRi4zS": [
+    {
+      "type": 0,
+      "value": "Restaurar"
+    }
+  ],
+  "j3dtho": [
+    {
+      "type": 0,
+      "value": "Fechar detalhes"
+    }
+  ],
+  "jecbZ/": [
+    {
+      "type": 0,
+      "value": "Nome do arquivo"
+    }
+  ],
+  "jlSTFF": [
+    {
+      "type": 0,
+      "value": "Camada do mapa "
+    },
+    {
+      "type": 1,
+      "value": "side"
+    }
+  ],
+  "kd0jJX": [
+    {
+      "type": 1,
+      "value": "base"
+    },
+    {
+      "type": 0,
+      "value": " personalizado"
+    }
+  ],
+  "kwKAUT": [
+    {
+      "type": 0,
+      "value": "Cancelar"
+    }
+  ],
+  "lRO8cA": [
+    {
+      "type": 0,
+      "value": "Sem dados"
+    }
+  ],
+  "lfjp7g": [
+    {
+      "type": 0,
+      "value": "Tom "
+    },
+    {
+      "type": 1,
+      "value": "index"
+    },
+    {
+      "type": 0,
+      "value": " · "
+    },
+    {
+      "type": 1,
+      "value": "color"
+    }
+  ],
+  "n6ryYu": [
+    {
+      "type": 1,
+      "value": "message"
+    }
+  ],
+  "ncOMIu": [
+    {
+      "type": 0,
+      "value": "Fechar menu"
+    }
+  ],
+  "oeivQo": [
+    {
+      "type": 0,
+      "value": "Passo anterior"
+    }
+  ],
+  "qOPKRg": [
+    {
+      "type": 0,
+      "value": "Incluir menu"
+    }
+  ],
+  "qRVBJs": [
+    {
+      "type": 0,
+      "value": "Dividir em dois"
+    }
+  ],
+  "s0Ww26": [
+    {
+      "type": 0,
+      "value": "Tipo de mapa: "
+    },
+    {
+      "type": 1,
+      "value": "map_type"
+    }
+  ],
+  "sWPCP+": [
+    {
+      "type": 0,
+      "value": "Mapa único"
+    }
+  ],
+  "sZMdqx": [
+    {
+      "type": 0,
+      "value": "Saturação e brilho"
+    }
+  ],
+  "ssMheo": [
+    {
+      "type": 0,
+      "value": "Intervalo de reprodução"
+    }
+  ],
+  "tyaZ8Q": [
+    {
+      "type": 0,
+      "value": "Hexadecimal"
+    }
+  ],
+  "uzIIpa": [
+    {
+      "type": 0,
+      "value": "Este tipo de camada não é suportado."
+    }
+  ],
+  "w48FrG": [
+    {
+      "type": 0,
+      "value": "Hex"
+    }
+  ],
+  "yb6iwx": [
+    {
+      "type": 0,
+      "value": "A especificação da visualização usa uma versão de esquema não suportada."
+    }
+  ],
+  "zija6w": [
+    {
+      "type": 0,
+      "value": "Diminuir"
+    }
+  ]
+}

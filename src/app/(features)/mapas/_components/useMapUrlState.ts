@@ -5,6 +5,7 @@ import { OVERLAY_IDS, type OverlayId } from '@/config/overlays';
 import { defaultSelection, type Selection } from './mapSelection';
 import { mapUrlFor, mapUrlStateFromSearch } from './mapUrlState';
 import { buildLayerControl } from './overlays';
+import type { SplitSides } from './overlaysStore';
 
 /**
  * How long the address waits after the last change before it is rewritten. The
@@ -29,7 +30,7 @@ export const useInitialMapUrlState = ({ years }: { years: number[] }) => {
     const defaults = defaultSelection(years);
     const state =
       typeof window === 'undefined'
-        ? { selection: defaults, overlays: [] as OverlayId[] }
+        ? { selection: defaults, overlays: [] as OverlayId[], split: null }
         : mapUrlStateFromSearch({
             search: window.location.search,
             defaults,
@@ -46,27 +47,33 @@ export const useInitialMapUrlState = ({ years }: { years: number[] }) => {
 };
 
 /**
- * Keeps the address in step with the selection and the switched-on layers, so
- * the link in it opens on what is on screen. Written with `replaceState`, not
+ * Keeps the address in step with the selection, the switched-on layers and the
+ * split sides, so the link in it opens on what is on screen. Written with `replaceState`, not
  * `pushState`: every click would otherwise be a history entry, and "back"
  * would walk through them instead of leaving the page.
  *
  * @param params.selection - The current selection.
  * @param params.active - Each layer's toggle.
+ * @param params.split - The layer on each side of a split map, or `null`.
  * @param params.defaults - The selection the map opens on without a link.
  */
 export const useMapUrlSync = ({
   selection,
   active,
+  split,
   defaults,
 }: {
   selection: Selection;
   active: Readonly<Record<OverlayId, boolean>>;
+  split: Readonly<SplitSides> | null;
   defaults: Selection;
 }) => {
   const layers = OVERLAY_IDS.filter((id) => {
     return active[id];
   }).join(',');
+  // A string, so the effect re-runs only when a side actually changes; empty
+  // for a single map, a lone comma for a split with both sides empty.
+  const sides = split ? `${split.a ?? ''},${split.b ?? ''}` : '';
 
   React.useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -75,6 +82,12 @@ export const useMapUrlSync = ({
         state: {
           selection,
           overlays: layers ? (layers.split(',') as OverlayId[]) : [],
+          split: sides
+            ? {
+                a: (sides.split(',')[0] || null) as OverlayId | null,
+                b: (sides.split(',')[1] || null) as OverlayId | null,
+              }
+            : null,
         },
         defaults,
       });
@@ -87,5 +100,5 @@ export const useMapUrlSync = ({
     return () => {
       window.clearTimeout(timer);
     };
-  }, [selection, layers, defaults]);
+  }, [selection, layers, sides, defaults]);
 };

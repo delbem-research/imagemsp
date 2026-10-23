@@ -17,6 +17,7 @@ import { isOfferCategory, OFFER_CATEGORIES } from '@/config/offer';
 import { isOverlayId, OVERLAY_IDS, type OverlayId } from '@/config/overlays';
 
 import type { Selection } from './mapSelection';
+import type { SplitSides } from './overlaysStore';
 
 /*
  * The map's selection and its switched-on layers, in the address bar, so a map
@@ -60,12 +61,47 @@ const PARAMS = [
   'opacidade',
   'visualizacao',
   'camadas',
+  'modo',
+  'esquerda',
+  'direita',
 ] as const;
 
-/** What a link carries: a selection, and the layers switched on. */
+/** `modo`'s value for a map split in two; a single map leaves `modo` out. */
+const SPLIT_MODE = 'dividido';
+
+/**
+ * What a link carries: a selection, the layers switched on, and — when the map
+ * is split in two — the layer on each side.
+ */
 export type MapUrlState = {
   selection: Selection;
   overlays: OverlayId[];
+  split: SplitSides | null;
+};
+
+/** A side's layer from the link, or `null` when it names none (or no layer). */
+const sideFrom = (value: string | null): OverlayId | null => {
+  return value !== null && isOverlayId(value) ? value : null;
+};
+
+/**
+ * The split a link asks for: `modo=dividido`, with the layer on each side
+ * (`esquerda`, `direita`) when it names one — a side it leaves out, or names
+ * no layer for, opens empty. `null` for a single map.
+ *
+ * @param search - `window.location.search`, with or without its `?`.
+ * @returns The sides, or `null`.
+ *
+ * @example
+ * splitFromSearch('?modo=dividido&esquerda=ubs'); // { a: 'ubs', b: null }
+ */
+export const splitFromSearch = (search: string): SplitSides | null => {
+  const params = new URLSearchParams(search);
+  if (params.get('modo') !== SPLIT_MODE) return null;
+  return {
+    a: sideFrom(params.get('esquerda')),
+    b: sideFrom(params.get('direita')),
+  };
 };
 
 const categoryFrom = (slug: string | null): Category | undefined => {
@@ -186,7 +222,21 @@ export const mapUrlStateFromSearch = ({
     bearing: defaults.bearing,
   };
 
-  return { selection, overlays: overlaysFrom(params.get('camadas')) };
+  return {
+    selection,
+    overlays: overlaysFrom(params.get('camadas')),
+    split: splitFromSearch(search),
+  };
+};
+
+/** The split's parameters: the mode and each side's layer, or none at all. */
+const splitParams = (split: SplitSides | null): [string, string | null][] => {
+  if (!split) return [];
+  return [
+    ['modo', SPLIT_MODE],
+    ['esquerda', split.a],
+    ['direita', split.b],
+  ];
 };
 
 /** A value for the address, or `null` when it is the default and left out. */
@@ -213,7 +263,7 @@ const unlessDefault = (
  * // [['idade', '75'], ['camadas', 'ubs']]
  */
 export const mapUrlParams = ({
-  state: { selection, overlays },
+  state: { selection, overlays, split },
   defaults,
 }: {
   state: MapUrlState;
@@ -250,6 +300,7 @@ export const mapUrlParams = ({
     ['opacidade', unlessDefault(selection.opacity, defaults.opacity)],
     ['visualizacao', unlessDefault(selection.view, defaults.view)],
     ['camadas', overlays.length > 0 ? overlays.join(',') : null],
+    ...splitParams(split),
   ];
 
   return entries.filter((entry): entry is [string, string] => {
