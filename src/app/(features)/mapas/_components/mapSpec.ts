@@ -27,6 +27,7 @@ import type { MapsDataContract } from '@/data-gateway/schema';
 import { legendLabelFormat, legendReference } from './mapLegend';
 import type { Selection } from './mapSelection';
 import { renderTooltipContent, TOOLTIP_STYLE } from './mapTooltips';
+import { NEARBY_SEARCH } from './nearbyServices';
 import { buildOverlays } from './overlays';
 import type { OverlaysSnapshot } from './overlaysStore';
 
@@ -41,7 +42,8 @@ const LEGEND_ID = 'pop-legend';
 const EXTRUSION_BASE_HEIGHT = 2000;
 
 /**
- * The spec's fixed part: the engine and the basemap.
+ * The spec's fixed part: the engine, the basemap, the map mode button and the
+ * search around a pin (see `NEARBY_SEARCH`).
  *
  * MapLibre's attribution control — the round button in the map's
  * bottom-right corner — is dropped, as it crowded the legend panel. The
@@ -54,6 +56,7 @@ const BASE_SPEC = {
   attributionControlEnabled: false,
   // The "Modo do mapa" button: split the map in two to compare overlays.
   mapModeControl: true,
+  proximitySearch: NEARBY_SEARCH,
 };
 
 /**

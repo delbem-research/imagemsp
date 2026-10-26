@@ -115,7 +115,11 @@ export type PointOverlayConfig = OverlayBase & {
    * read as the same thing.
    */
   icon: IconName;
-  /** Pin width, in pixels; its height follows the teardrop's shape. */
+  /**
+   * Width, in pixels, of the box geovis stands the pin in — a little over the
+   * 30 px pins its search around a pin drops in, so the overlay's own pins read
+   * as the larger marks.
+   */
   pinSize: number;
   /**
    * Whether every pin is drawn even where it collides with another. `false`
@@ -177,7 +181,7 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     // Filled, unlike the sidebar's outline cross: the hospitals are the most
     // prominent pins, and a solid cross reads better at pin size.
     icon: 'ph:first-aid-fill',
-    pinSize: 22,
+    pinSize: 31,
     allowOverlap: true,
   },
   {
@@ -186,7 +190,7 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     label: 'UPA',
     color: '#9C1C1C',
     icon: 'ph:pulse',
-    pinSize: 22,
+    pinSize: 31,
     allowOverlap: true,
   },
   {
@@ -195,7 +199,7 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     label: 'Bases do SAMU',
     color: '#9214FF',
     icon: 'ph:siren',
-    pinSize: 22,
+    pinSize: 31,
     allowOverlap: true,
   },
   {
@@ -204,7 +208,7 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     label: 'UBS',
     color: '#2E9E5B',
     icon: 'ph:first-aid-kit',
-    pinSize: 22,
+    pinSize: 31,
     allowOverlap: true,
   },
   {
@@ -213,7 +217,7 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     label: 'Ambulatórios especializados',
     color: '#F28E2B',
     icon: 'ph:stethoscope',
-    pinSize: 22,
+    pinSize: 31,
     allowOverlap: true,
   },
   {
@@ -222,7 +226,7 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     label: 'Saúde mental',
     color: '#B279A2',
     icon: 'ph:brain',
-    pinSize: 22,
+    pinSize: 31,
     allowOverlap: true,
   },
   {
@@ -231,7 +235,7 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     label: 'Unidades DST/AIDS',
     color: '#FF9DA7',
     icon: 'ph:test-tube',
-    pinSize: 22,
+    pinSize: 31,
     allowOverlap: true,
   },
   {
@@ -240,7 +244,7 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     label: 'Vigilância em saúde',
     color: '#4D4D00',
     icon: 'ph:shield-check',
-    pinSize: 22,
+    pinSize: 31,
     allowOverlap: true,
   },
   {
@@ -249,7 +253,7 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     label: 'Hospital veterinário',
     color: '#0F5357',
     icon: 'ph:paw-print',
-    pinSize: 22,
+    pinSize: 31,
     allowOverlap: true,
   },
   // The health territories. The 487 UBS catchments are a thin outline only,
@@ -279,7 +283,7 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     label: 'Restaurantes públicos',
     color: '#D63A8A',
     icon: 'ph:fork-knife',
-    pinSize: 22,
+    pinSize: 31,
     allowOverlap: true,
   },
   {
@@ -288,7 +292,7 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     label: 'Locais de esporte públicos',
     color: '#8C564B',
     icon: 'ph:soccer-ball',
-    pinSize: 22,
+    pinSize: 31,
     allowOverlap: true,
   },
   {
@@ -297,7 +301,7 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     label: 'Estações de metrô e trem',
     color: '#7B3FA0',
     icon: 'ph:train',
-    pinSize: 22,
+    pinSize: 31,
     allowOverlap: true,
   },
   {
@@ -306,7 +310,7 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     label: 'Terminais de ônibus',
     color: '#3D3D3D',
     icon: 'ph:bus',
-    pinSize: 22,
+    pinSize: 31,
     allowOverlap: true,
   },
   {
@@ -315,7 +319,7 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     label: 'Pontos de ônibus',
     color: '#E0A100',
     icon: 'ph:traffic-sign',
-    pinSize: 16,
+    pinSize: 23,
     allowOverlap: false,
   },
 ];

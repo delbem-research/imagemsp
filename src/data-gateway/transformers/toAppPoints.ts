@@ -124,6 +124,23 @@ const DETAIL: Record<
 };
 
 /**
+ * The tooltip's secondary line of one point.
+ *
+ * @param layer - The layer the point belongs to.
+ * @param atributos - The point's columns.
+ * @returns E.g. `Hospital · Estadual` or `Metrô · Linha Azul`.
+ *
+ * @example
+ * pointDetail('hospitais', { tipo: 'Hospital', esfera: 'Estadual' }); // 'Hospital · Estadual'
+ */
+export const pointDetail = (
+  layer: PointOverlayId,
+  atributos: Record<string, string>
+): string => {
+  return DETAIL[layer](atributos);
+};
+
+/**
  * Transforms a source-native point snapshot into the canonical app contract.
  *
  * @remarks

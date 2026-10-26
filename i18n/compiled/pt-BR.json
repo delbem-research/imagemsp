@@ -29,6 +29,20 @@
       "value": "Avançar grupos"
     }
   ],
+  "/xKyFI": [
+    {
+      "type": 0,
+      "value": "Buscando "
+    },
+    {
+      "type": 1,
+      "value": "results"
+    },
+    {
+      "type": 0,
+      "value": "…"
+    }
+  ],
   "0tNse0": [
     {
       "type": 0,
@@ -69,6 +83,16 @@
     {
       "type": 0,
       "value": " px"
+    }
+  ],
+  "2YFPLq": [
+    {
+      "type": 0,
+      "value": "Raio de "
+    },
+    {
+      "type": 1,
+      "value": "radius"
     }
   ],
   "2a5j+J": [
@@ -203,6 +227,16 @@
       "value": "Cor personalizada"
     }
   ],
+  "82h6s4": [
+    {
+      "type": 1,
+      "value": "distance"
+    },
+    {
+      "type": 0,
+      "value": " do ponto"
+    }
+  ],
   "87ss09": [
     {
       "type": 0,
@@ -237,6 +271,20 @@
     {
       "type": 0,
       "value": "Duas fontes entram em conflito."
+    }
+  ],
+  "AYMp8/": [
+    {
+      "type": 0,
+      "value": "Ampliando busca para "
+    },
+    {
+      "type": 1,
+      "value": "radius"
+    },
+    {
+      "type": 0,
+      "value": "…"
     }
   ],
   "B53J1J": [
@@ -335,6 +383,12 @@
       "value": "Este recurso de dados não é suportado."
     }
   ],
+  "KXJbGw": [
+    {
+      "type": 0,
+      "value": "resultado"
+    }
+  ],
   "KvV4pR": [
     {
       "type": 0,
@@ -377,6 +431,12 @@
     {
       "type": 0,
       "value": "Duas entradas de dados do mapa têm o mesmo id."
+    }
+  ],
+  "T/eK/a": [
+    {
+      "type": 0,
+      "value": "resultados"
     }
   ],
   "TWTWvW": [
@@ -633,16 +693,76 @@
       "value": "Exportar mapa como PNG"
     }
   ],
+  "gsoC7t": [
+    {
+      "type": 0,
+      "value": "Limpar busca"
+    }
+  ],
   "iRi4zS": [
     {
       "type": 0,
       "value": "Restaurar"
     }
   ],
+  "j1cP/t": [
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " "
+            },
+            {
+              "type": 1,
+              "value": "one"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " "
+            },
+            {
+              "type": 1,
+              "value": "other"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": " em até "
+    },
+    {
+      "type": 1,
+      "value": "radius"
+    }
+  ],
   "j3dtho": [
     {
       "type": 0,
       "value": "Fechar detalhes"
+    }
+  ],
+  "jFZRGK": [
+    {
+      "type": 0,
+      "value": "Raio da busca"
     }
   ],
   "jecbZ/": [
@@ -759,10 +879,34 @@
       "value": "Intervalo de reprodução"
     }
   ],
+  "tAmUUh": [
+    {
+      "type": 0,
+      "value": "Nada em "
+    },
+    {
+      "type": 1,
+      "value": "radius"
+    }
+  ],
   "tyaZ8Q": [
     {
       "type": 0,
       "value": "Hexadecimal"
+    }
+  ],
+  "ulc096": [
+    {
+      "type": 1,
+      "value": "count"
+    },
+    {
+      "type": 0,
+      "value": " em até "
+    },
+    {
+      "type": 1,
+      "value": "radius"
     }
   ],
   "uzIIpa": [
