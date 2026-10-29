@@ -29,6 +29,25 @@ export type NearbyPoint = {
   name: string;
   /** The tooltip's secondary line for the same feature. */
   detail: string;
+  /**
+   * Street address, then the neighbourhood and the CEP when the source has
+   * them (`R. Marcela Alves de Cassia, 175 · Jardim Jaraguá · 05158-400`);
+   * `''` for a layer without addresses, as the metro stations.
+   */
+  address: string;
+  /** Phone number as the source writes it; `''` when it has none. */
+  phone: string;
+  /**
+   * Opening hours as the source writes them (`SEGUNDA A SÁBADO 7H-18H`,
+   * `Quinta-feira, 7h00 às 12h00`); `''` for a layer without them — all but
+   * the municipal markets and the organic fairs.
+   */
+  hours: string;
+  /**
+   * Everything else the source says about the place, labelled, for its
+   * expanded details: type, sphere, spaces, line, the day a market is held…
+   */
+  facts: { label: string; value: string }[];
   /** The layer the point belongs to — the search's category for it. */
   categoryId: PointOverlayId;
   /** Distance from the searched point, in metres. */

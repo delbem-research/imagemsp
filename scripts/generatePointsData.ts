@@ -1,6 +1,7 @@
 /**
  * Generates one snapshot per map point layer, `src/data-source-static/data/points/<layer>.json`,
- * from the GeoSampa CSVs in `src/data-source-static/data/raw/`.
+ * from the CSVs in `src/data-source-static/data/raw/` (GeoSampa, Sampa+Rural and
+ * CNES).
  *
  * Every CSV shares the tail `longitude,latitude,distrito` (see the `distritos_*`
  * entries of `public/dataset_catalogue.json`) and carries its own descriptive
@@ -150,6 +151,39 @@ const LAYERS: Record<string, { csv: string; columns: string[] }> = {
     csv: 'restaurantes_publicos_geosampa.csv',
     columns: ['nome', 'programa', 'esfera', 'endereco'],
   },
+  feiras: {
+    csv: 'feiras_livres_geosampa.csv',
+    columns: ['nome', 'endereco', 'dia', 'bancas'],
+  },
+  mercados: {
+    csv: 'mercados_municipais_geosampa.csv',
+    columns: ['nome', 'endereco', 'horario', 'telefone'],
+  },
+  'feiras-organicas': {
+    csv: 'feiras_organicas_sampamaisrural.csv',
+    columns: ['nome', 'endereco', 'horario'],
+  },
+  hortas: {
+    csv: 'hortas_urbanas_sampamaisrural.csv',
+    columns: ['nome', 'endereco', 'bairro', 'responsavel'],
+  },
+  sesc: {
+    csv: 'sesc_geosampa.csv',
+    columns: ['nome', 'endereco', 'bairro', 'cep'],
+  },
+  'hospitais-privados': {
+    csv: 'hospitais_privados_cnes.csv',
+    columns: [
+      'nome',
+      'tipo',
+      'natureza',
+      'sus',
+      'endereco',
+      'bairro',
+      'cep',
+      'telefone',
+    ],
+  },
   esporte: {
     csv: 'esporte_publico_geosampa.csv',
     columns: [
@@ -170,6 +204,18 @@ const LAYERS: Record<string, { csv: string; columns: string[] }> = {
   terminais: {
     csv: 'terminais_onibus_geosampa.csv',
     columns: ['nome', 'tipo', 'endereco', 'status'],
+  },
+  bicicletarios: {
+    csv: 'bicicletarios_geosampa.csv',
+    columns: ['nome', 'tipo', 'vagas', 'responsavel'],
+  },
+  'vagas-idoso': {
+    csv: 'vagas_idoso_estabelecimentos_geosampa.csv',
+    columns: ['nome', 'endereco', 'vagas_idoso', 'vagas_deficiente'],
+  },
+  'vagas-especiais': {
+    csv: 'vagas_especiais_geosampa.csv',
+    columns: ['nome', 'tipo', 'vagas', 'area', 'rotativo'],
   },
   'pontos-onibus': {
     csv: 'pontos_onibus_geosampa.csv',

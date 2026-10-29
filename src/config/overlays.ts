@@ -4,18 +4,23 @@ import type { IconName } from '@/components/map/lib/icons';
 
 /**
  * The overlays the map offers in its "Camadas" control, drawn on top of the
- * choropleth: GeoSampa facilities and stops as pins, and parks and the health
- * territories as polygons.
+ * choropleth: GeoSampa facilities and stops as pins, the cycle network as
+ * lines, and parks and the health territories as polygons.
  *
  * This registry is the single place an overlay is declared: the route, the
  * client store and the spec all iterate it, so adding one is an entry here plus
  * its snapshot (a CSV through `scripts/generatePointsData.ts` for points, a
- * generator of its own for polygons) and its tooltip line in `data-gateway`.
+ * generator of its own for lines and polygons) and its tooltip line in `data-gateway`.
  */
 
-/** Overlays drawn as points, each built from a CSV in `data/raw/`. */
+/**
+ * Overlays drawn as points, each built from a CSV in `data/raw/` — most from
+ * GeoSampa, the organic fairs and urban gardens from Sampa+Rural and the
+ * private hospitals from CNES.
+ */
 export const POINT_OVERLAY_IDS = [
   'hospitais',
+  'hospitais-privados',
   'urgencia',
   'samu',
   'ubs',
@@ -25,9 +30,17 @@ export const POINT_OVERLAY_IDS = [
   'vigilancia',
   'animais',
   'restaurantes',
+  'feiras',
+  'feiras-organicas',
+  'mercados',
+  'hortas',
   'esporte',
+  'sesc',
   'estacoes',
   'terminais',
+  'bicicletarios',
+  'vagas-idoso',
+  'vagas-especiais',
   'pontos-onibus',
 ] as const;
 
@@ -46,9 +59,10 @@ export const TERRITORY_OVERLAY_IDS = [
 
 export type TerritoryOverlayId = (typeof TERRITORY_OVERLAY_IDS)[number];
 
-/** Every overlay, points and polygons alike. */
+/** Every overlay, points, lines and polygons alike. */
 export const OVERLAY_IDS = [
   'parques',
+  'ciclovias',
   ...TERRITORY_OVERLAY_IDS,
   ...POINT_OVERLAY_IDS,
 ] as const;
@@ -73,8 +87,8 @@ export const isOverlayId = (value: string): value is OverlayId => {
  * Whether an overlay is drawn as points.
  *
  * @param id - The overlay.
- * @returns `true` for the facility and stop layers, `false` for the parks and
- * the health territories.
+ * @returns `true` for the facility and stop layers, `false` for the cycle
+ * lanes, the parks and the health territories.
  *
  * @example
  * isPointOverlayId('ubs'); // true
@@ -128,8 +142,20 @@ export type PointOverlayConfig = OverlayBase & {
   allowOverlap: boolean;
 };
 
+export type LineOverlayConfig = OverlayBase & {
+  id: 'ciclovias';
+  kind: 'line';
+  /** Line width, in pixels. */
+  lineWidth: number;
+  /**
+   * The secondary line (`detail`) of the features drawn dashed rather than
+   * solid — the ciclorrotas, which share the road instead of having a lane.
+   */
+  dashedDetail?: string;
+};
+
 export type PolygonOverlayConfig = OverlayBase & {
-  id: Exclude<OverlayId, PointOverlayId>;
+  id: Exclude<OverlayId, PointOverlayId | 'ciclovias'>;
   kind: 'polygon';
   /** Fill opacity, from `0` (outline only) to `1` (solid). */
   fillOpacity: number;
@@ -137,7 +163,10 @@ export type PolygonOverlayConfig = OverlayBase & {
   lineWidth: number;
 };
 
-export type OverlayConfig = PointOverlayConfig | PolygonOverlayConfig;
+export type OverlayConfig =
+  | PointOverlayConfig
+  | LineOverlayConfig
+  | PolygonOverlayConfig;
 
 /**
  * The overlays, in the order their toggles appear in the control. How they
@@ -158,11 +187,12 @@ export type OverlayConfig = PointOverlayConfig | PolygonOverlayConfig;
  * violet sits nearest the metro stations' purple). The parks' green is darker
  * and less saturated than the UBS points' so the two read apart.
  *
- * Bus stops are smaller than the other pins and the only ones allowed to
- * collide away: there are 22 thousand of them, and drawn all at once they would
- * pave the city over. MapLibre keeps a readable spread of them at city zoom and
- * brings back the rest as the map zooms in; every other overlay keeps all its
- * pins at any zoom.
+ * Bus stops and the on-street special parking spaces are smaller than the
+ * other pins and the only ones allowed to collide away: there are 22 thousand
+ * stops and 3 thousand spaces, and drawn all at once they would pave the city
+ * over. MapLibre keeps a readable spread of them at city zoom and brings back
+ * the rest as the map zooms in; every other overlay keeps all its pins at any
+ * zoom.
  */
 export const OVERLAYS: readonly OverlayConfig[] = [
   {
@@ -180,6 +210,17 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     color: '#E4572E',
     // Filled, unlike the sidebar's outline cross: the hospitals are the most
     // prominent pins, and a solid cross reads better at pin size.
+    icon: 'ph:first-aid-fill',
+    pinSize: 31,
+    allowOverlap: true,
+  },
+  {
+    id: 'hospitais-privados',
+    kind: 'point',
+    label: 'Hospitais privados',
+    // The public hospitals' cross in a wine of its own, so the two networks
+    // read as hospitals and still apart.
+    color: '#880E4F',
     icon: 'ph:first-aid-fill',
     pinSize: 31,
     allowOverlap: true,
@@ -287,11 +328,56 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     allowOverlap: true,
   },
   {
+    id: 'feiras',
+    kind: 'point',
+    label: 'Feiras livres',
+    color: '#689F38',
+    icon: 'ph:carrot',
+    pinSize: 31,
+    allowOverlap: true,
+  },
+  {
+    id: 'feiras-organicas',
+    kind: 'point',
+    label: 'Feiras orgânicas',
+    color: '#2E7D32',
+    icon: 'ph:leaf',
+    pinSize: 31,
+    allowOverlap: true,
+  },
+  {
+    id: 'mercados',
+    kind: 'point',
+    label: 'Mercados municipais',
+    color: '#00897B',
+    icon: 'ph:basket',
+    pinSize: 31,
+    allowOverlap: true,
+  },
+  {
+    id: 'hortas',
+    kind: 'point',
+    label: 'Hortas urbanas',
+    color: '#33691E',
+    icon: 'ph:plant',
+    pinSize: 31,
+    allowOverlap: true,
+  },
+  {
     id: 'esporte',
     kind: 'point',
     label: 'Locais de esporte públicos',
     color: '#8C564B',
     icon: 'ph:soccer-ball',
+    pinSize: 31,
+    allowOverlap: true,
+  },
+  {
+    id: 'sesc',
+    kind: 'point',
+    label: 'Unidades do SESC',
+    color: '#8E24AA',
+    icon: 'ph:ticket',
     pinSize: 31,
     allowOverlap: true,
   },
@@ -314,6 +400,45 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     allowOverlap: true,
   },
   {
+    id: 'ciclovias',
+    kind: 'line',
+    label: 'Ciclovias e ciclofaixas',
+    // Dark grey, quiet over the choropleth's blues. Lines never read as pins,
+    // so it can sit near the bus terminals' grey without the two mixing up.
+    color: '#424242',
+    // Wider than the territories' outlines: the cursor has to land on the
+    // line itself for its tooltip.
+    lineWidth: 3,
+    dashedDetail: 'Ciclorrota',
+  },
+  {
+    id: 'bicicletarios',
+    kind: 'point',
+    label: 'Bicicletários e paraciclos',
+    color: '#EC407A',
+    icon: 'ph:bicycle',
+    pinSize: 31,
+    allowOverlap: true,
+  },
+  {
+    id: 'vagas-idoso',
+    kind: 'point',
+    label: 'Vagas para idosos em estabelecimentos',
+    color: '#9E9D24',
+    icon: 'ph:car-profile',
+    pinSize: 31,
+    allowOverlap: true,
+  },
+  {
+    id: 'vagas-especiais',
+    kind: 'point',
+    label: 'Vagas especiais na rua',
+    color: '#78909C',
+    icon: 'ph:wheelchair',
+    pinSize: 23,
+    allowOverlap: false,
+  },
+  {
     id: 'pontos-onibus',
     kind: 'point',
     label: 'Pontos de ônibus',
@@ -325,8 +450,9 @@ export const OVERLAYS: readonly OverlayConfig[] = [
 ];
 
 /**
- * The order the overlays are drawn in, bottom first: every polygon beneath
- * every point, so a solid park never covers a facility inside it. Within each
+ * The order the overlays are drawn in, bottom first: polygons, then lines,
+ * then points — a solid park never covers the cycle lane through it, nor
+ * either of them a facility. Within each
  * kind the control's order holds, read backwards — its first item draws on top
  * — which leaves the 22 thousand bus stops, last in the control, beneath the
  * other points instead of burying the hospitals.
@@ -346,6 +472,9 @@ export const overlayDrawOrder = (
   return [
     ...bottomFirst.filter((overlay) => {
       return overlay.kind === 'polygon';
+    }),
+    ...bottomFirst.filter((overlay) => {
+      return overlay.kind === 'line';
     }),
     ...bottomFirst.filter((overlay) => {
       return overlay.kind === 'point';

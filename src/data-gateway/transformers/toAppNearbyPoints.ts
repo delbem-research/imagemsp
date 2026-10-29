@@ -2,7 +2,7 @@ import type { PointOverlayId } from '@/config/overlays';
 
 import type { StaticPointsDataSource } from '../../data-source-static/types';
 import type { NearbyPoint, NearbyQuery } from '../schema';
-import { pointDetail } from './toAppPoints';
+import { pointDetail, pointFacts } from './toAppPoints';
 
 /** Mean Earth radius, in metres. */
 const EARTH_RADIUS = 6_371_008.8;
@@ -46,7 +46,7 @@ export const distanceInMetres = (
  *
  * @example
  * toAppNearbyPoints({ layer: 'ubs', source, query: { lat: -23.55, lng: -46.63, radiusMin: 0, radius: 1000 } });
- * // [{ id: 'ubs:12', lngLat: [-46.631, -23.548], name: 'UBS SÉ', detail: 'UBS · Municipal', categoryId: 'ubs', distance: 230 }]
+ * // [{ id: 'ubs:12', lngLat: [-46.631, -23.548], name: 'UBS SÉ', detail: 'UBS · Municipal', address: 'R. Tabatinguera, 200 · Sé', phone: '3241-0000', hours: '', facts: [{ label: 'Tipo', value: 'UBS' }, { label: 'Esfera', value: 'Municipal' }], categoryId: 'ubs', distance: 230 }]
  */
 export const toAppNearbyPoints = ({
   layer,
@@ -73,6 +73,16 @@ export const toAppNearbyPoints = ({
         lngLat: [point.longitude, point.latitude],
         name: point.atributos['nome'] ?? '',
         detail: pointDetail(layer, point.atributos),
+        address: [
+          point.atributos['endereco'],
+          point.atributos['bairro'],
+          point.atributos['cep'],
+        ]
+          .filter(Boolean)
+          .join(' · '),
+        phone: point.atributos['telefone'] ?? '',
+        hours: point.atributos['horario'] ?? '',
+        facts: pointFacts(point.atributos),
         categoryId: layer,
         distance,
       },

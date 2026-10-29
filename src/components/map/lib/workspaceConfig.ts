@@ -430,12 +430,11 @@ const buildServiceBlock = ({
 };
 
 /**
- * The workspace slots this map hides. The right sidebar is never configured
- * here, but that alone does not drop it: `hasRightSidebar` is derived from slot
- * CONTENT, not from `config.rightSidebar`. The `metadata` slot auto-fills from
- * `spec.sources` (always non-empty for us) and `inspector` fills on any map
- * click, so the open-sidebar button would show regardless. Declaring the slots
- * hidden is the only way out — hidden always wins over content.
+ * The workspace slots this map hides. The right sidebar shows none of them:
+ * `MapsView` replaces it whole with the services found around a pin
+ * (`rightSidebar.content`). They stay hidden all the same, so the default
+ * panels — the `metadata` slot auto-fills from `spec.sources`, `inspector` on
+ * any map click — never come back should that panel be taken out.
  */
 const HIDDEN_SLOTS: GeovisWorkspaceConfig['slots'] = {
   legend: { hidden: true },

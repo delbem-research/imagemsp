@@ -13,6 +13,7 @@ import {
   TERRITORY_OVERLAY_IDS,
 } from '@/config/overlays';
 import type { OverlayContract } from '@/data-gateway/schema';
+import { toAppBikeLanes } from '@/data-gateway/transformers/toAppBikeLanes';
 import { toAppParks } from '@/data-gateway/transformers/toAppParks';
 import { toAppPoints } from '@/data-gateway/transformers/toAppPoints';
 import { toAppTerritories } from '@/data-gateway/transformers/toAppTerritories';
@@ -65,13 +66,15 @@ describe('overlay registry', () => {
     expect(isPointOverlayId('parques')).toBe(false);
   });
 
-  test('draws every polygon beneath every point', () => {
+  test('draws the polygons beneath the lines, and both beneath every point', () => {
     const kinds = overlayDrawOrder(OVERLAYS).map((overlay) => {
       return overlay.kind;
     });
+    const firstLine = kinds.indexOf('line');
     const firstPoint = kinds.indexOf('point');
 
-    expect(kinds.slice(firstPoint)).not.toContain('polygon');
+    expect(firstLine).toBeGreaterThan(kinds.lastIndexOf('polygon'));
+    expect(firstPoint).toBeGreaterThan(kinds.lastIndexOf('line'));
   });
 
   test('keeps the control order within each kind, first item on top', () => {
@@ -86,7 +89,8 @@ describe('overlay registry', () => {
       'abrangencia-ubs',
       'parques',
     ]);
-    expect(ids[3]).toBe('pontos-onibus');
+    expect(ids[3]).toBe('ciclovias');
+    expect(ids[4]).toBe('pontos-onibus');
     expect(ids[ids.length - 1]).toBe('hospitais');
   });
 });
@@ -216,6 +220,116 @@ describe('parks', () => {
     const { parques } = await readStaticParks();
 
     expect(parques.length).toBeGreaterThan(0);
+  });
+});
+
+describe('cycle network', () => {
+  afterEach(() => {
+    jest.resetModules();
+  });
+
+  const BROOKLIN = {
+    id: 1,
+    nome: 'CICLORROTA BROOKLIN',
+    tipo: 'Ciclorrota',
+    geometry: {
+      type: 'LineString' as const,
+      coordinates: [
+        [-46.68493, -23.63591],
+        [-46.68499, -23.63591],
+      ] as [number, number][],
+    },
+  };
+
+  test('is a line overlay, neither a point nor a territory', () => {
+    expect(isOverlayId('ciclovias')).toBe(true);
+    expect(isPointOverlayId('ciclovias')).toBe(false);
+    expect(isTerritoryOverlayId('ciclovias')).toBe(false);
+    expect(
+      OVERLAYS.find((overlay) => {
+        return overlay.id === 'ciclovias';
+      })?.kind
+    ).toBe('line');
+  });
+
+  test('toAppBikeLanes labels each stretch with its name and type', () => {
+    expect(toAppBikeLanes({ ciclovias: [BROOKLIN] })).toEqual({
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          id: 1,
+          properties: { name: 'CICLORROTA BROOKLIN', detail: 'Ciclorrota' },
+          geometry: BROOKLIN.geometry,
+        },
+      ],
+    });
+  });
+
+  test('toAppBikeLanes throws on an empty snapshot', () => {
+    expect(() => {
+      return toAppBikeLanes({ ciclovias: [] });
+    }).toThrow('[data-gateway]');
+  });
+
+  test.each([
+    ['a point', { type: 'Point', coordinates: [0, 0] }],
+    ['a one-position line', { type: 'LineString', coordinates: [[0, 0]] }],
+    ['an empty multi-line', { type: 'MultiLineString', coordinates: [] }],
+  ])(
+    'readStaticBikeLanes rejects a stretch drawn as %s',
+    async (_, geometry) => {
+      jest.doMock('@/data-source-static/data/lines/ciclovias.json', () => {
+        return { ciclovias: [{ ...BROOKLIN, geometry }] };
+      });
+
+      const { readStaticBikeLanes } =
+        await import('@/data-source-static/readStaticBikeLanes');
+
+      await expect(readStaticBikeLanes()).rejects.toThrow(
+        '[data-source-static]'
+      );
+    }
+  );
+
+  test('readStaticBikeLanes accepts a multi-line stretch', async () => {
+    const multi = {
+      ...BROOKLIN,
+      geometry: {
+        type: 'MultiLineString',
+        coordinates: [BROOKLIN.geometry.coordinates],
+      },
+    };
+    jest.doMock('@/data-source-static/data/lines/ciclovias.json', () => {
+      return { ciclovias: [multi] };
+    });
+
+    const { readStaticBikeLanes } =
+      await import('@/data-source-static/readStaticBikeLanes');
+
+    await expect(readStaticBikeLanes()).resolves.toEqual({
+      ciclovias: [multi],
+    });
+  });
+
+  test('the versioned cycle network snapshot passes its own validation', async () => {
+    // `doMock` survives `resetModules`, so the fixtures above must be lifted.
+    jest.dontMock('@/data-source-static/data/lines/ciclovias.json');
+
+    const { readStaticBikeLanes } =
+      await import('@/data-source-static/readStaticBikeLanes');
+    const { ciclovias } = await readStaticBikeLanes();
+
+    expect(ciclovias.length).toBeGreaterThan(0);
+    expect(
+      new Set(
+        ciclovias.map((lane) => {
+          return lane.tipo;
+        })
+      )
+    ).toEqual(
+      new Set(['Ciclovia', 'Ciclofaixa', 'Ciclorrota', 'Ciclopassarela'])
+    );
   });
 });
 
@@ -369,6 +483,50 @@ describe('toAppPoints', () => {
     });
 
     expect(contract.features[0]?.properties.detail).toBe('Metrô · Linha Azul');
+  });
+
+  test.each([
+    [
+      'a private hospital by kind and legal nature',
+      'hospitais-privados' as const,
+      { nome: 'HOSPITAL X', tipo: 'Hospital geral', natureza: 'Filantrópico' },
+      'Hospital geral · Filantrópico',
+    ],
+    [
+      'an organic fair by when it is held',
+      'feiras-organicas' as const,
+      { nome: 'Feira Y', horario: 'Sábado, 7h00 às 13h00' },
+      'Sábado, 7h00 às 13h00',
+    ],
+    [
+      'an urban garden by the group behind it',
+      'hortas' as const,
+      {
+        nome: 'Horta Z',
+        responsavel: 'Sociedade Amigos do Belém',
+        bairro: 'Belém',
+      },
+      'Sociedade Amigos do Belém',
+    ],
+    [
+      'an urban garden without a group by its neighbourhood',
+      'hortas' as const,
+      { nome: 'Horta Z', responsavel: '', bairro: 'Tatuapé' },
+      'Tatuapé',
+    ],
+    [
+      'a SESC unit by its neighbourhood',
+      'sesc' as const,
+      { nome: 'SESC POMPÉIA', bairro: 'VILA POMPEIA' },
+      'Vila Pompeia',
+    ],
+  ])('describes %s', (_, layer, atributos, detail) => {
+    const contract = toAppPoints({
+      layer,
+      source: { points: [{ ...SANTA_CASA, atributos }] },
+    });
+
+    expect(contract.features[0]?.properties.detail).toBe(detail);
   });
 
   test('keeps a sports centre type whole after its category', () => {

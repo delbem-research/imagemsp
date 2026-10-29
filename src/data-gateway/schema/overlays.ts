@@ -1,11 +1,12 @@
 /**
- * What the map shows about an overlay feature — a facility, a stop or a park:
+ * What the map shows about an overlay feature — a facility, a stop, a park or a
+ * stretch of cycle lane:
  * the two lines of its hover tooltip. The rest of each snapshot (addresses,
  * phones, districts) is not shipped, since nothing on the map reads it.
  */
 export type OverlayProperties = {
   name: string;
-  /** Secondary line, e.g. `Hospital · Estadual`, `Metrô · Linha Azul` or `Parque Urbano`. */
+  /** Secondary line, e.g. `Hospital · Estadual`, `Metrô · Linha Azul`, `Parque Urbano` or `Ciclofaixa`. */
   detail: string;
 };
 
@@ -14,6 +15,8 @@ type Position = [number, number];
 /** The geometries an overlay carries, in WGS84 `[longitude, latitude]`. */
 export type OverlayGeometry =
   | { type: 'Point'; coordinates: Position }
+  | { type: 'LineString'; coordinates: Position[] }
+  | { type: 'MultiLineString'; coordinates: Position[][] }
   | { type: 'Polygon'; coordinates: Position[][] }
   | { type: 'MultiPolygon'; coordinates: Position[][][] };
 

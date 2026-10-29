@@ -41,18 +41,24 @@ import lucideZoomIn from '@iconify/icons-lucide/zoom-in';
 // Phosphor — double caret (bold for toggle buttons)
 // Phosphor — variacoes de faixa etaria na sidebar do mapa
 import phArrowsInLineHorizontal from '@iconify/icons-ph/arrows-in-line-horizontal';
+import phBasket from '@iconify/icons-ph/basket';
+import phBicycle from '@iconify/icons-ph/bicycle';
 // Phosphor — sidebar do mapa (cabecalhos de secao e variacoes de indicador)
 import phBrain from '@iconify/icons-ph/brain';
 import phBus from '@iconify/icons-ph/bus';
 import phCalendarBlank from '@iconify/icons-ph/calendar-blank';
+import phCar from '@iconify/icons-ph/car';
+import phCarProfile from '@iconify/icons-ph/car-profile';
 import phCaretDoubleLeftBold from '@iconify/icons-ph/caret-double-left-bold';
 import phCaretDoubleRightBold from '@iconify/icons-ph/caret-double-right-bold';
 // Phosphor — line style (menus, labels, decorative)
+import phCaretDown from '@iconify/icons-ph/caret-down';
 import phCaretLeft from '@iconify/icons-ph/caret-left';
 // Phosphor — navigation (bold for WCAG AAA on interactive controls)
 import phCaretLeftBold from '@iconify/icons-ph/caret-left-bold';
 import phCaretRight from '@iconify/icons-ph/caret-right';
 import phCaretRightBold from '@iconify/icons-ph/caret-right-bold';
+import phCarrot from '@iconify/icons-ph/carrot';
 import phChartBar from '@iconify/icons-ph/chart-bar';
 import phChartDonut from '@iconify/icons-ph/chart-donut';
 import phChartPieSlice from '@iconify/icons-ph/chart-pie-slice';
@@ -67,9 +73,13 @@ import phFunnel from '@iconify/icons-ph/funnel';
 import phGauge from '@iconify/icons-ph/gauge';
 import phGearSix from '@iconify/icons-ph/gear-six';
 import phHeartbeat from '@iconify/icons-ph/heartbeat';
+import phLeaf from '@iconify/icons-ph/leaf';
+import phMapPin from '@iconify/icons-ph/map-pin';
 import phMapTrifold from '@iconify/icons-ph/map-trifold';
 import phPalette from '@iconify/icons-ph/palette';
 import phPawPrint from '@iconify/icons-ph/paw-print';
+import phPersonSimpleWalk from '@iconify/icons-ph/person-simple-walk';
+import phPlant from '@iconify/icons-ph/plant';
 import phPlusCircle from '@iconify/icons-ph/plus-circle';
 import phPulse from '@iconify/icons-ph/pulse';
 import phShieldCheck from '@iconify/icons-ph/shield-check';
@@ -78,10 +88,13 @@ import phSoccerBall from '@iconify/icons-ph/soccer-ball';
 import phStethoscope from '@iconify/icons-ph/stethoscope';
 import phStorefront from '@iconify/icons-ph/storefront';
 import phTestTube from '@iconify/icons-ph/test-tube';
+import phTicket from '@iconify/icons-ph/ticket';
 // Phosphor — pins of the transit overlays (the others reuse the sidebar's)
 import phTrafficSign from '@iconify/icons-ph/traffic-sign';
 import phTrain from '@iconify/icons-ph/train';
 import phUsersThree from '@iconify/icons-ph/users-three';
+import phWheelchair from '@iconify/icons-ph/wheelchair';
+import phXBold from '@iconify/icons-ph/x-bold';
 import { addIcon, Icon, type IconifyIcon } from '@ttoss/react-icons';
 
 // Register bundled icons (no API call in production)
@@ -123,6 +136,21 @@ addIcon('ph:test-tube', phTestTube);
 addIcon('ph:train', phTrain);
 addIcon('ph:bus', phBus);
 addIcon('ph:traffic-sign', phTrafficSign);
+// Phosphor — pins of the food supply, leisure and mobility overlays
+addIcon('ph:carrot', phCarrot);
+addIcon('ph:basket', phBasket);
+addIcon('ph:bicycle', phBicycle);
+addIcon('ph:car-profile', phCarProfile);
+addIcon('ph:wheelchair', phWheelchair);
+addIcon('ph:leaf', phLeaf);
+addIcon('ph:plant', phPlant);
+addIcon('ph:ticket', phTicket);
+// Phosphor — the panel of the services near a pin
+addIcon('ph:map-pin', phMapPin);
+addIcon('ph:caret-down', phCaretDown);
+addIcon('ph:x-bold', phXBold);
+addIcon('ph:person-simple-walk', phPersonSimpleWalk);
+addIcon('ph:car', phCar);
 
 // Register the Lucide icons @ttoss/geovis-workspace renders by name
 addIcon('lucide:circle', lucideCircle);
@@ -215,6 +243,23 @@ export const ICONS = {
   bus: 'ph:bus',
   trafficSign: 'ph:traffic-sign',
 
+  // Map pins — food supply, leisure and mobility overlays
+  carrot: 'ph:carrot',
+  basket: 'ph:basket',
+  bicycle: 'ph:bicycle',
+  carProfile: 'ph:car-profile',
+  wheelchair: 'ph:wheelchair',
+  leaf: 'ph:leaf',
+  plant: 'ph:plant',
+  ticket: 'ph:ticket',
+
+  // Panel of the services near a pin
+  mapPin: 'ph:map-pin',
+  caretDown: 'ph:caret-down',
+  xBold: 'ph:x-bold',
+  personSimpleWalk: 'ph:person-simple-walk',
+  car: 'ph:car',
+
   // Map sidebar — age-group variations
   plusCircle: 'ph:plus-circle',
   arrowsInLineHorizontal: 'ph:arrows-in-line-horizontal',
@@ -243,4 +288,12 @@ export const PIN_ICON_DATA: Partial<Record<IconName, IconifyIcon>> = {
   [ICONS.train]: phTrain,
   [ICONS.bus]: phBus,
   [ICONS.trafficSign]: phTrafficSign,
+  [ICONS.carrot]: phCarrot,
+  [ICONS.basket]: phBasket,
+  [ICONS.bicycle]: phBicycle,
+  [ICONS.carProfile]: phCarProfile,
+  [ICONS.wheelchair]: phWheelchair,
+  [ICONS.leaf]: phLeaf,
+  [ICONS.plant]: phPlant,
+  [ICONS.ticket]: phTicket,
 };

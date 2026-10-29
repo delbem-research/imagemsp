@@ -37,6 +37,24 @@ const SNAPSHOTS: Record<PointOverlayId, () => Promise<{ default: unknown }>> = {
   restaurantes: () => {
     return import('./data/points/restaurantes.json');
   },
+  feiras: () => {
+    return import('./data/points/feiras.json');
+  },
+  mercados: () => {
+    return import('./data/points/mercados.json');
+  },
+  'feiras-organicas': () => {
+    return import('./data/points/feiras-organicas.json');
+  },
+  hortas: () => {
+    return import('./data/points/hortas.json');
+  },
+  sesc: () => {
+    return import('./data/points/sesc.json');
+  },
+  'hospitais-privados': () => {
+    return import('./data/points/hospitais-privados.json');
+  },
   esporte: () => {
     return import('./data/points/esporte.json');
   },
@@ -45,6 +63,15 @@ const SNAPSHOTS: Record<PointOverlayId, () => Promise<{ default: unknown }>> = {
   },
   terminais: () => {
     return import('./data/points/terminais.json');
+  },
+  bicicletarios: () => {
+    return import('./data/points/bicicletarios.json');
+  },
+  'vagas-idoso': () => {
+    return import('./data/points/vagas-idoso.json');
+  },
+  'vagas-especiais': () => {
+    return import('./data/points/vagas-especiais.json');
   },
   'pontos-onibus': () => {
     return import('./data/points/pontos-onibus.json');

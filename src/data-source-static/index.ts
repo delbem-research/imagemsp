@@ -1,3 +1,4 @@
+export { readStaticBikeLanes } from './readStaticBikeLanes';
 export { readStaticHealthDivisions } from './readStaticHealthDivisions';
 export { readStaticMapsData } from './readStaticMapsData';
 export { readStaticParks } from './readStaticParks';
