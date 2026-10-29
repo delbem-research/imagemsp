@@ -123,10 +123,6 @@
     "defaultMessage": "Adicionar",
     "description": "Label of the button that saves the ramp built in the color-ramp editor."
   },
-  "IU+fm9": {
-    "defaultMessage": "Abrir detalhes",
-    "description": "Accessible label for the button that opens the right sidebar."
-  },
   "IUwKDh": {
     "defaultMessage": "Este campo não pode ser atualizado sem uma atualização completa da especificação.",
     "description": "Warnings panel: an applyPatch call targeted a field outside SpecPatchTarget."
