@@ -3,19 +3,28 @@ import {
   isPointOverlayId,
   isTerritoryOverlayId,
   type OverlayId,
+  POINT_OVERLAY_IDS,
 } from '@/config/overlays';
 
+import { readStaticBikeLanes } from '../data-source-static/readStaticBikeLanes';
 import { readStaticHealthDivisions } from '../data-source-static/readStaticHealthDivisions';
 import { readStaticMapsData } from '../data-source-static/readStaticMapsData';
 import { readStaticParks } from '../data-source-static/readStaticParks';
 import { readStaticPoints } from '../data-source-static/readStaticPoints';
 import { readStaticSubprefeituras } from '../data-source-static/readStaticSubprefeituras';
 import { readStaticTerritories } from '../data-source-static/readStaticTerritories';
-import type { MapsDataContract, OverlayContract } from './schema';
+import type {
+  MapsDataContract,
+  NearbyContract,
+  NearbyQuery,
+  OverlayContract,
+} from './schema';
+import { toAppBikeLanes } from './transformers/toAppBikeLanes';
 import {
   type ServiceCounts,
   toAppMapsData,
 } from './transformers/toAppMapsData';
+import { toAppNearbyPoints } from './transformers/toAppNearbyPoints';
 import { toAppParks } from './transformers/toAppParks';
 import { toAppPoints } from './transformers/toAppPoints';
 import { toAppTerritories } from './transformers/toAppTerritories';
@@ -25,10 +34,15 @@ export type DataGateway = {
   /** Returns the canonical maps data. */
   getMapsData: () => Promise<MapsDataContract>;
   /**
-   * Returns one map overlay (points, parks or a health territory) as a GeoJSON
+   * Returns one map overlay (points, cycle lanes, parks or a health territory) as a GeoJSON
    * FeatureCollection.
    */
   getOverlay: (layer: OverlayId) => Promise<OverlayContract>;
+  /**
+   * Returns the points of every point overlay inside a ring around a point,
+   * nearest first.
+   */
+  getNearbyPoints: (query: NearbyQuery) => Promise<NearbyContract>;
 };
 
 /**
@@ -117,7 +131,23 @@ export const createDataGateway = (): DataGateway => {
           return toAppTerritories(await readStaticTerritories(layer));
         }
 
+        if (layer === 'ciclovias') {
+          return toAppBikeLanes(await readStaticBikeLanes());
+        }
+
         return toAppParks(await readStaticParks());
+      },
+      getNearbyPoints: async (query) => {
+        const nearby = await Promise.all(
+          POINT_OVERLAY_IDS.map(async (layer) => {
+            const source = await readStaticPoints(layer);
+            return toAppNearbyPoints({ layer, source, query });
+          })
+        );
+
+        return nearby.flat().sort((a, b) => {
+          return a.distance - b.distance;
+        });
       },
     };
   }

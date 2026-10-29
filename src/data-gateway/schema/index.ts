@@ -12,6 +12,7 @@ export type {
   Subprefeitura,
 } from './mapsData';
 export { versionKey, versionsInForce } from './mapsData';
+export type { NearbyContract, NearbyPoint, NearbyQuery } from './nearby';
 export type {
   OverlayContract,
   OverlayFeature,

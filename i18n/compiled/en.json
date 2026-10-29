@@ -29,6 +29,20 @@
       "value": "Scroll groups forward"
     }
   ],
+  "/xKyFI": [
+    {
+      "type": 0,
+      "value": "Searching "
+    },
+    {
+      "type": 1,
+      "value": "results"
+    },
+    {
+      "type": 0,
+      "value": "…"
+    }
+  ],
   "0tNse0": [
     {
       "type": 0,
@@ -71,6 +85,16 @@
       "value": " px"
     }
   ],
+  "2YFPLq": [
+    {
+      "type": 0,
+      "value": "Radius of "
+    },
+    {
+      "type": 1,
+      "value": "radius"
+    }
+  ],
   "2a5j+J": [
     {
       "type": 0,
@@ -105,6 +129,64 @@
     {
       "type": 0,
       "value": "A layer references a source that does not exist."
+    }
+  ],
+  "4dKe0M": [
+    {
+      "type": 0,
+      "value": "Use a pin"
+    }
+  ],
+  "5tScZF": [
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " "
+            },
+            {
+              "type": 1,
+              "value": "one"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " "
+            },
+            {
+              "type": 1,
+              "value": "other"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": " within "
+    },
+    {
+      "type": 1,
+      "value": "radius"
+    },
+    {
+      "type": 0,
+      "value": " of you"
     }
   ],
   "5vQsIP": [
@@ -197,10 +279,34 @@
       "value": "No value"
     }
   ],
+  "6aSZah": [
+    {
+      "type": 0,
+      "value": "Searching "
+    },
+    {
+      "type": 1,
+      "value": "results"
+    },
+    {
+      "type": 0,
+      "value": " near you…"
+    }
+  ],
   "6eNUHi": [
     {
       "type": 0,
       "value": "Cor personalizada"
+    }
+  ],
+  "82h6s4": [
+    {
+      "type": 1,
+      "value": "distance"
+    },
+    {
+      "type": 0,
+      "value": " from the point"
     }
   ],
   "87ss09": [
@@ -221,6 +327,12 @@
       "value": "Matiz"
     }
   ],
+  "8mj/iN": [
+    {
+      "type": 0,
+      "value": "Not now"
+    }
+  ],
   "9RwXzX": [
     {
       "type": 0,
@@ -237,6 +349,20 @@
     {
       "type": 0,
       "value": "Two sources conflict with each other."
+    }
+  ],
+  "AYMp8/": [
+    {
+      "type": 0,
+      "value": "Widening the search to "
+    },
+    {
+      "type": 1,
+      "value": "radius"
+    },
+    {
+      "type": 0,
+      "value": "…"
     }
   ],
   "B53J1J": [
@@ -275,6 +401,12 @@
       "value": "Gerando prévia…"
     }
   ],
+  "Ddt68b": [
+    {
+      "type": 0,
+      "value": "Your location is used only for this search. It is neither saved nor shared."
+    }
+  ],
   "GT4LWE": [
     {
       "type": 0,
@@ -291,12 +423,6 @@
     {
       "type": 0,
       "value": "No layer"
-    }
-  ],
-  "IU+fm9": [
-    {
-      "type": 0,
-      "value": "Open details"
     }
   ],
   "IUwKDh": [
@@ -335,6 +461,12 @@
       "value": "This data feature is not supported."
     }
   ],
+  "KXJbGw": [
+    {
+      "type": 0,
+      "value": "result"
+    }
+  ],
   "KvV4pR": [
     {
       "type": 0,
@@ -367,6 +499,24 @@
       "value": "Two map data entries collide on the same feature-state key."
     }
   ],
+  "RJi0HT": [
+    {
+      "type": 0,
+      "value": "You are here · clear search"
+    }
+  ],
+  "RRe3ho": [
+    {
+      "type": 0,
+      "value": "Try again"
+    }
+  ],
+  "RVJx/b": [
+    {
+      "type": 0,
+      "value": "Use your location?"
+    }
+  ],
   "Rdl2hc": [
     {
       "type": 0,
@@ -377,6 +527,12 @@
     {
       "type": 0,
       "value": "Two map data entries share the same id."
+    }
+  ],
+  "T/eK/a": [
+    {
+      "type": 0,
+      "value": "results"
     }
   ],
   "TWTWvW": [
@@ -401,6 +557,12 @@
     {
       "type": 0,
       "value": "Play"
+    }
+  ],
+  "UBnmiN": [
+    {
+      "type": 0,
+      "value": "Permission was denied or no signal was found. Turn location on in your browser settings and try again — or click a pin on the map to search from it."
     }
   ],
   "V3z2n/": [
@@ -429,6 +591,12 @@
     {
       "type": 0,
       "value": "Rotate 45° right"
+    }
+  ],
+  "WlO7vD": [
+    {
+      "type": 0,
+      "value": "We couldn't get your location"
     }
   ],
   "Ws/Os5": [
@@ -463,6 +631,16 @@
     {
       "type": 0,
       "value": "Tons · clique para ajustar"
+    }
+  ],
+  "X7144b": [
+    {
+      "type": 1,
+      "value": "results"
+    },
+    {
+      "type": 0,
+      "value": " near me"
     }
   ],
   "XNN1t0": [
@@ -633,16 +811,90 @@
       "value": "Exportar mapa como PNG"
     }
   ],
+  "g65tjJ": [
+    {
+      "type": 0,
+      "value": "To show the "
+    },
+    {
+      "type": 1,
+      "value": "results"
+    },
+    {
+      "type": 0,
+      "value": " around you, the map needs your current location. Your browser will ask you to confirm next."
+    }
+  ],
+  "gsoC7t": [
+    {
+      "type": 0,
+      "value": "Clear search"
+    }
+  ],
   "iRi4zS": [
     {
       "type": 0,
       "value": "Restaurar"
     }
   ],
+  "j1cP/t": [
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " "
+            },
+            {
+              "type": 1,
+              "value": "one"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " "
+            },
+            {
+              "type": 1,
+              "value": "other"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": " within "
+    },
+    {
+      "type": 1,
+      "value": "radius"
+    }
+  ],
   "j3dtho": [
     {
       "type": 0,
       "value": "Close details"
+    }
+  ],
+  "jFZRGK": [
+    {
+      "type": 0,
+      "value": "Search radius"
     }
   ],
   "jecbZ/": [
@@ -705,6 +957,12 @@
       "value": "color"
     }
   ],
+  "ltBlZe": [
+    {
+      "type": 0,
+      "value": "Close"
+    }
+  ],
   "n6ryYu": [
     {
       "type": 1,
@@ -715,6 +973,12 @@
     {
       "type": 0,
       "value": "Close menu"
+    }
+  ],
+  "od/d+I": [
+    {
+      "type": 0,
+      "value": "You"
     }
   ],
   "oeivQo": [
@@ -763,10 +1027,46 @@
       "value": "Intervalo de reprodução"
     }
   ],
+  "t7oBiG": [
+    {
+      "type": 0,
+      "value": "Getting your location…"
+    }
+  ],
+  "tAmUUh": [
+    {
+      "type": 0,
+      "value": "Nothing within "
+    },
+    {
+      "type": 1,
+      "value": "radius"
+    }
+  ],
+  "tC9nJy": [
+    {
+      "type": 0,
+      "value": "Allow access"
+    }
+  ],
   "tyaZ8Q": [
     {
       "type": 0,
       "value": "Hexadecimal"
+    }
+  ],
+  "ulc096": [
+    {
+      "type": 1,
+      "value": "count"
+    },
+    {
+      "type": 0,
+      "value": " within "
+    },
+    {
+      "type": 1,
+      "value": "radius"
     }
   ],
   "uzIIpa": [
@@ -785,6 +1085,20 @@
     {
       "type": 0,
       "value": "The visualization spec targets an unsupported schema version."
+    }
+  ],
+  "ydJlsv": [
+    {
+      "type": 0,
+      "value": "Search "
+    },
+    {
+      "type": 1,
+      "value": "results"
+    },
+    {
+      "type": 0,
+      "value": " near my location"
     }
   ],
   "zija6w": [

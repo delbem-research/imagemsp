@@ -62,3 +62,64 @@ describe('polygon overlay outlines', () => {
     ]);
   });
 });
+
+describe('line overlays', () => {
+  const byId = (id: string) => {
+    return layers().find((layer) => {
+      return layer.id === id;
+    });
+  };
+
+  test('the cycle lanes are solid strokes with a tooltip, leaving out the ciclorrotas', () => {
+    expect(byId('ciclovias-overlay')).toMatchObject({
+      sourceId: 'ciclovias',
+      geometry: 'line',
+      paint: { lineColor: '#424242', lineWidth: 3 },
+      click: {},
+      filter: { property: 'detail', operator: 'neq', value: 'Ciclorrota' },
+    });
+  });
+
+  test('the ciclorrotas are drawn dashed, right above the solid lanes, with the same tooltip', () => {
+    const built = layers();
+    const solid = built.find((layer) => {
+      return layer.id === 'ciclovias-overlay';
+    });
+    const dashed = built.find((layer) => {
+      return layer.id === 'ciclovias-overlay-dashed';
+    });
+
+    expect(dashed).toMatchObject({
+      sourceId: 'ciclovias',
+      geometry: 'line',
+      paint: {
+        lineColor: '#424242',
+        lineWidth: 3,
+        lineDasharray: [2, 1.5],
+      },
+      filter: { property: 'detail', operator: 'eq', value: 'Ciclorrota' },
+    });
+    expect(dashed?.hoverTooltip).toBe(solid?.hoverTooltip);
+
+    const ids = built.map((layer) => {
+      return layer.id;
+    });
+    expect(ids[ids.indexOf('ciclovias-overlay') + 1]).toBe(
+      'ciclovias-overlay-dashed'
+    );
+  });
+
+  test('the control toggles the solid and the dashed lanes together', () => {
+    const item = LAYER_CONTROL.items.find((entry) => {
+      return entry.id === 'ciclovias';
+    });
+
+    expect(item?.layers).toEqual([
+      'ciclovias-overlay',
+      'ciclovias-overlay-dashed',
+    ]);
+    expect(decodeURIComponent(item?.thumbnail ?? '')).toContain(
+      "stroke-dasharray='6 5'"
+    );
+  });
+});

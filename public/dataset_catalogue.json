@@ -7,7 +7,7 @@
     "language": "pt-BR",
     "status": "draft",
     "created_at": "2026-07-08",
-    "updated_at": "2026-09-25",
+    "updated_at": "2026-10-28",
     "typing_reference": "src/data-source-static/types.ts",
     "quality_notes": [
       {
@@ -57,6 +57,38 @@
         "geografia",
         "distritos",
         "sao-paulo",
+        "dados-publicos"
+      ]
+    },
+    "sampamaisrural": {
+      "id": "sampamaisrural",
+      "slug": "sampamaisrural",
+      "title": "Sampa+Rural — Prefeitura de São Paulo",
+      "description": "Plataforma da Prefeitura de São Paulo que mapeia a agricultura e a alimentação na cidade: agricultores, hortas urbanas, feiras e iniciativas, com exportações públicas em CSV e JSON.",
+      "organization": "Prefeitura do Município de São Paulo — Sampa+Rural",
+      "source_url": "https://sampamaisrural.prefeitura.sp.gov.br",
+      "tags": [
+        "sampa-rural",
+        "prefeitura-sp",
+        "agricultura-urbana",
+        "alimentacao",
+        "sao-paulo",
+        "dados-publicos"
+      ]
+    },
+    "cnes": {
+      "id": "cnes",
+      "slug": "cnes",
+      "title": "CNES — Cadastro Nacional de Estabelecimentos de Saúde",
+      "description": "Cadastro de todos os estabelecimentos de saúde do país, públicos e privados, com tipo, natureza jurídica, endereço e coordenadas, publicado diariamente pelo Ministério da Saúde.",
+      "organization": "Ministério da Saúde — DATASUS",
+      "source_url": "https://cnes.datasus.gov.br",
+      "public_reference_url": "https://dadosabertos.saude.gov.br",
+      "tags": [
+        "cnes",
+        "ministerio-da-saude",
+        "saude",
+        "estabelecimentos",
         "dados-publicos"
       ]
     },
@@ -1272,6 +1304,60 @@
           {
             "name": "geometry",
             "description": "Polígono do parque (WGS84)",
+            "role": "geometry"
+          }
+        ]
+      }
+    },
+    "camada_ciclovias": {
+      "id": "camada_ciclovias",
+      "collection_id": "geosampa",
+      "slug": "camada-ciclovias",
+      "title": "Rede cicloviária de São Paulo — camada do mapa",
+      "description": "Os 2135 trechos da rede cicloviária, como linhas, servidos à camada \"Ciclovias e ciclofaixas\" do botão \"Camadas\" do mapa (`/api/camadas/ciclovias`). Tipos: Ciclofaixa (1634), Ciclovia (383), Ciclorrota (117, desenhada tracejada) e Ciclopassarela (1).",
+      "file": "src/data-source-static/data/lines/ciclovias.json",
+      "format": "JSON",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:via_bicicleta",
+        "notes": "Camada `geoportal:via_bicicleta` do GeoSampa (carga de 2026-10-24). Geometria simplificada por Douglas-Peucker com tolerância de 3 m e coordenadas arredondadas a 5 casas por `scripts/generateBikeLanesData.ts` (45 mil vértices → 11 mil). O script falha em trecho sem nome ou de tipo desconhecido, para que um tipo novo não entre no mapa sem decidir como desenhá-lo."
+      },
+      "generated_by": "scripts/generateBikeLanesData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "trecho (linha)",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 2135,
+        "size_bytes": 487307,
+        "checkSum": "sha256:06368140547502ba860d512785ae228e3c7f23ed50c940b9e9668c4b6fff1e1f"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–2135) — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "nome",
+            "description": "Nome do trecho (`nm_trecho_via_bicicleta`), como o GeoSampa o escreve"
+          },
+          {
+            "name": "tipo",
+            "description": "Tipo (`tx_tipo_via_bicicleta`): Ciclovia, Ciclofaixa, Ciclorrota ou Ciclopassarela"
+          },
+          {
+            "name": "geometry",
+            "description": "Linha do trecho (WGS84)",
             "role": "geometry"
           }
         ]
@@ -2636,6 +2722,1192 @@
         ]
       },
       "derived_from": ["distritos_samu"]
+    },
+    "distritos_feiras_livres": {
+      "id": "distritos_feiras_livres",
+      "collection_id": "geosampa",
+      "slug": "distritos-feiras-livres",
+      "title": "Feiras livres da cidade de São Paulo por distrito municipal",
+      "description": "Feiras livres municipais, com nome, endereço, dia da semana em que acontecem, número de bancas, coordenadas e distrito.",
+      "file": "src/data-source-static/data/raw/feiras_livres_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_feira_livre",
+        "notes": "Camada WFS `geoportal:equipamento_feira_livre` do GeoSampa. A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`). Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 975,
+        "size_bytes": 90320,
+        "checkSum": "sha256:1d529a64676ecb7c14c4261361702974846fdba3702d4f5fc43d9bf8c9c605fc"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome da feira (`nm_equipamento`)"
+          },
+          {
+            "name": "endereco",
+            "description": "Endereço (`tx_endereco_equipamento`)"
+          },
+          {
+            "name": "dia",
+            "description": "Dia da semana em que acontece (`tx_dia_funcionamento`), em maiúsculas e sem acento: SEGUNDA-FEIRA … SABADO, DOMINGO"
+          },
+          {
+            "name": "bancas",
+            "description": "Número de bancas (`qt_equipamento`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_feiras": {
+      "id": "camada_feiras",
+      "collection_id": "dados_processados",
+      "slug": "camada-feiras",
+      "title": "Camada de feiras livres do mapa — snapshot",
+      "description": "Snapshot servido à camada de feiras livres do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/feiras` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/feiras.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_feiras_livres` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 975,
+        "size_bytes": 186792,
+        "checkSum": "sha256:6ac0554fe12ff9547e1a22eed601df2de1457f0d7873d276d15ab97e535019bb"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–975) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_feiras_livres`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_feiras_livres"]
+    },
+    "distritos_mercados_municipais": {
+      "id": "distritos_mercados_municipais",
+      "collection_id": "geosampa",
+      "slug": "distritos-mercados-municipais",
+      "title": "Mercados municipais da cidade de São Paulo por distrito municipal",
+      "description": "Mercados municipais e centrais de abastecimento, com nome, endereço, horário de funcionamento, telefone, coordenadas e distrito.",
+      "file": "src/data-source-static/data/raw/mercados_municipais_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_mercados_municipais",
+        "notes": "Camada WFS `geoportal:equipamento_mercados_municipais` do GeoSampa. A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`). Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 16,
+        "size_bytes": 2697,
+        "checkSum": "sha256:a946bf9148070e15f79dd0798cc25cc12ffa0899f60e89beaadd884cad409be1"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome do mercado (`nm_equipamento`)"
+          },
+          {
+            "name": "endereco",
+            "description": "Endereço (`tx_endereco_equipamento`)"
+          },
+          {
+            "name": "horario",
+            "description": "Horário de funcionamento (`tx_horario_funcionamento`), texto livre"
+          },
+          {
+            "name": "telefone",
+            "description": "Telefone (`tx_numero_telefone`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "distritos_sesc": {
+      "id": "distritos_sesc",
+      "collection_id": "geosampa",
+      "slug": "distritos-sesc",
+      "title": "Unidades do SESC na cidade de São Paulo por distrito municipal",
+      "description": "Unidades do SESC (Serviço Social do Comércio), com nome, endereço, bairro, CEP, coordenadas e distrito.",
+      "file": "src/data-source-static/data/raw/sesc_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_esporte_clubes",
+        "notes": "Camada WFS `geoportal:equipamento_esporte_clubes` do GeoSampa, só os equipamentos cujo nome começa com `SESC` (18). A fonte não traz telefone nem horário. A coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`). Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 18,
+        "size_bytes": 1872,
+        "checkSum": "sha256:23301880a82df49528e65be134585100a6e9be596b4c755e46c26308d8948089"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome da unidade (`nm_equipamento`)"
+          },
+          {
+            "name": "endereco",
+            "description": "Endereço (`tx_endereco_equipamento`)"
+          },
+          {
+            "name": "bairro",
+            "description": "Bairro (`nm_bairro_equipamento`)"
+          },
+          {
+            "name": "cep",
+            "description": "CEP (`cd_cep_equipamento`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_sesc": {
+      "id": "camada_sesc",
+      "collection_id": "dados_processados",
+      "slug": "camada-sesc",
+      "title": "Camada de unidades do SESC do mapa — snapshot",
+      "description": "Snapshot servido à camada de unidades do SESC do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/sesc` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/sesc.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_sesc` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 18,
+        "size_bytes": 3586,
+        "checkSum": "sha256:3c7f3fb3daab9f3b4e65ce61ec9b0b44fa0af0d4392e300cac7fdc92d8366594"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–18) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_sesc`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_sesc"]
+    },
+    "distritos_feiras_organicas": {
+      "id": "distritos_feiras_organicas",
+      "collection_id": "sampamaisrural",
+      "slug": "distritos-feiras-organicas",
+      "title": "Feiras orgânicas da cidade de São Paulo por distrito municipal",
+      "description": "Feiras e bancas de produtos orgânicos do Mapa de Feiras Orgânicas do Idec, como o Sampa+Rural o publica, com nome, endereço, dias e horários, coordenadas e distrito.",
+      "file": "src/data-source-static/data/raw/feiras_organicas_sampamaisrural.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://sampamaisrural.prefeitura.sp.gov.br/api/data_reports/mapa-de-feiras-organicas-idec.json",
+        "notes": "Exportação pública do Sampa+Rural (Prefeitura) do Mapa de Feiras Orgânicas do Idec (https://feirasorganicas.org.br), só a subcategoria `Feiras Orgânicas` — os grupos de consumo e comércios parceiros ficam de fora. A subcategoria inclui algumas bancas e sítios que vendem na feira. O endereço perde o sufixo de zona (`Zona Urbana Sul`); do período de funcionamento ficam só os trechos `dia, horário`, porque o texto livre em volta às vezes traz nome e telefone de contato. A API do próprio Idec tem 70 iniciativas na cidade contra 64 nesta exportação. A coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`). Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "feira (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 34,
+        "size_bytes": 6111,
+        "checkSum": "sha256:346b934b5ea2bfca26db2c8444d748f85e66b83bcaae233eda5b32dc18dcf20c"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome da feira (`Nome do Perfil`)"
+          },
+          {
+            "name": "endereco",
+            "description": "Endereço (`Endereço comercial`), sem o sufixo de zona"
+          },
+          {
+            "name": "horario",
+            "description": "Dias e horários (`Período de funcionamento`), só os trechos `dia, horário`"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_feiras_organicas": {
+      "id": "camada_feiras_organicas",
+      "collection_id": "dados_processados",
+      "slug": "camada-feiras-organicas",
+      "title": "Camada de feiras orgânicas do mapa — snapshot",
+      "description": "Snapshot servido à camada de feiras orgânicas do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/feiras-organicas` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/feiras-organicas.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_feiras_organicas` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 34,
+        "size_bytes": 9096,
+        "checkSum": "sha256:d83845ab5734fa5e18ccd5a63b8c868c309c670f17771d07ecfc6179f57a95ed"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–34) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_feiras_organicas`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_feiras_organicas"]
+    },
+    "distritos_hortas_urbanas": {
+      "id": "distritos_hortas_urbanas",
+      "collection_id": "sampamaisrural",
+      "slug": "distritos-hortas-urbanas",
+      "title": "Hortas urbanas da cidade de São Paulo por distrito municipal",
+      "description": "Hortas urbanas (comunitárias, coletivas, em lajes e praças) cadastradas no Sampa+Rural, com nome, endereço, bairro, grupo responsável, coordenadas e distrito.",
+      "file": "src/data-source-static/data/raw/hortas_urbanas_sampamaisrural.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://sampamaisrural.prefeitura.sp.gov.br/api/data_reports/hortas-urbanas-e-hortas-em-equipamentos-publicos-sampa-rural.json",
+        "notes": "Exportação pública do Sampa+Rural (Prefeitura), também publicada no portal de dados abertos da Prefeitura sob licença Creative Commons Atribuição. Só a subcategoria `Hortas urbanas` (235 registros, 229 com coordenadas); as 1.673 `Hortas em equipamentos públicos` (escolas, UBS…) ficam de fora. E-mail, telefones e gênero do responsável, que a fonte traz, não são copiados. Alguns nomes de perfil são o nome de quem cuida da horta, como o Sampa+Rural os publica. A coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`). Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "horta (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 228,
+        "size_bytes": 28374,
+        "checkSum": "sha256:debaedd341694891f5801de405158bb5937921b4791e318c361bda60387e94e8"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome da horta (`Nome do Perfil`)"
+          },
+          {
+            "name": "endereco",
+            "description": "Endereço (`Endereço comercial`), sem o sufixo de zona"
+          },
+          {
+            "name": "bairro",
+            "description": "Bairro (`Bairro`)"
+          },
+          {
+            "name": "responsavel",
+            "description": "Grupo ou entidade responsável (`Associativismo`), quando houver"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_hortas": {
+      "id": "camada_hortas",
+      "collection_id": "dados_processados",
+      "slug": "camada-hortas",
+      "title": "Camada de hortas urbanas do mapa — snapshot",
+      "description": "Snapshot servido à camada de hortas urbanas do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/hortas` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/hortas.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_hortas_urbanas` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 228,
+        "size_bytes": 52745,
+        "checkSum": "sha256:408eff28f58c5d5940fa7d25b2b7f2d614ff3e43a7ddcf5db535b65266ceae43"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–228) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_hortas_urbanas`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_hortas_urbanas"]
+    },
+    "distritos_hospitais_privados": {
+      "id": "distritos_hospitais_privados",
+      "collection_id": "cnes",
+      "slug": "distritos-hospitais-privados",
+      "title": "Hospitais privados da cidade de São Paulo por distrito municipal",
+      "description": "Hospitais gerais e especializados privados (com fins lucrativos e filantrópicos) ativos no CNES, com nome, tipo, natureza, atendimento SUS, endereço, telefone, coordenadas e distrito.",
+      "file": "src/data-source-static/data/raw/hospitais_privados_cnes.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos_csv.zip",
+        "notes": "Base de estabelecimentos do CNES (Ministério da Saúde), filtrada para `CO_IBGE = 355030`, `TP_UNIDADE` 5 (hospital geral) ou 7 (hospital especializado), sem motivo de desativação e `CO_NATUREZA_JUR` iniciada em 2 (empresa: `Privado`) ou 3 (entidade sem fins lucrativos: `Filantrópico`). Das 172 unidades, 17 tinham coordenadas erradas no CNES (fora do município, ou empilhadas num mesmo ponto da Água Rasa): 15 foram geocodificadas pelo endereço no Nominatim (OpenStreetMap) em 2026-10-28 e conferidas uma a uma; 2 sem localização confiável ficaram de fora (Hospital São Miguel – unidade São Miguel Paulista e Monte Cristo). `sus` vem de `CO_AMBULATORIAL_SUS`. Hospitais-dia (`TP_UNIDADE` 62) não entram. A coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`). Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 170,
+        "size_bytes": 26749,
+        "checkSum": "sha256:b102dbe2b4d98926c76d191190d9c75bb6541ecff116bcd5d7d1fc265430cb2f"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome fantasia (`NO_FANTASIA`)"
+          },
+          {
+            "name": "tipo",
+            "description": "`Hospital geral` ou `Hospital especializado` (`TP_UNIDADE`)"
+          },
+          {
+            "name": "natureza",
+            "description": "`Privado` ou `Filantrópico` (`CO_NATUREZA_JUR`)"
+          },
+          {
+            "name": "sus",
+            "description": "`Sim` se tem atendimento ambulatorial SUS (`CO_AMBULATORIAL_SUS`)"
+          },
+          {
+            "name": "endereco",
+            "description": "Logradouro e número"
+          },
+          {
+            "name": "bairro",
+            "description": "Bairro (`NO_BAIRRO`)"
+          },
+          {
+            "name": "cep",
+            "description": "CEP (`CO_CEP`)"
+          },
+          {
+            "name": "telefone",
+            "description": "Telefone (`NU_TELEFONE`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_hospitais_privados": {
+      "id": "camada_hospitais_privados",
+      "collection_id": "dados_processados",
+      "slug": "camada-hospitais-privados",
+      "title": "Camada de hospitais privados do mapa — snapshot",
+      "description": "Snapshot servido à camada de hospitais privados do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/hospitais-privados` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/hospitais-privados.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_hospitais_privados` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 170,
+        "size_bytes": 50707,
+        "checkSum": "sha256:b7430da6e3efdf8d2a1df3807fa93bea7400828190971a970defc811547f93b5"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–170) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_hospitais_privados`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_hospitais_privados"]
+    },
+    "camada_mercados": {
+      "id": "camada_mercados",
+      "collection_id": "dados_processados",
+      "slug": "camada-mercados",
+      "title": "Camada de mercados municipais do mapa — snapshot",
+      "description": "Snapshot servido à camada de mercados municipais do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/mercados` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/mercados.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_mercados_municipais` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 16,
+        "size_bytes": 4291,
+        "checkSum": "sha256:e9b554d28ddcb6d12ed68decb9b3268834c9290c115fdd3083e821347623211f"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–16) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_mercados_municipais`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_mercados_municipais"]
+    },
+    "distritos_bicicletarios": {
+      "id": "distritos_bicicletarios",
+      "collection_id": "geosampa",
+      "slug": "distritos-bicicletarios",
+      "title": "Bicicletários e paraciclos da cidade de São Paulo por distrito municipal",
+      "description": "Bicicletários e paraciclos, em geral junto a estações e terminais, com local, tipo, número de vagas, órgão responsável, coordenadas e distrito.",
+      "file": "src/data-source-static/data/raw/bicicletarios_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:bicicletario_paraciclo",
+        "notes": "Camada WFS `geoportal:bicicletario_paraciclo` do GeoSampa. A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`). Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 121,
+        "size_bytes": 9928,
+        "checkSum": "sha256:034f892f03cc287fcc9ad871d63f15dd2b9b8eb4e42e13a05f95b7e6afd5ab01"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Local (`nm_local`)"
+          },
+          {
+            "name": "tipo",
+            "description": "Tipo (`tx_tipo_equipamento`): BICICLETARIO ou PARACICLO"
+          },
+          {
+            "name": "vagas",
+            "description": "Número de vagas (`qt_vaga`)"
+          },
+          {
+            "name": "responsavel",
+            "description": "Órgão responsável (`nm_orgao_responsavel`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_bicicletarios": {
+      "id": "camada_bicicletarios",
+      "collection_id": "dados_processados",
+      "slug": "camada-bicicletarios",
+      "title": "Camada de bicicletários e paraciclos do mapa — snapshot",
+      "description": "Snapshot servido à camada de bicicletários e paraciclos do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/bicicletarios` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/bicicletarios.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_bicicletarios` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 121,
+        "size_bytes": 22360,
+        "checkSum": "sha256:a9708748f0008fee0a6e06675d893e5127cbace29eb1487accf33b06c8a072cd"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–121) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_bicicletarios`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_bicicletarios"]
+    },
+    "distritos_vagas_idoso_estabelecimentos": {
+      "id": "distritos_vagas_idoso_estabelecimentos",
+      "collection_id": "geosampa",
+      "slug": "distritos-vagas-idoso-estabelecimentos",
+      "title": "Vagas para idosos e pessoas com deficiência em estabelecimentos de uso coletivo da cidade de São Paulo por distrito municipal",
+      "description": "Estabelecimentos de uso coletivo com laudo de vagas reservadas a idosos e a pessoas com deficiência, com nome, endereço, número de vagas de cada tipo, coordenadas e distrito.",
+      "file": "src/data-source-static/data/raw/vagas_idoso_estabelecimentos_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:estabelecimento_vaga_especial",
+        "notes": "Camada WFS `geoportal:estabelecimento_vaga_especial` do GeoSampa. Todos os registros da camada têm o laudo emitido (`tx_estado`), por isso a coluna não foi mantida. A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`). Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 1392,
+        "size_bytes": 133446,
+        "checkSum": "sha256:943017a5a1baee144750be4d7f6dcb29c7f6b0bc81014f2ee81e178e29cd473d"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome do estabelecimento (`nm_estabelcimento`)"
+          },
+          {
+            "name": "endereco",
+            "description": "Endereço (`nm_endereco`)"
+          },
+          {
+            "name": "vagas_idoso",
+            "description": "Vagas reservadas a idosos (`qt_vaga_idoso`)"
+          },
+          {
+            "name": "vagas_deficiente",
+            "description": "Vagas reservadas a pessoas com deficiência (`qt_vaga_deficiente`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_vagas_idoso": {
+      "id": "camada_vagas_idoso",
+      "collection_id": "dados_processados",
+      "slug": "camada-vagas-idoso",
+      "title": "Camada de vagas para idosos em estabelecimentos do mapa — snapshot",
+      "description": "Snapshot servido à camada de vagas para idosos em estabelecimentos do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/vagas-idoso` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/vagas-idoso.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_vagas_idoso_estabelecimentos` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 1392,
+        "size_bytes": 296568,
+        "checkSum": "sha256:86ea64a46fcde7f79645e6fb3e62ccc8e2efd41d3523b6b9fa8a16b32f558fb2"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–1392) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_vagas_idoso_estabelecimentos`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_vagas_idoso_estabelecimentos"]
+    },
+    "distritos_vagas_especiais": {
+      "id": "distritos_vagas_especiais",
+      "collection_id": "geosampa",
+      "slug": "distritos-vagas-especiais",
+      "title": "Vagas especiais para idosos e pessoas com deficiência na via pública da cidade de São Paulo por distrito municipal",
+      "description": "Vagas de estacionamento na via pública reservadas a idosos e a pessoas com deficiência, com endereço, tipo, número de vagas sinalizadas, área, se é rotativa, coordenadas e distrito.",
+      "file": "src/data-source-static/data/raw/vagas_especiais_geosampa.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:vaga_especial",
+        "notes": "Camada WFS `geoportal:vaga_especial` do GeoSampa. Só as vagas de idoso (`cd_tipo_area` = ID) e de pessoa com deficiência (DF) foram mantidas, 3.117 das 6.734: as demais são de moto, carga, fretamento e outras finalidades. A camada não tem nome: `nome` é o endereço, seguido do complemento entre parênteses quando há. A camada não traz o distrito: a coluna `distrito` é calculada por ponto-em-polígono contra a malha oficial `distrito_municipal` do GeoSampa por `scripts/assignDistricts.ts`, que também descarta os pontos fora do município (ver `distritos_malha_oficial`). Delimitador `,` e encoding UTF-8."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 3117,
+        "size_bytes": 266534,
+        "checkSum": "sha256:80d6f22e763f37c97e518c183fa0bd245eacf37d8a70fbe42e5059463289402b"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Endereço da vaga (`nm_endereco_vaga_especial`), com o complemento (`tx_complemento_endereco`) entre parênteses quando há"
+          },
+          {
+            "name": "tipo",
+            "description": "Para quem a vaga é reservada (`cd_tipo_area`): IDOSO (ID) ou DEFICIENTE (DF)"
+          },
+          {
+            "name": "vagas",
+            "description": "Número de vagas sinalizadas (`qt_numero_vaga_sinalizada`)"
+          },
+          {
+            "name": "area",
+            "description": "Área de estacionamento (`nm_area`)"
+          },
+          {
+            "name": "rotativo",
+            "description": "Se a vaga é rotativa (`in_rotativo`): S ou N"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_vagas_especiais": {
+      "id": "camada_vagas_especiais",
+      "collection_id": "dados_processados",
+      "slug": "camada-vagas-especiais",
+      "title": "Camada de vagas especiais na rua do mapa — snapshot",
+      "description": "Snapshot servido à camada de vagas especiais na rua do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/vagas-especiais` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/vagas-especiais.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_vagas_especiais` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-28"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 3117,
+        "size_bytes": 610919,
+        "checkSum": "sha256:aab54409e53ac6541165a0d39a901141086ed533545f952c230d916c173890c3"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial (1–3117) na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_vagas_especiais`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_vagas_especiais"]
     }
   }
 }

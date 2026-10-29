@@ -33,6 +33,7 @@ import {
   seriesGroupOf,
 } from './mapSelection';
 import { buildSpec, viewSettingsOf } from './mapSpec';
+import NearbyServicesPanel from './NearbyServicesPanel';
 import { overlaysStore } from './overlaysStore';
 import { useColorSettings } from './useColorSettings';
 import { useInitialMapUrlState, useMapUrlSync } from './useMapUrlState';
@@ -302,12 +303,15 @@ export const MapsView = ({ mapsData }: MapsViewProps) => {
       sidebarInitiallyOpen,
     });
 
-    // The `map` slot is overridden here rather than in `buildWorkspaceConfig`,
-    // which stays free of this route's components: `MapPanel` is what relays
-    // the layer toggles out of the geovis provider (see its docs).
+    // The `map` slot and the right sidebar are set here rather than in
+    // `buildWorkspaceConfig`, which stays free of this route's components:
+    // `MapPanel` is what relays the layer toggles out of the geovis provider
+    // (see its docs), and `NearbyServicesPanel` lists what the search around
+    // a pin found.
     return {
       ...base,
       slots: { ...base.slots, map: { component: MapPanel } },
+      rightSidebar: { ...base.rightSidebar, content: NearbyServicesPanel },
     };
   }, [
     selection.level,

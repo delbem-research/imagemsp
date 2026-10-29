@@ -10,6 +10,7 @@ import type {
 
 import { PIN_ICON_DATA } from '@/components/map/lib/icons';
 import {
+  type LineOverlayConfig,
   type OverlayConfig,
   overlayDrawOrder,
   type OverlayId,
@@ -45,6 +46,34 @@ export const overlaySpecId = (overlay: OverlayId): string => {
 const overlayOutlineId = (overlay: OverlayId): string => {
   return `${overlaySpecId(overlay)}-outline`;
 };
+
+/**
+ * Spec id of a line overlay's dashed layer (see {@link hasDashedLayer}).
+ *
+ * @param overlay - The overlay.
+ * @returns The dashed layer's id.
+ *
+ * @example
+ * overlayDashedId('ciclovias'); // 'ciclovias-overlay-dashed'
+ */
+const overlayDashedId = (overlay: OverlayId): string => {
+  return `${overlaySpecId(overlay)}-dashed`;
+};
+
+/**
+ * Whether a line overlay draws some of its features dashed, on a layer of
+ * their own: MapLibre's `line-dasharray` holds for a whole layer, so the
+ * dashed features — the ciclorrotas — are filtered out of the solid layer and
+ * into a second one over the same source.
+ */
+const hasDashedLayer = (
+  config: OverlayConfig
+): config is LineOverlayConfig & { dashedDetail: string } => {
+  return config.kind === 'line' && config.dashedDetail !== undefined;
+};
+
+/** Dash and gap lengths, in line widths, of a dashed line overlay. */
+const DASH_PATTERN = [2, 1.5];
 
 /**
  * Whether a polygon overlay draws its outline as a layer of its own.
@@ -163,15 +192,34 @@ const polygonMark = (config: OverlayConfig & { kind: 'polygon' }): string => {
 };
 
 /**
+ * Two strokes in the overlay's colour, at its map weight scaled up: a solid
+ * one, and a dashed one when the overlay dashes some of its features.
+ */
+const lineMark = (config: LineOverlayConfig): string => {
+  const stroke = `fill='none' stroke='${config.color}' stroke-width='${config.lineWidth * 1.5}' stroke-linecap='round'`;
+  const dashed = config.dashedDetail
+    ? `<path d='M8 52 C24 44 40 58 56 46' ${stroke} stroke-dasharray='6 5'/>`
+    : '';
+  return `<path d='M8 22 C24 10 40 30 56 16' ${stroke}/>${dashed}`;
+};
+
+/** The marks a control thumbnail shows for an overlay, by what it draws. */
+const marksOf = (config: OverlayConfig): string => {
+  if (config.kind === 'point') return pinMark(config);
+  if (config.kind === 'line') return lineMark(config);
+  return polygonMark(config);
+};
+
+/**
  * Thumbnail of a control item, inline so it needs no request: for a point
- * overlay its pin; for a polygon overlay two filled, outlined patches, like it
- * draws on the map.
+ * overlay its pin; for a line overlay its strokes; for a polygon overlay two
+ * filled, outlined patches, like it draws on the map.
  *
  * @param config - The overlay.
  * @returns An SVG data URI.
  */
 const thumbnail = (config: OverlayConfig): string => {
-  const marks = config.kind === 'point' ? pinMark(config) : polygonMark(config);
+  const marks = marksOf(config);
 
   // Encoded whole: icon bodies carry double quotes and `#` colours.
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'>${THUMB_GROUND}${marks}</svg>`;
@@ -212,6 +260,10 @@ const renderOverlayTooltip = (feature: OverlayProperties | undefined) => {
  * pin's middle — sits on the place. `click: {}` is what gives them a tooltip at
  * all: geovis only hover-tracks non-polygon layers that declare it.
  *
+ * Lines are strokes in the overlay's colour and weight; like the pins, they
+ * declare `click: {}` to get a tooltip. A line overlay with dashed features
+ * leaves them to its dashed layer (see {@link hasDashedLayer}).
+ *
  * Polygons are a fill plus an outline in the overlay's colour, at the
  * overlay's own opacity; a translucent one also gets an outline layer of its
  * own (see {@link hasOutlineLayer}). `hoverPaint` does for them what `click` does
@@ -220,7 +272,10 @@ const renderOverlayTooltip = (feature: OverlayProperties | undefined) => {
  */
 const drawing = (
   config: OverlayConfig
-): Pick<VisualizationLayer, 'geometry' | 'paint' | 'click' | 'hoverPaint'> => {
+): Pick<
+  VisualizationLayer,
+  'geometry' | 'paint' | 'click' | 'hoverPaint' | 'filter'
+> => {
   if (config.kind === 'point') {
     return {
       geometry: 'symbol',
@@ -230,6 +285,21 @@ const drawing = (
         iconAllowOverlap: config.allowOverlap,
       },
       click: {},
+    };
+  }
+
+  if (config.kind === 'line') {
+    return {
+      geometry: 'line',
+      paint: { lineColor: config.color, lineWidth: config.lineWidth },
+      click: {},
+      ...(config.dashedDetail !== undefined && {
+        filter: {
+          property: 'detail',
+          operator: 'neq',
+          value: config.dashedDetail,
+        },
+      }),
     };
   }
 
@@ -306,6 +376,57 @@ const buildOutlineLayer = ({
 };
 
 /**
+ * The dashed twin of a line overlay's layer: the same strokes and tooltip,
+ * for the features whose `detail` is the overlay's `dashedDetail`.
+ */
+const buildDashedLayer = ({
+  config,
+  layer,
+}: {
+  config: LineOverlayConfig & { dashedDetail: string };
+  layer: VisualizationLayer;
+}): VisualizationLayer => {
+  return {
+    ...layer,
+    id: overlayDashedId(config.id),
+    paint: { ...layer.paint, lineDasharray: DASH_PATTERN },
+    filter: { property: 'detail', operator: 'eq', value: config.dashedDetail },
+  };
+};
+
+/**
+ * The layers an overlay draws besides its own: a translucent polygon's
+ * outline, a line overlay's dashed features.
+ */
+const companionLayers = ({
+  config,
+  layer,
+  visible,
+}: {
+  config: OverlayConfig;
+  layer: VisualizationLayer;
+  visible: boolean;
+}): VisualizationLayer[] => {
+  if (hasOutlineLayer(config)) return [buildOutlineLayer({ config, visible })];
+  if (hasDashedLayer(config)) return [buildDashedLayer({ config, layer })];
+  return [];
+};
+
+/**
+ * The ids of every layer an overlay draws, which its control item toggles
+ * together.
+ */
+const overlayLayerIds = (config: OverlayConfig): string[] => {
+  if (hasOutlineLayer(config)) {
+    return [overlaySpecId(config.id), overlayOutlineId(config.id)];
+  }
+  if (hasDashedLayer(config)) {
+    return [overlaySpecId(config.id), overlayDashedId(config.id)];
+  }
+  return [overlaySpecId(config.id)];
+};
+
+/**
  * The pin of every point overlay, in its colour with its icon, for
  * `spec.images`. Fixed for the app's lifetime, so geovis builds each pin once
  * and keeps it across the spec rebuilds of every timeline tick.
@@ -327,8 +448,8 @@ const PIN_IMAGES: PinImage[] = OVERLAYS.flatMap((config) => {
 /**
  * Builds the sources, layers and pin images of every overlay.
  *
- * Layers are returned in {@link overlayDrawOrder}: polygons beneath points,
- * and within each kind the control's first item on top.
+ * Layers are returned in {@link overlayDrawOrder}: polygons, then lines, then
+ * points, and within each kind the control's first item on top.
  *
  * @param params.layers - The store's snapshot: toggles and loaded data.
  * @param params.tooltipStyle - Card style shared with the area tooltip.
@@ -367,11 +488,9 @@ export const buildOverlays = ({
       tooltipStyle,
     });
 
-    // The outline right above its own fill, so it keeps the fill's place in
-    // the draw order.
-    return hasOutlineLayer(config)
-      ? [layer, buildOutlineLayer({ config, visible })]
-      : [layer];
+    // Companions right above their own layer, so they keep its place in the
+    // draw order.
+    return [layer, ...companionLayers({ config, layer, visible })];
   });
 
   return { sources, layers: mapLayers, images: PIN_IMAGES };
@@ -403,7 +522,7 @@ export const buildLayerControl = (
     // button lines up with the card when the sidebar is closed.
     offset: 12,
     trigger: 'hover',
-    // Nineteen overlays outgrow the map in a single row of cards: show three —
+    // Two dozen overlays outgrow the map in a single row of cards: show three —
     // the ones switched on first — and tuck the rest behind a "Ver mais" card.
     maxVisibleItems: 3,
     // Three layers at once: a fourth switches off the one on longest, so the
@@ -414,10 +533,9 @@ export const buildLayerControl = (
         id: config.id,
         label: config.label,
         thumbnail: thumbnail(config),
-        // A translucent polygon's outline toggles with its fill.
-        layers: hasOutlineLayer(config)
-          ? [overlaySpecId(config.id), overlayOutlineId(config.id)]
-          : [overlaySpecId(config.id)],
+        // A translucent polygon's outline toggles with its fill, a line
+        // overlay's dashed features with its solid ones.
+        layers: overlayLayerIds(config),
         defaultActive: active.includes(config.id),
       };
     }),
