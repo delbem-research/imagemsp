@@ -21,6 +21,7 @@ import {
 } from '@/components/map/lib/viewMode';
 import { mapDescription, mapTitle } from '@/components/map/lib/workspaceConfig';
 import { isOfferCategory, type OfferAgeBand } from '@/config/offer';
+import { OVERLAYS } from '@/config/overlays';
 import { scaleOfferThresholds, thresholdsFor } from '@/config/thresholds';
 import type { MapsDataContract } from '@/data-gateway/schema';
 
@@ -428,8 +429,6 @@ const buildAreaLayer = ({
         category,
         reference: legendReference({
           level,
-          year,
-          years: data.years,
           overlays,
           offer: isOfferCategory(category),
         }),
@@ -524,6 +523,7 @@ export const buildSpec = ({
   const overlayLayers = buildOverlays({
     layers: overlays,
     tooltipStyle: TOOLTIP_STYLE,
+    ages: indicator.ages,
   });
 
   return {
@@ -552,7 +552,11 @@ export const buildSpec = ({
         thresholds,
         extrusion,
         notes: [note, extrusion.note],
-        overlays: Object.values(overlays.active).some(Boolean),
+        // The area legend credits the overlays to GeoSampa; a heatmap credits
+        // its own source in its own legend.
+        overlays: OVERLAYS.some((config) => {
+          return config.kind !== 'heatmap' && overlays.active[config.id];
+        }),
         indicator,
       }),
       // Last, so the overlays draw above the area fill.

@@ -293,12 +293,10 @@ describe('health levels — the map', () => {
     expect(
       legendReference({
         level: 'supervisao-saude',
-        year: 2025,
-        years: [2020, 2025],
         overlays: false,
         offer: false,
       })
-    ).toContain('Supervisões Técnicas de Saúde de São Paulo');
+    ).toContain('{link:GeoSampa|');
   });
 });
 

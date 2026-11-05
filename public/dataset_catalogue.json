@@ -7,7 +7,7 @@
     "language": "pt-BR",
     "status": "draft",
     "created_at": "2026-07-08",
-    "updated_at": "2026-10-28",
+    "updated_at": "2026-11-04",
     "typing_reference": "src/data-source-static/types.ts",
     "quality_notes": [
       {
@@ -39,6 +39,16 @@
         "id": "parques_somente_municipais",
         "severity": "medium",
         "message": "A camada de parques só traz os parques municipais (`pde_parque_municipal`). Parques estaduais como Villa-Lobos, Água Branca e Parque da Juventude, e as unidades de conservação, estão na camada `GEOSAMPA_cadparcs_parque_unidade_conservacao`, que estava fora do ar (503 no servidor de origem) quando os dados foram gerados. Trocar de fonte é mudar `scripts/generateParksData.ts` e regenerar."
+      },
+      {
+        "id": "openstreetmap_cobertura_parcial",
+        "severity": "medium",
+        "message": "Os datasets do OpenStreetMap (`distritos_restaurantes_privados`, `distritos_farmacias_privadas`) não são o universo de restaurantes e farmácias da cidade, só o que voluntários mapearam: as grandes redes e o centro expandido estão bem cobertos, as casas de bairro e a periferia muito menos. Uma camada feita deles mostra onde o OSM está bem mapeado, não necessariamente onde há mais estabelecimentos. A licença ODbL exige atribuição \"© OpenStreetMap contributors\"."
+      },
+      {
+        "id": "farmacias_populares_localizacao_parcial",
+        "severity": "medium",
+        "message": "Só 179 das 771 farmácias do Farmácia Popular na cidade têm coordenadas, porque a lista do Ministério da Saúde traz só o endereço e a localização vem de um casamento por endereço com o OpenStreetMap. Como o OSM é mais completo no centro expandido, as localizadas se concentram ali, e a camada pode sugerir uma desigualdade de cobertura do programa que não existe. Geocodificar as demais pelo endereço resolveria."
       }
     ]
   },
@@ -121,6 +131,56 @@
         "projecoes-populacionais",
         "demografia",
         "sao-paulo",
+        "dados-publicos"
+      ]
+    },
+    "infosiga": {
+      "id": "infosiga",
+      "slug": "infosiga",
+      "title": "INFOSIGA-SP — DETRAN-SP",
+      "description": "Sistema de informações de sinistros de trânsito do Estado de São Paulo, mantido pelo DETRAN-SP: sinistros desde 2015 (só os fatais até 2018), com data, local, coordenadas, tipo e vítimas por gravidade, sob licença CC BY 4.0.",
+      "organization": "Departamento Estadual de Trânsito de São Paulo — DETRAN-SP",
+      "source_url": "https://infosiga.detran.sp.gov.br",
+      "public_reference_url": "https://github.com/viniciusoike/infosigasp",
+      "tags": [
+        "infosiga",
+        "detran-sp",
+        "transito",
+        "sinistros",
+        "acidentes",
+        "dados-publicos"
+      ]
+    },
+    "openstreetmap": {
+      "id": "openstreetmap",
+      "slug": "openstreetmap",
+      "title": "OpenStreetMap",
+      "description": "Mapa colaborativo mundial, mantido por voluntários. Os dados são exportados por consultas ao Overpass (overpass-turbo) e distribuídos sob a licença ODbL, que exige atribuição (\"© OpenStreetMap contributors\") e o compartilhamento de bases derivadas pela mesma licença. A cobertura depende de quem mapeia: é mais completa nas grandes redes e no centro expandido do que na periferia.",
+      "organization": "OpenStreetMap contributors — OpenStreetMap Foundation",
+      "source_url": "https://www.openstreetmap.org",
+      "public_reference_url": "https://overpass-turbo.eu",
+      "tags": [
+        "openstreetmap",
+        "osm",
+        "odbl",
+        "colaborativo",
+        "pontos-de-interesse"
+      ]
+    },
+    "farmacia_popular": {
+      "id": "farmacia_popular",
+      "slug": "farmacia-popular",
+      "title": "Programa Farmácia Popular do Brasil — Ministério da Saúde",
+      "description": "Lista das farmácias e drogarias credenciadas no Programa Farmácia Popular do Brasil (PFPB), publicada pelo Ministério da Saúde com CNPJ, razão social e endereço — sem coordenadas.",
+      "organization": "Ministério da Saúde — Programa Farmácia Popular do Brasil",
+      "source_url": "https://infoms.saude.gov.br/extensions/SEIDIGI_DEMAS_PFPB_ENDERECOS/index.html",
+      "public_reference_url": "https://www.gov.br/saude/pt-br/composicao/sectics/farmacia-popular",
+      "tags": [
+        "farmacia-popular",
+        "pfpb",
+        "ministerio-da-saude",
+        "farmacias",
+        "medicamentos",
         "dados-publicos"
       ]
     }
@@ -1358,114 +1418,6 @@
           {
             "name": "geometry",
             "description": "Linha do trecho (WGS84)",
-            "role": "geometry"
-          }
-        ]
-      }
-    },
-    "camada_coordenadorias_saude": {
-      "id": "camada_coordenadorias_saude",
-      "collection_id": "geosampa",
-      "slug": "camada-coordenadorias-saude",
-      "title": "Coordenadorias Regionais de Saúde — camada do mapa",
-      "description": "As 5 Coordenadorias Regionais de Saúde (CRS) da Secretaria Municipal da Saúde — Norte, Sul, Leste, Oeste e Sudeste —, como polígonos, servidas à camada \"Coordenadoria saúde\" do botão \"Camadas\" do mapa (`/api/camadas/coordenadorias-saude`), desenhada só como contorno.",
-      "file": "src/data-source-static/data/polygons/coordenadorias-saude.json",
-      "format": "JSON",
-      "source": {
-        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_coordenadoria_regional",
-        "notes": "Camada `geoportal:equipamento_saude_coordenadoria_regional` do GeoSampa (carga de 2026-05). Geometria simplificada por Douglas-Peucker com tolerância de 20 m e coordenadas arredondadas a 5 casas por `scripts/generateHealthTerritoriesData.ts`, que também converte os nomes de CRS e STS (em maiúsculas e sem acento na fonte) para a grafia da cidade e falha em qualquer nome que não conheça."
-      },
-      "generated_by": "scripts/generateHealthTerritoriesData.ts",
-      "temporal": {
-        "reference_period": null,
-        "retrieved_at": "2026-09-29"
-      },
-      "spatial": {
-        "coverage": "Município de São Paulo",
-        "unit": "coordenadoria (polígono)",
-        "key": "id"
-      },
-      "access": {
-        "level": "public",
-        "contains_personal_data": false
-      },
-      "stats": {
-        "rows": 5,
-        "size_bytes": 56319,
-        "checkSum": "sha256:7c875eedf2ba62a4b9eaf7efd3d740cdb0c3938ce15a6f4661e35dde02127018"
-      },
-      "schema": {
-        "fields": [
-          {
-            "name": "id",
-            "description": "Id sequencial (1–5) — o id da feição no mapa e a chave do tooltip",
-            "role": "identifier"
-          },
-          {
-            "name": "nome",
-            "description": "Nome de exibição (`CRS Oeste`), a partir de `nm_coordenadoria_regional_saude`"
-          },
-          {
-            "name": "detalhe",
-            "description": "Linha secundária do tooltip: `Coordenadoria Regional de Saúde`"
-          },
-          {
-            "name": "geometry",
-            "description": "Polígono do território (WGS84)",
-            "role": "geometry"
-          }
-        ]
-      }
-    },
-    "camada_supervisoes_saude": {
-      "id": "camada_supervisoes_saude",
-      "collection_id": "geosampa",
-      "slug": "camada-supervisoes-saude",
-      "title": "Supervisões Técnicas de Saúde — camada do mapa",
-      "description": "As 26 Supervisões Técnicas de Saúde (STS), subdivisões das CRS, como polígonos, servidas à camada \"Supervisões de saúde (STS)\" do botão \"Camadas\" do mapa (`/api/camadas/supervisoes-saude`), desenhada só como contorno.",
-      "file": "src/data-source-static/data/polygons/supervisoes-saude.json",
-      "format": "JSON",
-      "source": {
-        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_supervisao_tecnica",
-        "notes": "Camada `geoportal:equipamento_saude_supervisao_tecnica` do GeoSampa (carga de 2026-05). Geometria simplificada por Douglas-Peucker com tolerância de 20 m e coordenadas arredondadas a 5 casas por `scripts/generateHealthTerritoriesData.ts`, que também converte os nomes de CRS e STS (em maiúsculas e sem acento na fonte) para a grafia da cidade e falha em qualquer nome que não conheça."
-      },
-      "generated_by": "scripts/generateHealthTerritoriesData.ts",
-      "temporal": {
-        "reference_period": null,
-        "retrieved_at": "2026-09-29"
-      },
-      "spatial": {
-        "coverage": "Município de São Paulo",
-        "unit": "supervisão (polígono)",
-        "key": "id"
-      },
-      "access": {
-        "level": "public",
-        "contains_personal_data": false
-      },
-      "stats": {
-        "rows": 26,
-        "size_bytes": 94736,
-        "checkSum": "sha256:e7087d6a4ec8a8f4b711fbc9a7030abe9f37bdbf920d3314205b6391f1915b0d"
-      },
-      "schema": {
-        "fields": [
-          {
-            "name": "id",
-            "description": "Id sequencial (1–26) — o id da feição no mapa e a chave do tooltip",
-            "role": "identifier"
-          },
-          {
-            "name": "nome",
-            "description": "Nome de exibição (`STS Butantã`), a partir de `nm_supervisao_tecnica_saude` com a grafia da cidade"
-          },
-          {
-            "name": "detalhe",
-            "description": "Linha secundária do tooltip: o tipo e a CRS da supervisão"
-          },
-          {
-            "name": "geometry",
-            "description": "Polígono do território (WGS84)",
             "role": "geometry"
           }
         ]
@@ -3908,6 +3860,620 @@
         ]
       },
       "derived_from": ["distritos_vagas_especiais"]
+    },
+    "camada_acidentes": {
+      "id": "camada_acidentes",
+      "collection_id": "infosiga",
+      "slug": "camada-acidentes",
+      "title": "Acidentes de trânsito com idosos feridos ou mortos em São Paulo — camada do mapa (mapa de calor)",
+      "description": "Os sinistros de trânsito confirmados de 2024 na cidade em que ao menos uma pessoa de 65 anos ou mais ficou ferida ou morreu, servidos à camada \"Acidentes de trânsito\" do botão \"Camadas\" do mapa (`/api/camadas/acidentes`), desenhada como mapa de calor: a densidade de acidentes, sem peso por gravidade. Cada sinistro traz a sua posição e as faixas etárias (65–69, 70–74, 75+) das pessoas idosas feridas ou mortas nele, e o filtro \"Faixa etária\" do mapa recorta o calor por essas faixas.",
+      "file": "src/data-source-static/data/heat/acidentes.json",
+      "format": "JSON",
+      "source": {
+        "url": "https://github.com/viniciusoike/infosigasp/releases/download/data-current/dados_infosiga.zip",
+        "urls": [
+          "https://github.com/viniciusoike/infosigasp/releases/download/data-current/dados_infosiga.zip",
+          "https://infosiga.detran.sp.gov.br/rest/painel/download/file/dados_infosiga.zip"
+        ],
+        "notes": "Tabelas `sinistros` e `pessoas` do INFOSIGA-SP (arquivos `sinistros_2022-2024.csv` e `pessoas_2022-2024.csv` do zip de dados), ligadas por `id_sinistro`. O download oficial do DETRAN-SP recusa requisições de fora do painel (401), então o zip vem do espelho mensal do pacote R `infosigasp`, o mesmo arquivo republicado (release `data-current`, outubro de 2026). Gerado por `scripts/generateCrashesData.ts`, que baixa o zip (~140 MB, nunca versionado), mantém as linhas de `ano_sinistro = 2024` em `municipio = SAO PAULO`, descarta as notificações (`tipo_registro = NOTIFICACAO`, relatos ainda não confirmados como sinistro), e mantém só os sinistros com ao menos uma pessoa de `idade` 65 ou mais e `gravidade_lesao` leve, grave ou fatal — pessoas ilesas, de gravidade não disponível ou sem idade não contam. Descarta ainda os sinistros sem coordenada e os que caem fora da malha oficial `distrito_municipal` do GeoSampa, e arredonda as coordenadas a 5 casas (~1 m). O ano mapeado é a constante `YEAR` do script, e aparece também no subtítulo da legenda, em `src/config/overlays.ts`. Licença CC BY 4.0, com crédito ao INFOSIGA na legenda da camada."
+      },
+      "generated_by": "scripts/generateCrashesData.ts",
+      "temporal": {
+        "reference_period": "2024",
+        "retrieved_at": "2026-11-04"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "sinistro com pessoa idosa ferida ou morta (ponto)",
+        "key": "posição no array"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 1358,
+        "size_bytes": 41879,
+        "checkSum": "sha256:4d3796a8c0ae315082c7b656b3aa08a361ca89dd5d3a758fb16ef28190aa20e5"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "ano",
+            "description": "Ano dos sinistros (2024)"
+          },
+          {
+            "name": "acidentes",
+            "description": "Um item `[longitude, latitude, faixas]` por sinistro: a posição (WGS84) e as faixas etárias (`65-69`, `70-74`, `75`) das pessoas de 65 anos ou mais feridas ou mortas nele. O gateway faz um ponto por faixa, com `faixa` e, no primeiro, `todos: 1`, que o filtro de faixa etária do mapa usa",
+            "role": "geometry"
+          }
+        ]
+      }
+    },
+    "distritos_restaurantes_privados": {
+      "id": "distritos_restaurantes_privados",
+      "collection_id": "openstreetmap",
+      "slug": "distritos-restaurantes-privados",
+      "title": "Restaurantes privados da cidade de São Paulo por distrito municipal",
+      "description": "Restaurantes (`amenity=restaurant`) mapeados no OpenStreetMap na cidade, com nome, cozinha, endereço, telefone, coordenadas e distrito — sem as unidades do Bom Prato, que são públicas.",
+      "file": "src/data-source-static/data/raw/restaurantes_privados_osm.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://overpass-turbo.eu",
+        "notes": "Exportação do overpass-turbo de `amenity=restaurant` no município (2.481 restaurantes, 2026-10-30), convertida para CSV. Prédios e áreas (`way`/`relation`, 734) entram pelo ponto central que o Overpass calcula. Saíram as 7 unidades do Bom Prato — 5 já estão em `distritos_restaurantes_publicos` e 2 (Campos Elíseos e Jaguaré) são públicas pelo nome, mas não aparecem no GeoSampa — e os 307 restaurantes sem nome, que o gerador de pontos não aceita. `cozinha` guarda o valor `cuisine` do OSM como está (códigos em inglês separados por `;`), que o app traduz; o horário (`opening_hours`) ficou de fora, por estar na sintaxe própria do OSM. A coluna `distrito` é calculada por `scripts/assignDistricts.ts` (nenhum ponto caiu fora do município). Licença ODbL. Delimitador `,`, encoding UTF-8 e quebras de linha CRLF."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-30"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 2167,
+        "size_bytes": 198025,
+        "checkSum": "sha256:17ea5a7da59cc01021708027f5be8766d97a7c671a3b4ec8849ba13e0bf34560"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome do restaurante (`name`)"
+          },
+          {
+            "name": "cozinha",
+            "description": "Tipos de cozinha (`cuisine`), códigos do OSM em inglês separados por `;` (`pizza;italian`)"
+          },
+          {
+            "name": "endereco",
+            "description": "Logradouro e número (`addr:street`, `addr:housenumber`)"
+          },
+          {
+            "name": "bairro",
+            "description": "Bairro (`addr:suburb`)"
+          },
+          {
+            "name": "cep",
+            "description": "CEP (`addr:postcode`)"
+          },
+          {
+            "name": "telefone",
+            "description": "Telefone (`phone` ou `contact:phone`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_restaurantes_privados": {
+      "id": "camada_restaurantes_privados",
+      "collection_id": "dados_processados",
+      "slug": "camada-restaurantes-privados",
+      "title": "Camada de restaurantes privados do mapa — snapshot",
+      "description": "Snapshot servido à camada de restaurantes privados do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/restaurantes-privados` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/restaurantes-privados.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_restaurantes_privados` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-30"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 2167,
+        "size_bytes": 468734,
+        "checkSum": "sha256:ff592c557c9e91c37dc0e0bb6d32004cdb5b8faa2316afadfa927158135723ed"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_restaurantes_privados`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_restaurantes_privados"]
+    },
+    "distritos_farmacias_populares": {
+      "id": "distritos_farmacias_populares",
+      "collection_id": "farmacia_popular",
+      "slug": "distritos-farmacias-populares",
+      "title": "Farmácias do Programa Farmácia Popular na cidade de São Paulo",
+      "description": "As 771 farmácias e drogarias credenciadas no Programa Farmácia Popular do Brasil no município, com razão social, CNPJ e endereço. Só 179 têm coordenadas: as que puderam ser localizadas com certeza.",
+      "file": "src/data-source-static/data/raw/farmacias_populares_pfpb.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://infoms.saude.gov.br/extensions/SEIDIGI_DEMAS_PFPB_ENDERECOS/index.html",
+        "notes": "Planilha \"Farmácias participantes do PFPB - 02.10.2026\" do Ministério da Saúde (27.538 farmácias do país), filtrada para `Município = SÃO PAULO` e `UF = SP`. A fonte não tem coordenadas: elas vêm de uma exportação do OpenStreetMap (`amenity=pharmacy`, 964 farmácias, 2026-10-30), casada pelo endereço — mesmo logradouro e número, depois de tirar acentos, expandir abreviações (`AV`, `DR`, `PROF`…) e descartar o tipo de via e os conectivos. Ficaram com coordenada as 179 de correspondência exata (165) ou com o mesmo número e só uma diferença de grafia no logradouro (14, conferidas uma a uma: `Braz`/`Brás`, `Luiz`/`Luís`…). As demais ficam com longitude, latitude e distrito em branco — inclusive 13 casadas só pela rua e pelo nome da rede, sem número, cuja posição na rua não é certa; o casamento só pelo nome foi testado e descartado, por errar demais. `nome_osm` é o nome da farmácia no OSM, quando localizada. A coluna `distrito` das localizadas é calculada por `scripts/assignDistricts.ts`. Delimitador `,`, encoding UTF-8 e quebras de linha CRLF."
+      },
+      "temporal": {
+        "reference_period": "2026-10-02",
+        "retrieved_at": "2026-10-30"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`), só nas localizadas"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 771,
+        "size_bytes": 79072,
+        "checkSum": "sha256:6c43685da50ede31dfd76e5582998ef8f74cb45bea726571345e8c70156b791e"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Razão social (`Razão Social`)"
+          },
+          {
+            "name": "nome_osm",
+            "description": "Nome da farmácia no OpenStreetMap, de onde veio a coordenada; vazio nas não localizadas"
+          },
+          {
+            "name": "cnpj",
+            "description": "CNPJ do estabelecimento (`CNPJ`), um por filial",
+            "role": "identifier"
+          },
+          {
+            "name": "endereco",
+            "description": "Endereço como a fonte o escreve (`Endereço`)"
+          },
+          {
+            "name": "bairro",
+            "description": "Bairro (`Bairro`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84), vinda do OpenStreetMap; vazia nas não localizadas",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84), vinda do OpenStreetMap; vazia nas não localizadas",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa; vazio nas não localizadas",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_farmacias_populares": {
+      "id": "camada_farmacias_populares",
+      "collection_id": "dados_processados",
+      "slug": "camada-farmacias-populares",
+      "title": "Camada de farmácias populares do mapa — snapshot",
+      "description": "Snapshot servido à camada de farmácias populares do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/farmacias-populares` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/farmacias-populares.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_farmacias_populares` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`. Só entram as 179 farmácias localizadas: a fonte é marcada `partiallyLocated` no script, que pula as linhas sem coordenada; o id continua sendo a linha do CSV, e uma farmácia mantém o id quando for localizada."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-30"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 179,
+        "size_bytes": 43755,
+        "checkSum": "sha256:f5fe939a30da9440cd3759ac55095f30ed50f630696d1478f0b3fbc5ae319ac0"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_farmacias_populares`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_farmacias_populares"]
+    },
+    "distritos_farmacias_privadas": {
+      "id": "distritos_farmacias_privadas",
+      "collection_id": "openstreetmap",
+      "slug": "distritos-farmacias-privadas",
+      "title": "Farmácias privadas da cidade de São Paulo por distrito municipal",
+      "description": "Farmácias (`amenity=pharmacy`) mapeadas no OpenStreetMap na cidade, com nome, rede, endereço, telefone, coordenadas e distrito — sem as do Programa Farmácia Popular já localizadas em `distritos_farmacias_populares` e sem as públicas.",
+      "file": "src/data-source-static/data/raw/farmacias_privadas_osm.csv",
+      "format": "CSV",
+      "source": {
+        "url": "https://overpass-turbo.eu",
+        "notes": "Exportação do overpass-turbo de `amenity=pharmacy` no município (964 farmácias, 2026-10-30), convertida para CSV. Prédios e áreas entram pelo ponto central que o Overpass calcula. Saíram as 179 que estão em `distritos_farmacias_populares` — 178 pontos com a mesma coordenada, e um segundo ponto do OSM para a mesma Droga Raia da Av. Professor Afonso Bovero, 531 —, as 2 públicas (a \"SUS\" da R. Catão, 380 e a Unidade Dispensadora Tenente Pena, do Governo do Estado) e as 95 sem nome nem marca. `nome` é `name` do OSM, ou `brand` quando não há nome. A coluna `distrito` é calculada por `scripts/assignDistricts.ts` (nenhum ponto caiu fora do município). Não é o universo das farmácias da cidade: o OSM cobre bem as grandes redes e o centro expandido, e mal as farmácias de bairro. Licença ODbL. Delimitador `,`, encoding UTF-8 e quebras de linha CRLF."
+      },
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-30"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "equipamento (ponto)",
+        "key": "distrito (nome do distrito municipal, igual a `nome` em `maps-data.json`)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 688,
+        "size_bytes": 62853,
+        "checkSum": "sha256:d19801cd0f297d21c0ddb52caafc7c203d3f5a223f80a23ea60d521198782f36"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "nome",
+            "description": "Nome da farmácia (`name`, ou `brand` quando não há nome)"
+          },
+          {
+            "name": "marca",
+            "description": "Rede (`brand`), quando pertence a uma"
+          },
+          {
+            "name": "endereco",
+            "description": "Logradouro e número (`addr:street`, `addr:housenumber`)"
+          },
+          {
+            "name": "bairro",
+            "description": "Bairro (`addr:suburb`)"
+          },
+          {
+            "name": "cep",
+            "description": "CEP (`addr:postcode`)"
+          },
+          {
+            "name": "telefone",
+            "description": "Telefone (`phone` ou `contact:phone`)"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal onde o ponto cai, calculado contra a malha oficial `distrito_municipal` do GeoSampa (não vem da fonte)",
+            "role": "identifier"
+          }
+        ]
+      }
+    },
+    "camada_farmacias_privadas": {
+      "id": "camada_farmacias_privadas",
+      "collection_id": "dados_processados",
+      "slug": "camada-farmacias-privadas",
+      "title": "Camada de farmácias privadas do mapa — snapshot",
+      "description": "Snapshot servido à camada de farmácias privadas do botão \"Camadas\" do mapa: um registro por ponto, com id numérico sequencial, coordenadas, distrito e as colunas descritivas do CSV em `atributos`. A rota `/api/camadas/farmacias-privadas` o entrega como GeoJSON FeatureCollection de pontos, só com o nome e a linha secundária do tooltip.",
+      "file": "src/data-source-static/data/points/farmacias-privadas.json",
+      "format": "JSON",
+      "source": {
+        "url": null,
+        "notes": "Gerado a partir de `distritos_farmacias_privadas` por `scripts/generatePointsData.ts`, versionado neste repositório. O script valida que toda coordenada cai dentro do município, o que pega lat/lon trocadas ou coordenadas projetadas (UTM). A linha secundária do tooltip é montada em `data-gateway/transformers/toAppPoints`."
+      },
+      "generated_by": "scripts/generatePointsData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-30"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "ponto",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 688,
+        "size_bytes": 146968,
+        "checkSum": "sha256:51121f8bf15d545414c58ae7ec8014f95b5db611678786ba96b46ff8eb896343"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id sequencial na ordem do CSV — o id da feição no mapa e a chave do tooltip",
+            "role": "identifier"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "latitude",
+            "description": "Latitude do ponto (WGS84)",
+            "unit": "graus",
+            "role": "geometry"
+          },
+          {
+            "name": "distrito",
+            "description": "Distrito municipal do ponto, copiado do CSV"
+          },
+          {
+            "name": "atributos",
+            "description": "As colunas descritivas de `distritos_farmacias_privadas`, como texto; `nome` presente em todas"
+          }
+        ]
+      },
+      "derived_from": ["distritos_farmacias_privadas"]
+    },
+    "coordenadorias_saude_contorno": {
+      "id": "coordenadorias_saude_contorno",
+      "collection_id": "geosampa",
+      "slug": "coordenadorias-saude-contorno",
+      "title": "Contornos das Coordenadorias Regionais de Saúde (CRS)",
+      "description": "Malha (polígonos) das 5 Coordenadorias Regionais de Saúde, usada pelo mapa no recorte por território de saúde. Join pelo `id` nativo da feição, igual ao `id` de `health-divisions.json`.",
+      "file": "public/coordenadorias-saude.geojson",
+      "format": "GeoJSON",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_coordenadoria_regional",
+        "notes": "Gerado por `scripts/generateHealthTerritoriesData.ts` a partir das camadas `geoportal:equipamento_saude_coordenadoria_regional` e `geoportal:equipamento_saude_supervisao_tecnica` do GeoSampa. Desde a PR #38 as CRS e STS são níveis do mapa coroplético, como os distritos e as subprefeituras, e não mais camadas do botão \"Camadas\". Os nomes vêm em maiúsculas e sem acento na fonte e são convertidos para a grafia da cidade; o script falha em qualquer nome que não conheça. Geometria simplificada por Douglas-Peucker com tolerância de 40 m e coordenadas arredondadas a 5 casas, como a malha das subprefeituras. A data de obtenção é a do commit que gerou o arquivo."
+      },
+      "generated_by": "scripts/generateHealthTerritoriesData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-19"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "coordenadoria (polígono)",
+        "key": "id (nativo da feição)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "features": 5,
+        "size_bytes": 35369,
+        "checkSum": "sha256:ee418445a9582dcb63cd50c2b330b5ff4700a143d91681b1ae688ded910680df"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id nativo da feição (`cd_identificador_*` do GeoSampa) — a chave do join com `health-divisions.json` e com os dados do mapa",
+            "role": "identifier"
+          },
+          {
+            "name": "properties",
+            "description": "`id` (o mesmo id da feição) e `nome`, o nome de exibição (`CRS Oeste`, `STS Butantã`)"
+          },
+          {
+            "name": "geometry",
+            "description": "Polígono do território",
+            "role": "geometry"
+          }
+        ]
+      }
+    },
+    "supervisoes_saude_contorno": {
+      "id": "supervisoes_saude_contorno",
+      "collection_id": "geosampa",
+      "slug": "supervisoes-saude-contorno",
+      "title": "Contornos das Supervisões Técnicas de Saúde (STS)",
+      "description": "Malha (polígonos) das 26 Supervisões Técnicas de Saúde, usada pelo mapa no recorte por território de saúde. Join pelo `id` nativo da feição, igual ao `id` de `health-divisions.json`.",
+      "file": "public/supervisoes-saude.geojson",
+      "format": "GeoJSON",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_supervisao_tecnica",
+        "notes": "Gerado por `scripts/generateHealthTerritoriesData.ts` a partir das camadas `geoportal:equipamento_saude_coordenadoria_regional` e `geoportal:equipamento_saude_supervisao_tecnica` do GeoSampa. Desde a PR #38 as CRS e STS são níveis do mapa coroplético, como os distritos e as subprefeituras, e não mais camadas do botão \"Camadas\". Os nomes vêm em maiúsculas e sem acento na fonte e são convertidos para a grafia da cidade; o script falha em qualquer nome que não conheça. Geometria simplificada por Douglas-Peucker com tolerância de 40 m e coordenadas arredondadas a 5 casas, como a malha das subprefeituras. A data de obtenção é a do commit que gerou o arquivo."
+      },
+      "generated_by": "scripts/generateHealthTerritoriesData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-19"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "supervisão (polígono)",
+        "key": "id (nativo da feição)"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "features": 26,
+        "size_bytes": 61130,
+        "checkSum": "sha256:513c90613e543dee3ed5be2fc8f23e18a33c4440cfd7cc2e288f6942223387f4"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "id",
+            "description": "Id nativo da feição (`cd_identificador_*` do GeoSampa) — a chave do join com `health-divisions.json` e com os dados do mapa",
+            "role": "identifier"
+          },
+          {
+            "name": "properties",
+            "description": "`id` (o mesmo id da feição) e `nome`, o nome de exibição (`CRS Oeste`, `STS Butantã`)"
+          },
+          {
+            "name": "geometry",
+            "description": "Polígono do território",
+            "role": "geometry"
+          }
+        ]
+      }
+    },
+    "territorios_saude_distritos": {
+      "id": "territorios_saude_distritos",
+      "collection_id": "geosampa",
+      "slug": "territorios-saude-distritos",
+      "title": "Territórios de saúde (CRS e STS) e seus distritos municipais",
+      "description": "As 5 Coordenadorias Regionais de Saúde e as 26 Supervisões Técnicas de Saúde, com os distritos do projeto (por `geometry_id`) que cada uma agrupa e, nas STS, a sua CRS. É a correspondência que o gateway usa para somar as contagens dos distritos nos recortes por território de saúde.",
+      "file": "src/data-source-static/data/health-divisions.json",
+      "format": "JSON",
+      "source": {
+        "url": "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_supervisao_tecnica",
+        "urls": [
+          "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_coordenadoria_regional",
+          "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:equipamento_saude_supervisao_tecnica",
+          "https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/wfs?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&typeNames=geoportal:distrito_municipal"
+        ],
+        "notes": "Gerado por `scripts/generateHealthTerritoriesData.ts` a partir das camadas `geoportal:equipamento_saude_coordenadoria_regional` e `geoportal:equipamento_saude_supervisao_tecnica` do GeoSampa. Desde a PR #38 as CRS e STS são níveis do mapa coroplético, como os distritos e as subprefeituras, e não mais camadas do botão \"Camadas\". Os nomes vêm em maiúsculas e sem acento na fonte e são convertidos para a grafia da cidade; o script falha em qualquer nome que não conheça. Nenhuma camada do GeoSampa diz a STS de um distrito, então cada distrito (polígono oficial `distrito_municipal`, em detalhe completo) vai para a STS que contém a maior parte da sua área, e o script falha se essa parte for menor que 95% (`MIN_DISTRICT_SHARE`, em `scripts/lib/districtsByArea.ts`) ou se a CRS do distrito, conferida pela geometria, não for a da sua STS. As STS seguem as divisas dos distritos, então todo distrito cai inteiro numa delas. A data de obtenção é a do commit que gerou o arquivo."
+      },
+      "generated_by": "scripts/generateHealthTerritoriesData.ts",
+      "temporal": {
+        "reference_period": null,
+        "retrieved_at": "2026-10-19"
+      },
+      "spatial": {
+        "coverage": "Município de São Paulo",
+        "unit": "coordenadoria e supervisão de saúde",
+        "key": "id"
+      },
+      "access": {
+        "level": "public",
+        "contains_personal_data": false
+      },
+      "stats": {
+        "rows": 31,
+        "size_bytes": 4150,
+        "checkSum": "sha256:4d72b3267458281cd399098c18794184eb82c1ed9f8f0830cd23d8eecb592071"
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "coordenadorias",
+            "description": "As 5 CRS: `id` (o da feição em `coordenadorias-saude.geojson`), `nome` e `distritos`"
+          },
+          {
+            "name": "supervisoes",
+            "description": "As 26 STS: `id` (o da feição em `supervisoes-saude.geojson`), `nome`, `coordenadoria` (o `id` da sua CRS) e `distritos`"
+          },
+          {
+            "name": "distritos",
+            "description": "`geometry_id`s dos distritos que o território agrupa (a chave do join com `maps-data.json`)"
+          }
+        ]
+      },
+      "derived_from": ["distritos_populacao_idosa"]
     }
   }
 }

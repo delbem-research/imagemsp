@@ -1,7 +1,7 @@
 import type { LabelFormatSpec } from '@ttoss/geovis';
 
 import type { Category } from '@/components/map/lib/indicators';
-import { MAP_LEVELS, type MapLevel } from '@/components/map/lib/mapLevels';
+import type { MapLevel } from '@/components/map/lib/mapLevels';
 import { isOfferCategory } from '@/config/offer';
 
 /** A number as the legend and tooltip print it: pt-BR, at most two decimals. */
@@ -44,78 +44,51 @@ export const legendLabelFormat = (category: Category): LabelFormatSpec => {
   };
 };
 
+/** The sources the legend footer can name, each linked to its own site. */
+const SOURCES = {
+  seade:
+    '{link:Seade|https://repositorio.seade.gov.br/dataset/populacao-residente-municipio-de-sao-paulo-evolucao}',
+  geosampa: '{link:GeoSampa|https://geosampa.prefeitura.sp.gov.br}',
+  openStreetMap: '{link:OpenStreetMap|https://www.openstreetmap.org/copyright}',
+};
+
 /**
- * Data-source attribution rendered under the legend swatches. `reference`
- * supports an inline link with the `{link:text|url}` syntax, so the SEADE
- * source keeps its hyperlink, as does GeoSampa for the subprefeitura and health
- * polygons (the district geometry is plain text).
+ * Data-source attribution rendered under the legend swatches: only the
+ * sources' names, each linked (`{link:text|url}`) — what the data is and how
+ * it was aggregated is the legend's subtitle's and the catalogue's to say.
  *
- * It also carries the basemap credit, because the spec sets
- * `attributionControlEnabled: false` (see `buildSpec` in `MapsView`): OpenFreeMap serves
- * OpenStreetMap-derived tiles under the ODbL, whose attribution requirement
- * does not go away with MapLibre's own control. This is the surface where it is
- * satisfied instead, so the two must be changed together.
- *
- * The active year is interpolated rather than written into the text: with the
- * timeline driving eleven of them, a fixed year in the credit line would go on
- * naming 2025 while the map painted 2050. Every year in the series is a
- * projection — including the ones already past, which are the model's figures
- * for those years and not the censuses taken in them — so the wording says so
- * once, for the whole series.
- *
- * GeoSampa is credited only while the map shows something of it — an overlay,
- * or an offer indicator, whose facilities come from its current mapping — so
- * the footer never cites a source for something the map is not showing.
- *
- * The aggregation and geometry credits follow the level painted: the
- * subprefeitura and health polygons come from GeoSampa, the district ones do
- * not, and the subprefeitura ones are dated, since the division changed within
- * the series (the health ones say they are today's).
+ * - **Seade**, for the population series every indicator is drawn from.
+ * - **GeoSampa**, while the map shows something of it: the subprefeitura and
+ *   health polygons, an overlay, or an offer indicator, whose facilities come
+ *   from its current mapping. The district polygons are not credited to it.
+ * - **OpenStreetMap**, for the basemap: the spec sets
+ *   `attributionControlEnabled: false` (see `BASE_SPEC` in `mapSpec`), and
+ *   OpenFreeMap's tiles are OpenStreetMap data under the ODbL, whose
+ *   attribution this footer gives instead. The two must change together.
  *
  * @param params.level - The geographic level painted.
- * @param params.year - The projection year currently painted.
- * @param params.years - The projection years available, ascending.
  * @param params.overlays - Whether any overlay is on.
  * @param params.offer - Whether an offer indicator is painted.
  * @returns The reference line for the legend footer.
  *
  * @example
- * legendReference({ level: 'distrito', year: 2025, years: [2000, 2050], overlays: false, offer: false });
- * // 'Fonte dos dados: ... projeção para 2025 (série 2000–2050) ...'
+ * legendReference({ level: 'distrito', overlays: false, offer: false });
+ * // 'Fonte: {link:Seade|…} · {link:OpenStreetMap|…}'
  */
 export const legendReference = ({
   level,
-  year,
-  years,
   overlays,
   offer,
 }: {
   level: MapLevel;
-  year: number;
-  years: number[];
   overlays: boolean;
   offer: boolean;
 }): string => {
-  const first = years[0] ?? year;
-  const last = years[years.length - 1] ?? year;
-  // "Equipamentos (rede atual)", "camadas sobrepostas", or both, credited once.
-  const geosampaParts = [
-    offer ? 'equipamentos (rede atual)' : '',
-    overlays ? 'camadas sobrepostas' : '',
+  const geosampa = level !== 'distrito' || overlays || offer;
+  const sources = [
+    SOURCES.seade,
+    geosampa ? SOURCES.geosampa : '',
+    SOURCES.openStreetMap,
   ].filter(Boolean);
-  const geosampaWhat = geosampaParts.join(' e ');
-  const overlaysCredit =
-    geosampaParts.length > 0
-      ? ` ${geosampaWhat.charAt(0).toUpperCase()}${geosampaWhat.slice(1)}: {link:GeoSampa|https://geosampa.prefeitura.sp.gov.br}.`
-      : '';
-
-  const { dataCredit } = MAP_LEVELS[level];
-  // The subprefeitura division changed over the series (Sapopemba split from
-  // Vila Prudente in 2013), so the geometry is dated like the data.
-  const geometryCredit =
-    level === 'subprefeitura'
-      ? `${MAP_LEVELS[level].geometryCredit}, na divisão em vigor em ${year}`
-      : MAP_LEVELS[level].geometryCredit;
-
-  return `Fonte dos dados: {link:${dataCredit} a partir das projeções populacionais por sexo e idade do SEADE|https://repositorio.seade.gov.br/dataset/populacao-residente-municipio-de-sao-paulo-evolucao} — projeção para ${year}, de uma série quinquenal que vai de ${first} a ${last}. Geometria: ${geometryCredit}. Mapa base: {link:OpenFreeMap|https://openfreemap.org/} · {link:OpenStreetMap|https://www.openstreetmap.org/copyright}.${overlaysCredit}`;
+  return `Fonte: ${sources.join(' · ')}`;
 };

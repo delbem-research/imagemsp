@@ -1,11 +1,14 @@
 // Type only: this registry also runs in the API route, which must not pull in
 // the icon registry's client-side `addIcon` calls.
+import type { ZoomScaled } from '@ttoss/geovis';
+
 import type { IconName } from '@/components/map/lib/icons';
 
 /**
  * The overlays the map offers in its "Camadas" control, drawn on top of the
  * choropleth: GeoSampa facilities and stops as pins, the cycle network as
- * lines, and parks and the health territories as polygons.
+ * lines, the traffic crashes as a heatmap, and parks and the health
+ * territories as polygons.
  *
  * This registry is the single place an overlay is declared: the route, the
  * client store and the spec all iterate it, so adding one is an entry here plus
@@ -15,8 +18,10 @@ import type { IconName } from '@/components/map/lib/icons';
 
 /**
  * Overlays drawn as points, each built from a CSV in `data/raw/` — most from
- * GeoSampa, the organic fairs and urban gardens from Sampa+Rural and the
- * private hospitals from CNES.
+ * GeoSampa, the organic fairs and urban gardens from Sampa+Rural, the
+ * private hospitals from CNES, the private restaurants and pharmacies from
+ * OpenStreetMap and the Farmácia Popular pharmacies from the Ministry of
+ * Health.
  */
 export const POINT_OVERLAY_IDS = [
   'hospitais',
@@ -29,7 +34,10 @@ export const POINT_OVERLAY_IDS = [
   'dst-aids',
   'vigilancia',
   'animais',
+  'farmacias-populares',
+  'farmacias-privadas',
   'restaurantes',
+  'restaurantes-privados',
   'feiras',
   'feiras-organicas',
   'mercados',
@@ -59,10 +67,11 @@ export const TERRITORY_OVERLAY_IDS = [
 
 export type TerritoryOverlayId = (typeof TERRITORY_OVERLAY_IDS)[number];
 
-/** Every overlay, points, lines and polygons alike. */
+/** Every overlay, points, lines, heatmaps and polygons alike. */
 export const OVERLAY_IDS = [
   'parques',
   'ciclovias',
+  'acidentes',
   ...TERRITORY_OVERLAY_IDS,
   ...POINT_OVERLAY_IDS,
 ] as const;
@@ -88,7 +97,7 @@ export const isOverlayId = (value: string): value is OverlayId => {
  *
  * @param id - The overlay.
  * @returns `true` for the facility and stop layers, `false` for the cycle
- * lanes, the parks and the health territories.
+ * lanes, the crashes, the parks and the health territories.
  *
  * @example
  * isPointOverlayId('ubs'); // true
@@ -154,8 +163,35 @@ export type LineOverlayConfig = OverlayBase & {
   dashedDetail?: string;
 };
 
+/**
+ * An overlay drawn as a heatmap: the density of its points, in a ramp of
+ * colours rather than one — so it takes {@link colors} in place of `color`.
+ */
+export type HeatmapOverlayConfig = Omit<OverlayBase, 'color'> & {
+  id: 'acidentes';
+  kind: 'heatmap';
+  /** The density ramp, lowest density first; zero density is transparent. */
+  colors: string[];
+  /** Radius of influence of each point, in pixels, fixed or by zoom. */
+  radius: ZoomScaled;
+  /** Multiplier on the density, fixed or by zoom. */
+  intensity: ZoomScaled;
+  /** Layer opacity, from `0` to `1`. */
+  opacity: number;
+  /** Labels under the low and high ends of the legend's gradient. */
+  legendLabels: { low: string; high: string };
+  /**
+   * The legend's subtitle, for the age bands the map's age filter picked
+   * (`offerAgesLong`'s words, e.g. `65 anos ou mais`) — it names the snapshot's
+   * year too, so it changes with its generator's.
+   */
+  legendSubtitle: (ages: string) => string;
+  /** The legend's source footer: the source's name alone. */
+  legendReference: string;
+};
+
 export type PolygonOverlayConfig = OverlayBase & {
-  id: Exclude<OverlayId, PointOverlayId | 'ciclovias'>;
+  id: Exclude<OverlayId, PointOverlayId | 'ciclovias' | 'acidentes'>;
   kind: 'polygon';
   /** Fill opacity, from `0` (outline only) to `1` (solid). */
   fillOpacity: number;
@@ -166,6 +202,7 @@ export type PolygonOverlayConfig = OverlayBase & {
 export type OverlayConfig =
   | PointOverlayConfig
   | LineOverlayConfig
+  | HeatmapOverlayConfig
   | PolygonOverlayConfig;
 
 /**
@@ -187,10 +224,11 @@ export type OverlayConfig =
  * violet sits nearest the metro stations' purple). The parks' green is darker
  * and less saturated than the UBS points' so the two read apart.
  *
- * Bus stops and the on-street special parking spaces are smaller than the
- * other pins and the only ones allowed to collide away: there are 22 thousand
- * stops and 3 thousand spaces, and drawn all at once they would pave the city
- * over. MapLibre keeps a readable spread of them at city zoom and brings back
+ * Bus stops, the on-street special parking spaces, the private restaurants
+ * and the private pharmacies are smaller than the other pins and the only ones
+ * allowed to collide away: there are 22 thousand stops, 3 thousand spaces,
+ * 2 thousand restaurants and 700 pharmacies, and drawn all at once they would
+ * pave the city over. MapLibre keeps a readable spread of them at city zoom and brings back
  * the rest as the map zooms in; every other overlay keeps all its pins at any
  * zoom.
  */
@@ -297,6 +335,30 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     pinSize: 31,
     allowOverlap: true,
   },
+  {
+    id: 'farmacias-populares',
+    kind: 'point',
+    label: 'Farmácias populares',
+    // A vivid green, the pharmacies' own colour, and far enough from the UBS
+    // green to tell the two apart.
+    color: '#00C853',
+    icon: 'ph:pill',
+    pinSize: 31,
+    allowOverlap: true,
+  },
+  {
+    id: 'farmacias-privadas',
+    kind: 'point',
+    label: 'Farmácias privadas',
+    // The Farmácia Popular pill in mint, as the private hospitals take the
+    // public ones' cross in a colour of their own.
+    color: '#69F0AE',
+    icon: 'ph:pill',
+    // Seven hundred of them, crowded in the centre: small, and left to
+    // collide away until the map zooms in, like the private restaurants.
+    pinSize: 23,
+    allowOverlap: false,
+  },
   // The health territories. The 487 UBS catchments are a thin outline only,
   // so the choropleth still reads through them and the crowded pin palette is
   // left alone. The Saúde da Família coverage alone is tinted: what it says is
@@ -326,6 +388,20 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     icon: 'ph:fork-knife',
     pinSize: 31,
     allowOverlap: true,
+  },
+  {
+    id: 'restaurantes-privados',
+    kind: 'point',
+    label: 'Restaurantes privados',
+    // Salmon, warm like the food overlays without nearing the public
+    // restaurants' pink or the hospitals' red; a bowl, so the two restaurant
+    // layers read apart at a glance.
+    color: '#FF8A65',
+    icon: 'ph:bowl-food',
+    // Two and a half thousand of them, crowded in the centre: small, and left
+    // to collide away until the map zooms in, like the bus stops.
+    pinSize: 23,
+    allowOverlap: false,
   },
   {
     id: 'feiras',
@@ -412,6 +488,37 @@ export const OVERLAYS: readonly OverlayConfig[] = [
     dashedDetail: 'Ciclorrota',
   },
   {
+    id: 'acidentes',
+    kind: 'heatmap',
+    label: 'Acidentes de trânsito',
+    // Only the crashes in which a person aged 65 or more was hurt or killed
+    // (see `scripts/generateCrashesData.ts`), filtered by the map's age bands.
+    // Yellow to dark red, with no blue in it: the choropleth underneath is a
+    // blue ramp, and a blue heat would vanish into the darker districts.
+    colors: ['#FDE68A', '#F97316', '#DC2626', '#7F1D1D'],
+    // Grows with the zoom, so the heat neither vanishes as the reader zooms in
+    // nor smears the city over as they zoom out; the intensity rises with it,
+    // as fewer crashes share each pixel up close. Both are set for the 1–2
+    // thousand crashes with older people hurt, a sixteenth of all crashes.
+    radius: [
+      [10, 10],
+      [13, 24],
+      [16, 44],
+    ],
+    intensity: [
+      [10, 1.6],
+      [16, 4],
+    ],
+    // Translucent, so the choropleth beneath still reads through the heat.
+    opacity: 0.8,
+    legendLabels: { low: 'Menos acidentes', high: 'Mais acidentes' },
+    // The year is `scripts/generateCrashesData.ts`'s `YEAR`.
+    legendSubtitle: (ages) => {
+      return `Densidade dos acidentes de trânsito de 2024 com pessoas de ${ages} feridas ou mortas.`;
+    },
+    legendReference: 'Fonte: {link:Infosiga|https://infosiga.detran.sp.gov.br}',
+  },
+  {
     id: 'bicicletarios',
     kind: 'point',
     label: 'Bicicletários e paraciclos',
@@ -449,35 +556,4 @@ export const OVERLAYS: readonly OverlayConfig[] = [
   },
 ];
 
-/**
- * The order the overlays are drawn in, bottom first: polygons, then lines,
- * then points — a solid park never covers the cycle lane through it, nor
- * either of them a facility. Within each
- * kind the control's order holds, read backwards — its first item draws on top
- * — which leaves the 22 thousand bus stops, last in the control, beneath the
- * other points instead of burying the hospitals.
- *
- * @param overlays - The overlays, in control order.
- * @returns The same overlays, in draw order.
- *
- * @example
- * overlayDrawOrder(OVERLAYS).map((overlay) => overlay.id);
- * // ['saude-familia', ..., 'parques', 'pontos-onibus', ..., 'hospitais']
- */
-export const overlayDrawOrder = (
-  overlays: readonly OverlayConfig[]
-): OverlayConfig[] => {
-  const bottomFirst = [...overlays].reverse();
-
-  return [
-    ...bottomFirst.filter((overlay) => {
-      return overlay.kind === 'polygon';
-    }),
-    ...bottomFirst.filter((overlay) => {
-      return overlay.kind === 'line';
-    }),
-    ...bottomFirst.filter((overlay) => {
-      return overlay.kind === 'point';
-    }),
-  ];
-};
+export { overlayDrawOrder } from './overlayDrawOrder';

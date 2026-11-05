@@ -37,6 +37,15 @@ const SNAPSHOTS: Record<PointOverlayId, () => Promise<{ default: unknown }>> = {
   restaurantes: () => {
     return import('./data/points/restaurantes.json');
   },
+  'farmacias-populares': () => {
+    return import('./data/points/farmacias-populares.json');
+  },
+  'farmacias-privadas': () => {
+    return import('./data/points/farmacias-privadas.json');
+  },
+  'restaurantes-privados': () => {
+    return import('./data/points/restaurantes-privados.json');
+  },
   feiras: () => {
     return import('./data/points/feiras.json');
   },

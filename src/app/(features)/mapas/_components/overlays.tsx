@@ -2,6 +2,8 @@ import { Box, Text } from '@chakra-ui/react';
 import type {
   DataSource,
   HoverTooltipConfig,
+  LayerFilter,
+  LegendSpec,
   MapHoverInfo,
   PinImage,
   VisualizationLayer,
@@ -10,6 +12,12 @@ import type {
 
 import { PIN_ICON_DATA } from '@/components/map/lib/icons';
 import {
+  OFFER_AGE_BANDS,
+  type OfferAgeBand,
+  offerAgesLong,
+} from '@/config/offer';
+import {
+  type HeatmapOverlayConfig,
   type LineOverlayConfig,
   type OverlayConfig,
   overlayDrawOrder,
@@ -203,17 +211,35 @@ const lineMark = (config: LineOverlayConfig): string => {
   return `<path d='M8 22 C24 10 40 30 56 16' ${stroke}/>${dashed}`;
 };
 
+/**
+ * Two blots of heat in the overlay's ramp, hottest at the middle and fading to
+ * nothing at the rim, as its density looks on the map.
+ */
+const heatMark = (config: HeatmapOverlayConfig): string => {
+  const hottestFirst = [...config.colors].reverse();
+  const stops = hottestFirst
+    .map((color, index) => {
+      return `<stop offset='${index / hottestFirst.length}' stop-color='${color}'/>`;
+    })
+    .join('');
+  const rim = `<stop offset='1' stop-color='${config.colors[0]}' stop-opacity='0'/>`;
+  const blot = `fill='url(#heat)' opacity='${config.opacity}'`;
+  return `<defs><radialGradient id='heat'>${stops}${rim}</radialGradient></defs><circle cx='26' cy='27' r='20' ${blot}/><circle cx='43' cy='43' r='15' ${blot}/>`;
+};
+
 /** The marks a control thumbnail shows for an overlay, by what it draws. */
 const marksOf = (config: OverlayConfig): string => {
   if (config.kind === 'point') return pinMark(config);
   if (config.kind === 'line') return lineMark(config);
+  if (config.kind === 'heatmap') return heatMark(config);
   return polygonMark(config);
 };
 
 /**
  * Thumbnail of a control item, inline so it needs no request: for a point
- * overlay its pin; for a line overlay its strokes; for a polygon overlay two
- * filled, outlined patches, like it draws on the map.
+ * overlay its pin; for a line overlay its strokes; for a heatmap two blots of
+ * its heat; for a polygon overlay two filled, outlined patches, like it draws
+ * on the map.
  *
  * @param config - The overlay.
  * @returns An SVG data URI.
@@ -264,6 +290,10 @@ const renderOverlayTooltip = (feature: OverlayProperties | undefined) => {
  * declare `click: {}` to get a tooltip. A line overlay with dashed features
  * leaves them to its dashed layer (see {@link hasDashedLayer}).
  *
+ * A heatmap draws the density of its points in the overlay's ramp, its radius
+ * and intensity following the zoom. It has no tooltip: it shows where points
+ * crowd, never one point.
+ *
  * Polygons are a fill plus an outline in the overlay's colour, at the
  * overlay's own opacity; a translucent one also gets an outline layer of its
  * own (see {@link hasOutlineLayer}). `hoverPaint` does for them what `click` does
@@ -285,6 +315,18 @@ const drawing = (
         iconAllowOverlap: config.allowOverlap,
       },
       click: {},
+    };
+  }
+
+  if (config.kind === 'heatmap') {
+    return {
+      geometry: 'heatmap',
+      paint: {
+        heatmapColors: config.colors,
+        heatmapRadius: config.radius,
+        heatmapIntensity: config.intensity,
+        heatmapOpacity: config.opacity,
+      },
     };
   }
 
@@ -317,6 +359,87 @@ const drawing = (
 };
 
 /**
+ * Id of a heatmap overlay's density legend.
+ *
+ * @param overlay - The overlay.
+ * @returns The legend's id.
+ *
+ * @example
+ * overlayLegendId('acidentes'); // 'acidentes-overlay-legend'
+ */
+const overlayLegendId = (overlay: OverlayId): string => {
+  return `${overlaySpecId(overlay)}-legend`;
+};
+
+/**
+ * A heatmap overlay's legend: a gradient in its ramp, from geovis' density
+ * legend, which reads the colours off the layer itself. It sits in the map's
+ * bottom-right corner, where geovis stacks it under the area legend — the two
+ * share the corner, and the group takes the area legend's inset.
+ */
+const buildHeatmapLegend = ({
+  config,
+  ages,
+}: {
+  config: HeatmapOverlayConfig;
+  ages: readonly OfferAgeBand[];
+}): LegendSpec => {
+  return {
+    id: overlayLegendId(config.id),
+    title: config.label,
+    subtitle: config.legendSubtitle(offerAgesLong(ages)),
+    position: 'bottom-right',
+    offset: 12,
+    reference: config.legendReference,
+    colorBy: {
+      type: 'density',
+      lowLabel: config.legendLabels.low,
+      highLabel: config.legendLabels.high,
+    },
+  };
+};
+
+/**
+ * Which of the crash points the heatmap keeps for the age bands picked: every
+ * band keeps one point per crash (`todos`), so a crash with people of two
+ * bands heats its place once; some bands keep the points of those bands.
+ */
+const ageFilter = (ages: readonly OfferAgeBand[]): LayerFilter => {
+  if (ages.length === OFFER_AGE_BANDS.length) {
+    return { property: 'todos', operator: 'eq', value: 1 };
+  }
+  return { property: 'faixa', operator: 'in', value: [...ages] };
+};
+
+/**
+ * Builds a heatmap overlay's map layer, its points filtered by the age bands
+ * the map's age filter picked. It has no tooltip, and carries its legend only
+ * while it is on: geovis draws every positioned legend in the spec, so a
+ * legend left in would describe a heat no longer drawn.
+ */
+const buildHeatmapLayer = ({
+  config,
+  visible,
+  ages,
+}: {
+  config: HeatmapOverlayConfig;
+  visible: boolean;
+  ages: readonly OfferAgeBand[];
+}): VisualizationLayer => {
+  return {
+    id: overlaySpecId(config.id),
+    sourceId: config.id,
+    visible,
+    filter: ageFilter(ages),
+    ...drawing(config),
+    ...(visible && {
+      activeLegendId: overlayLegendId(config.id),
+      legends: [buildHeatmapLegend({ config, ages })],
+    }),
+  };
+};
+
+/**
  * Builds one overlay's map layer.
  *
  * `visible` is written into the spec rather than left to the control, so the
@@ -329,12 +452,18 @@ const buildLayer = ({
   collection,
   visible,
   tooltipStyle,
+  ages,
 }: {
   config: OverlayConfig;
   collection: OverlayContract;
   visible: boolean;
   tooltipStyle: HoverTooltipConfig['style'];
+  ages: readonly OfferAgeBand[];
 }): VisualizationLayer => {
+  if (config.kind === 'heatmap') {
+    return buildHeatmapLayer({ config, visible, ages });
+  }
+
   const byId = new Map(
     collection.features.map((feature) => {
       return [feature.id, feature.properties] as const;
@@ -448,24 +577,29 @@ const PIN_IMAGES: PinImage[] = OVERLAYS.flatMap((config) => {
 /**
  * Builds the sources, layers and pin images of every overlay.
  *
- * Layers are returned in {@link overlayDrawOrder}: polygons, then lines, then
- * points, and within each kind the control's first item on top.
+ * Layers are returned in {@link overlayDrawOrder}: polygons, then heatmaps,
+ * then lines, then points, and within each kind the control's first item on
+ * top.
  *
  * @param params.layers - The store's snapshot: toggles and loaded data.
  * @param params.tooltipStyle - Card style shared with the area tooltip.
+ * @param params.ages - The age bands the map's age filter picked, which the
+ * crash heatmap is filtered by.
  * @returns The sources and layers to append to the spec, and the pin images
  * its point layers draw.
  *
  * @example
- * buildOverlays({ layers: overlaysStore.getSnapshot(), tooltipStyle });
+ * buildOverlays({ layers: overlaysStore.getSnapshot(), tooltipStyle, ages: ['65-69', '70-74', '75'] });
  * // { sources: [{ id: 'parques', ... }, ...], layers: [{ id: 'pontos-onibus-overlay', visible: false, ... }, ...], images: [{ id: 'hospitais-pin', ... }, ...] }
  */
 export const buildOverlays = ({
   layers,
   tooltipStyle,
+  ages,
 }: {
   layers: OverlaysSnapshot;
   tooltipStyle: HoverTooltipConfig['style'];
+  ages: readonly OfferAgeBand[];
 }): {
   sources: DataSource[];
   layers: VisualizationLayer[];
@@ -486,6 +620,7 @@ export const buildOverlays = ({
       collection: layers.data[config.id] ?? EMPTY_COLLECTION,
       visible,
       tooltipStyle,
+      ages,
     });
 
     // Companions right above their own layer, so they keep its place in the
