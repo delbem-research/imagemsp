@@ -216,6 +216,59 @@ describe('toAppNearbyPoints', () => {
 
     expect(nearby.hours).toBe('SEGUNDA A SÁBADO 8H-18H');
   });
+
+  test("lists a Farmácia Popular pharmacy's CNPJ among its facts", () => {
+    const point = ubsNorthBy(8, 300);
+    const [nearby] = toAppNearbyPoints({
+      layer: 'farmacias-populares',
+      source: {
+        points: [
+          {
+            ...point,
+            atributos: {
+              nome: 'RAIA DROGASIL S/A',
+              nome_osm: 'Drogasil',
+              cnpj: '61.585.865/0373-14',
+              endereco: 'AVENIDA DOUTOR ANTONIO MARIA LAET, 566',
+              bairro: 'TUCURUVI',
+            },
+          },
+        ],
+      },
+      query: { ...ORIGIN, radiusMin: 0, radius: 1000 },
+    });
+
+    expect(nearby.detail).toBe('Drogasil');
+    expect(nearby.facts).toEqual([
+      { label: 'CNPJ', value: '61.585.865/0373-14' },
+    ]);
+  });
+
+  test("lists a private restaurant's cuisines, translated, among its facts", () => {
+    const point = ubsNorthBy(7, 300);
+    const [nearby] = toAppNearbyPoints({
+      layer: 'restaurantes-privados',
+      source: {
+        points: [
+          {
+            ...point,
+            atributos: {
+              nome: 'Restaurante',
+              cozinha: 'japanese;sushi;fusion',
+              telefone: '+55 11 3101-8888',
+            },
+          },
+        ],
+      },
+      query: { ...ORIGIN, radiusMin: 0, radius: 1000 },
+    });
+
+    expect(nearby.detail).toBe('Japonesa · Sushi');
+    expect(nearby.phone).toBe('+55 11 3101-8888');
+    expect(nearby.facts).toEqual([
+      { label: 'Cozinha', value: 'Japonesa · Sushi' },
+    ]);
+  });
 });
 
 describe('distanceInMetres', () => {

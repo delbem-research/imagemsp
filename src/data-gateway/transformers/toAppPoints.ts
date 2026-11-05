@@ -95,6 +95,76 @@ const SPACE_KINDS: Record<string, string> = {
  * An all-caps source sentence in sentence case (`SEGUNDA A SÁBADO 7H-18H` →
  * `Segunda a sábado 7h-18h`): title case would capitalise every `a` and `e`.
  */
+/**
+ * OpenStreetMap's `cuisine` values, as a private restaurant's line names them.
+ * The common ones only: a value missing here is left out rather than shown in
+ * English.
+ */
+const CUISINES: Record<string, string> = {
+  regional: 'Regional',
+  brazilian: 'Brasileira',
+  nordestina: 'Nordestina',
+  mineira: 'Mineira',
+  gaucho: 'Gaúcha',
+  pizza: 'Pizzaria',
+  italian: 'Italiana',
+  japanese: 'Japonesa',
+  sushi: 'Sushi',
+  ramen: 'Lámen',
+  poke: 'Poke',
+  chinese: 'Chinesa',
+  korean: 'Coreana',
+  thai: 'Tailandesa',
+  asian: 'Asiática',
+  oriental: 'Oriental',
+  indian: 'Indiana',
+  arab: 'Árabe',
+  lebanese: 'Libanesa',
+  kebab: 'Kebab',
+  greek: 'Grega',
+  portuguese: 'Portuguesa',
+  spanish: 'Espanhola',
+  french: 'Francesa',
+  german: 'Alemã',
+  american: 'Americana',
+  mexican: 'Mexicana',
+  peruvian: 'Peruana',
+  argentinian: 'Argentina',
+  international: 'Internacional',
+  burger: 'Hambúrguer',
+  sandwich: 'Lanches',
+  chicken: 'Frango',
+  steak_house: 'Churrascaria',
+  steak: 'Carnes',
+  barbecue: 'Churrasco',
+  churrasco: 'Churrasco',
+  grill: 'Grelhados',
+  seafood: 'Frutos do mar',
+  fish: 'Peixes',
+  vegetarian: 'Vegetariana',
+  vegan: 'Vegana',
+  coffee_shop: 'Café',
+  breakfast: 'Café da manhã',
+  dessert: 'Sobremesas',
+  cake: 'Bolos',
+};
+
+/**
+ * A private restaurant's cuisines, translated: OSM lists them separated by
+ * `;` (`chinese;cantonese`), and those {@link CUISINES} does not know are left
+ * out.
+ *
+ * @example
+ * cuisinesOf('pizza;italian;wood_fired'); // 'Pizzaria · Italiana'
+ */
+const cuisinesOf = (value: string | undefined): string => {
+  const labels = (value ?? '').split(';').flatMap((code) => {
+    const label = CUISINES[code.trim()];
+    return label ? [label] : [];
+  });
+  return joinDetail([...new Set(labels)]);
+};
+
 const sentenceCase = (value: string): string => {
   const lower = value.toLocaleLowerCase('pt-BR');
   return lower.charAt(0).toLocaleUpperCase('pt-BR') + lower.slice(1);
@@ -133,11 +203,27 @@ const DETAIL: Record<
   'dst-aids': equipmentDetail,
   vigilancia: equipmentDetail,
   animais: equipmentDetail,
+  // The pharmacy's name on the map, when OpenStreetMap has one — the list
+  // itself carries only the company's legal name; else its neighbourhood.
+  'farmacias-populares': (a) => {
+    return a['nome_osm'] || titleCase(a['bairro'] ?? '');
+  },
+  // The chain it belongs to, when its name does not already say so; else
+  // where it is.
+  'farmacias-privadas': (a) => {
+    return a['marca'] && a['marca'] !== a['nome']
+      ? a['marca']
+      : titleCase(a['bairro'] ?? '');
+  },
   restaurantes: (a) => {
     return joinDetail([
       titleCase(a['programa'] ?? ''),
       titleCase(a['esfera'] ?? ''),
     ]);
+  },
+  // From OpenStreetMap: its cuisines, when the map knows them.
+  'restaurantes-privados': (a) => {
+    return cuisinesOf(a['cozinha']);
   },
   // A sports centre's type repeats its category before the slash
   // (`Centro Esportivo/Balneário`), so only the part after it is kept; a
@@ -252,6 +338,13 @@ const FACTS: [column: string, label: string, format: FactFormat][] = [
     },
   ],
   ['programa', 'Programa', calm],
+  [
+    'cozinha',
+    'Cozinha',
+    (value) => {
+      return cuisinesOf(value);
+    },
+  ],
   ['natureza', 'Natureza', asIs],
   ['sus', 'Atende SUS', asIs],
   ['esfera', 'Esfera', known],
@@ -281,6 +374,7 @@ const FACTS: [column: string, label: string, format: FactFormat][] = [
     },
   ],
   ['area', 'Área', calm],
+  ['cnpj', 'CNPJ', asIs],
   ['codigo', 'Código', asIs],
   // A bus stop's description mostly repeats its address.
   [

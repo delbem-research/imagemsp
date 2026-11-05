@@ -11,6 +11,12 @@
       "value": "Duas entradas de dados do mapa declaram a mesma dimensão para a mesma fonte."
     }
   ],
+  "/H0Dkt": [
+    {
+      "type": 0,
+      "value": "Mais"
+    }
+  ],
   "/LbTu2": [
     {
       "type": 0,
@@ -47,6 +53,12 @@
     {
       "type": 0,
       "value": "Limpar seleção"
+    }
+  ],
+  "0tpCri": [
+    {
+      "type": 0,
+      "value": "Ponto buscado · limpar busca"
     }
   ],
   "1DwZsQ": [
@@ -425,12 +437,6 @@
       "value": "Nenhuma camada"
     }
   ],
-  "IU+fm9": [
-    {
-      "type": 0,
-      "value": "Abrir detalhes"
-    }
-  ],
   "IUwKDh": [
     {
       "type": 0,
@@ -503,6 +509,58 @@
     {
       "type": 0,
       "value": "Duas entradas de dados do mapa colidem na mesma chave de estado."
+    }
+  ],
+  "P/ahxW": [
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " "
+            },
+            {
+              "type": 1,
+              "value": "one"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " "
+            },
+            {
+              "type": 1,
+              "value": "other"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": " a até "
+    },
+    {
+      "type": 1,
+      "value": "radius"
+    },
+    {
+      "type": 0,
+      "value": " deste ponto"
     }
   ],
   "RJi0HT": [
@@ -735,6 +793,20 @@
       "pluralType": "cardinal"
     }
   ],
+  "Z0O4wv": [
+    {
+      "type": 0,
+      "value": "Buscando "
+    },
+    {
+      "type": 1,
+      "value": "results"
+    },
+    {
+      "type": 0,
+      "value": " perto deste ponto…"
+    }
+  ],
   "ZBWmDx": [
     {
       "type": 0,
@@ -897,6 +969,20 @@
       "value": "Fechar detalhes"
     }
   ],
+  "jD634V": [
+    {
+      "type": 0,
+      "value": "Buscar "
+    },
+    {
+      "type": 1,
+      "value": "results"
+    },
+    {
+      "type": 0,
+      "value": " a partir de qualquer ponto do mapa"
+    }
+  ],
   "jFZRGK": [
     {
       "type": 0,
@@ -939,6 +1025,12 @@
     {
       "type": 0,
       "value": "Sem dados"
+    }
+  ],
+  "lUA3Ob": [
+    {
+      "type": 0,
+      "value": "Menos"
     }
   ],
   "lfjp7g": [
@@ -987,6 +1079,28 @@
     {
       "type": 0,
       "value": "Passo anterior"
+    }
+  ],
+  "q5Z03D": [
+    {
+      "type": 1,
+      "value": "title"
+    },
+    {
+      "type": 0,
+      "value": ": de "
+    },
+    {
+      "type": 1,
+      "value": "low"
+    },
+    {
+      "type": 0,
+      "value": " a "
+    },
+    {
+      "type": 1,
+      "value": "high"
     }
   ],
   "qOPKRg": [
@@ -1081,6 +1195,16 @@
     {
       "type": 0,
       "value": "Hex"
+    }
+  ],
+  "xEeif3": [
+    {
+      "type": 1,
+      "value": "results"
+    },
+    {
+      "type": 0,
+      "value": " em qualquer ponto"
     }
   ],
   "yb6iwx": [

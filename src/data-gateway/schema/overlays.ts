@@ -8,6 +8,13 @@ export type OverlayProperties = {
   name: string;
   /** Secondary line, e.g. `Hospital · Estadual`, `Metrô · Linha Azul`, `Parque Urbano` or `Ciclofaixa`. */
   detail: string;
+  /** A crash's age band, which the heatmap filters by (see `toAppCrashes`). */
+  faixa?: string;
+  /**
+   * `1` on one feature per crash: what the heatmap keeps for every band at
+   * once, so a crash with people of two bands heats its place once.
+   */
+  todos?: number;
 };
 
 type Position = [number, number];

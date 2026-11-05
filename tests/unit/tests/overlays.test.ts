@@ -14,6 +14,7 @@ import {
 } from '@/config/overlays';
 import type { OverlayContract } from '@/data-gateway/schema';
 import { toAppBikeLanes } from '@/data-gateway/transformers/toAppBikeLanes';
+import { toAppCrashes } from '@/data-gateway/transformers/toAppCrashes';
 import { toAppParks } from '@/data-gateway/transformers/toAppParks';
 import { toAppPoints } from '@/data-gateway/transformers/toAppPoints';
 import { toAppTerritories } from '@/data-gateway/transformers/toAppTerritories';
@@ -66,14 +67,16 @@ describe('overlay registry', () => {
     expect(isPointOverlayId('parques')).toBe(false);
   });
 
-  test('draws the polygons beneath the lines, and both beneath every point', () => {
+  test('draws polygons, then heatmaps, then lines, then points, bottom up', () => {
     const kinds = overlayDrawOrder(OVERLAYS).map((overlay) => {
       return overlay.kind;
     });
+    const firstHeatmap = kinds.indexOf('heatmap');
     const firstLine = kinds.indexOf('line');
     const firstPoint = kinds.indexOf('point');
 
-    expect(firstLine).toBeGreaterThan(kinds.lastIndexOf('polygon'));
+    expect(firstHeatmap).toBeGreaterThan(kinds.lastIndexOf('polygon'));
+    expect(firstLine).toBeGreaterThan(kinds.lastIndexOf('heatmap'));
     expect(firstPoint).toBeGreaterThan(kinds.lastIndexOf('line'));
   });
 
@@ -89,8 +92,9 @@ describe('overlay registry', () => {
       'abrangencia-ubs',
       'parques',
     ]);
-    expect(ids[3]).toBe('ciclovias');
-    expect(ids[4]).toBe('pontos-onibus');
+    expect(ids[3]).toBe('acidentes');
+    expect(ids[4]).toBe('ciclovias');
+    expect(ids[5]).toBe('pontos-onibus');
     expect(ids[ids.length - 1]).toBe('hospitais');
   });
 });
@@ -333,6 +337,122 @@ describe('cycle network', () => {
   });
 });
 
+describe('traffic crashes', () => {
+  afterEach(() => {
+    jest.resetModules();
+  });
+
+  test('are a heatmap overlay, neither a point nor a territory', () => {
+    expect(isOverlayId('acidentes')).toBe(true);
+    expect(isPointOverlayId('acidentes')).toBe(false);
+    expect(isTerritoryOverlayId('acidentes')).toBe(false);
+    expect(
+      OVERLAYS.find((overlay) => {
+        return overlay.id === 'acidentes';
+      })?.kind
+    ).toBe('heatmap');
+  });
+
+  test('toAppCrashes makes a crash one unlabelled point per age band, the first of them `todos`', () => {
+    expect(
+      toAppCrashes({
+        ano: 2024,
+        acidentes: [
+          [-46.74931, -23.53816, ['70-74']],
+          [-46.71528, -23.69871, ['65-69', '75']],
+        ],
+      })
+    ).toEqual({
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          id: 1,
+          properties: { name: '', detail: '', faixa: '70-74', todos: 1 },
+          geometry: { type: 'Point', coordinates: [-46.74931, -23.53816] },
+        },
+        {
+          type: 'Feature',
+          id: 2,
+          properties: { name: '', detail: '', faixa: '65-69', todos: 1 },
+          geometry: { type: 'Point', coordinates: [-46.71528, -23.69871] },
+        },
+        {
+          type: 'Feature',
+          id: 3,
+          properties: { name: '', detail: '', faixa: '75', todos: 0 },
+          geometry: { type: 'Point', coordinates: [-46.71528, -23.69871] },
+        },
+      ],
+    });
+  });
+
+  test('toAppCrashes throws on an empty snapshot', () => {
+    expect(() => {
+      return toAppCrashes({ ano: 2024, acidentes: [] });
+    }).toThrow('[data-gateway]');
+  });
+
+  test.each([
+    ['a year that is not an integer', { ano: '2024', acidentes: [] }],
+    ['crashes that are not a list', { ano: 2024, acidentes: {} }],
+    ['a crash with one coordinate', { ano: 2024, acidentes: [[-46.7]] }],
+    [
+      'a coordinate that is not a number',
+      { ano: 2024, acidentes: [[-46.7, 'x', ['75']]] },
+    ],
+    [
+      'a crash with no age band',
+      { ano: 2024, acidentes: [[-46.7, -23.5, []]] },
+    ],
+    [
+      'an age band the app does not have',
+      { ano: 2024, acidentes: [[-46.7, -23.5, ['60-64']]] },
+    ],
+    ['no snapshot at all', null],
+  ])('readStaticCrashes rejects %s', async (_, snapshot) => {
+    jest.doMock('@/data-source-static/data/heat/acidentes.json', () => {
+      return snapshot;
+    });
+
+    const { readStaticCrashes } =
+      await import('@/data-source-static/readStaticCrashes');
+
+    await expect(readStaticCrashes()).rejects.toThrow('[data-source-static]');
+  });
+
+  test('the versioned crash snapshot passes its own validation, inside the city', async () => {
+    // `doMock` survives `resetModules`, so the fixtures above must be lifted.
+    jest.dontMock('@/data-source-static/data/heat/acidentes.json');
+
+    const { readStaticCrashes } =
+      await import('@/data-source-static/readStaticCrashes');
+    const { ano, acidentes } = await readStaticCrashes();
+
+    expect(ano).toBe(2024);
+    // The crashes with a person aged 65 or more hurt or killed: over a
+    // thousand in 2024, each with at least one age band.
+    expect(acidentes.length).toBeGreaterThan(1_000);
+    expect(
+      acidentes.every(([, , bands]) => {
+        return bands.length > 0;
+      })
+    ).toBe(true);
+    // The city's own bounding box: the generator drops anything outside its
+    // districts.
+    expect(
+      acidentes.every(([longitude, latitude]) => {
+        return (
+          longitude > -46.83 &&
+          longitude < -46.36 &&
+          latitude > -24.01 &&
+          latitude < -23.35
+        );
+      })
+    ).toBe(true);
+  });
+});
+
 describe('health territories', () => {
   afterEach(() => {
     jest.resetModules();
@@ -519,6 +639,54 @@ describe('toAppPoints', () => {
       'sesc' as const,
       { nome: 'SESC POMPÉIA', bairro: 'VILA POMPEIA' },
       'Vila Pompeia',
+    ],
+    [
+      'a Farmácia Popular pharmacy by its name on the map',
+      'farmacias-populares' as const,
+      { nome: 'RAIA DROGASIL S/A', nome_osm: 'Droga Raia', bairro: 'MOOCA' },
+      'Droga Raia',
+    ],
+    [
+      'a Farmácia Popular pharmacy the map has no name for by its neighbourhood',
+      'farmacias-populares' as const,
+      { nome: 'DROGARIA X LTDA', nome_osm: '', bairro: 'VILA MARIANA' },
+      'Vila Mariana',
+    ],
+    [
+      'a private pharmacy by the chain its name does not already say',
+      'farmacias-privadas' as const,
+      { nome: 'Raia', marca: 'Droga Raia', bairro: 'Mooca' },
+      'Droga Raia',
+    ],
+    [
+      'a private pharmacy named after its chain by its neighbourhood',
+      'farmacias-privadas' as const,
+      { nome: 'Drogasil', marca: 'Drogasil', bairro: 'Pinheiros' },
+      'Pinheiros',
+    ],
+    [
+      'a private restaurant by its cuisines, translated',
+      'restaurantes-privados' as const,
+      { nome: 'Cantina X', cozinha: 'pizza;italian' },
+      'Pizzaria · Italiana',
+    ],
+    [
+      'a private restaurant leaving out the cuisines it cannot translate',
+      'restaurantes-privados' as const,
+      { nome: 'Chi Fu', cozinha: 'chinese;cantonese' },
+      'Chinesa',
+    ],
+    [
+      'a private restaurant once per cuisine label',
+      'restaurantes-privados' as const,
+      { nome: 'Espeto Y', cozinha: 'barbecue;churrasco' },
+      'Churrasco',
+    ],
+    [
+      'a private restaurant without a known cuisine by nothing',
+      'restaurantes-privados' as const,
+      { nome: 'Bar Z', cozinha: 'wood_fired' },
+      '',
     ],
   ])('describes %s', (_, layer, atributos, detail) => {
     const contract = toAppPoints({

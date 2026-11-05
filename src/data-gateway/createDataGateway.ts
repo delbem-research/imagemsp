@@ -7,6 +7,7 @@ import {
 } from '@/config/overlays';
 
 import { readStaticBikeLanes } from '../data-source-static/readStaticBikeLanes';
+import { readStaticCrashes } from '../data-source-static/readStaticCrashes';
 import { readStaticHealthDivisions } from '../data-source-static/readStaticHealthDivisions';
 import { readStaticMapsData } from '../data-source-static/readStaticMapsData';
 import { readStaticParks } from '../data-source-static/readStaticParks';
@@ -20,6 +21,7 @@ import type {
   OverlayContract,
 } from './schema';
 import { toAppBikeLanes } from './transformers/toAppBikeLanes';
+import { toAppCrashes } from './transformers/toAppCrashes';
 import {
   type ServiceCounts,
   toAppMapsData,
@@ -34,7 +36,7 @@ export type DataGateway = {
   /** Returns the canonical maps data. */
   getMapsData: () => Promise<MapsDataContract>;
   /**
-   * Returns one map overlay (points, cycle lanes, parks or a health territory) as a GeoJSON
+   * Returns one map overlay (points, cycle lanes, crashes, parks or a health territory) as a GeoJSON
    * FeatureCollection.
    */
   getOverlay: (layer: OverlayId) => Promise<OverlayContract>;
@@ -133,6 +135,10 @@ export const createDataGateway = (): DataGateway => {
 
         if (layer === 'ciclovias') {
           return toAppBikeLanes(await readStaticBikeLanes());
+        }
+
+        if (layer === 'acidentes') {
+          return toAppCrashes(await readStaticCrashes());
         }
 
         return toAppParks(await readStaticParks());

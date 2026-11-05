@@ -43,6 +43,7 @@ import lucideZoomIn from '@iconify/icons-lucide/zoom-in';
 import phArrowsInLineHorizontal from '@iconify/icons-ph/arrows-in-line-horizontal';
 import phBasket from '@iconify/icons-ph/basket';
 import phBicycle from '@iconify/icons-ph/bicycle';
+import phBowlFood from '@iconify/icons-ph/bowl-food';
 // Phosphor — sidebar do mapa (cabecalhos de secao e variacoes de indicador)
 import phBrain from '@iconify/icons-ph/brain';
 import phBus from '@iconify/icons-ph/bus';
@@ -79,6 +80,7 @@ import phMapTrifold from '@iconify/icons-ph/map-trifold';
 import phPalette from '@iconify/icons-ph/palette';
 import phPawPrint from '@iconify/icons-ph/paw-print';
 import phPersonSimpleWalk from '@iconify/icons-ph/person-simple-walk';
+import phPill from '@iconify/icons-ph/pill';
 import phPlant from '@iconify/icons-ph/plant';
 import phPlusCircle from '@iconify/icons-ph/plus-circle';
 import phPulse from '@iconify/icons-ph/pulse';
@@ -145,6 +147,8 @@ addIcon('ph:wheelchair', phWheelchair);
 addIcon('ph:leaf', phLeaf);
 addIcon('ph:plant', phPlant);
 addIcon('ph:ticket', phTicket);
+addIcon('ph:bowl-food', phBowlFood);
+addIcon('ph:pill', phPill);
 // Phosphor — the panel of the services near a pin
 addIcon('ph:map-pin', phMapPin);
 addIcon('ph:caret-down', phCaretDown);
@@ -252,6 +256,8 @@ export const ICONS = {
   leaf: 'ph:leaf',
   plant: 'ph:plant',
   ticket: 'ph:ticket',
+  bowlFood: 'ph:bowl-food',
+  pill: 'ph:pill',
 
   // Panel of the services near a pin
   mapPin: 'ph:map-pin',
@@ -296,4 +302,6 @@ export const PIN_ICON_DATA: Partial<Record<IconName, IconifyIcon>> = {
   [ICONS.leaf]: phLeaf,
   [ICONS.plant]: phPlant,
   [ICONS.ticket]: phTicket,
+  [ICONS.bowlFood]: phBowlFood,
+  [ICONS.pill]: phPill,
 };

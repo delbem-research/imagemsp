@@ -38,7 +38,19 @@ const OUT_DIR = path.join(ROOT, 'src/data-source-static/data/points');
  * `src/config/overlays.ts`, which this script cannot import (it runs under
  * plain `node`, outside the app's path aliases).
  */
-const LAYERS: Record<string, { csv: string; columns: string[] }> = {
+const LAYERS: Record<
+  string,
+  {
+    csv: string;
+    columns: string[];
+    /**
+     * Whether the CSV lists places it has no coordinates for yet, left out of
+     * the snapshot rather than rejected: a source that comes as addresses,
+     * located only where the position is certain.
+     */
+    partiallyLocated?: boolean;
+  }
+> = {
   hospitais: {
     csv: 'hospitais_geosampa.csv',
     columns: [
@@ -150,6 +162,26 @@ const LAYERS: Record<string, { csv: string; columns: string[] }> = {
   restaurantes: {
     csv: 'restaurantes_publicos_geosampa.csv',
     columns: ['nome', 'programa', 'esfera', 'endereco'],
+  },
+  // The Ministry of Health's list of Farmácia Popular pharmacies, which comes
+  // as addresses: only those matched to an OpenStreetMap pharmacy at the same
+  // street and number carry coordinates (`nome_osm` is that pharmacy's name).
+  'farmacias-populares': {
+    csv: 'farmacias_populares_pfpb.csv',
+    columns: ['nome', 'nome_osm', 'cnpj', 'endereco', 'bairro'],
+    partiallyLocated: true,
+  },
+  // From OpenStreetMap, without the Farmácia Popular pharmacies (on their own
+  // layer) and the public ones; `marca` is the chain, when it belongs to one.
+  'farmacias-privadas': {
+    csv: 'farmacias_privadas_osm.csv',
+    columns: ['nome', 'marca', 'endereco', 'bairro', 'cep', 'telefone'],
+  },
+  // From OpenStreetMap. Its `horario` is left out: OSM writes it in its own
+  // syntax (`Mo-Su 11:00-16:00`), which the opening-hours reader does not parse.
+  'restaurantes-privados': {
+    csv: 'restaurantes_privados_osm.csv',
+    columns: ['nome', 'cozinha', 'endereco', 'bairro', 'cep', 'telefone'],
   },
   feiras: {
     csv: 'feiras_livres_geosampa.csv',
@@ -341,10 +373,16 @@ const parseRows = ({
       })
     );
 
+    // An empty coordinate is `NaN`, not `Number('')`'s `0`, so an unlocated
+    // row can never pass for one at the origin.
+    const coordinate = (cell: string | undefined) => {
+      return cell ? Number(cell) : Number.NaN;
+    };
+
     return {
       id: index + 1,
-      longitude: Number(cells[columns.length]),
-      latitude: Number(cells[columns.length + 1]),
+      longitude: coordinate(cells[columns.length]),
+      latitude: coordinate(cells[columns.length + 1]),
       distrito: cells[columns.length + 2] ?? '',
       atributos,
     };
@@ -409,10 +447,16 @@ for (const layer of layers) {
     );
   }
 
-  const points = parseRows({
+  const rows = parseRows({
     csvPath: path.join(RAW_DIR, config.csv),
     columns: config.columns,
   });
+  // Ids stay the CSV's line order, so a place keeps its id as more get located.
+  const points = config.partiallyLocated
+    ? rows.filter((row) => {
+        return Number.isFinite(row.longitude) && Number.isFinite(row.latitude);
+      })
+    : rows;
 
   validate({ layer, points });
 
@@ -422,7 +466,8 @@ for (const layer of layers) {
   // points, and pretty-printing would roughly double its size in the repo.
   writeFileSync(outFile, `${JSON.stringify({ points })}\n`, 'utf8');
 
+  const unlocated = rows.length - points.length;
   console.log(
-    `[generatePointsData] wrote ${points.length} points to ${path.relative(ROOT, outFile)}`
+    `[generatePointsData] wrote ${points.length} points to ${path.relative(ROOT, outFile)}${unlocated ? ` (${unlocated} without coordinates left out)` : ''}`
   );
 }

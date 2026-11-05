@@ -185,6 +185,14 @@ node scripts/generateHealthTerritoriesData.ts   # health-divisions.json + CRS/ST
 
 The subprefeitura division is versioned by year (Sapopemba split from Vila Prudente in 2013). The health division has no history in GeoSampa, so today's applies to the whole series. No GeoSampa layer tags a district with its STS, so the generator assigns each district by area and fails if any falls less than 95% inside one STS, or if its STS and CRS disagree.
 
+### Traffic crashes
+
+The "Acidentes de trânsito" overlay is a heatmap of the year's confirmed traffic crashes in the city in which a person aged 65 or more was hurt or killed, from INFOSIGA-SP (DETRAN-SP, CC BY 4.0): the `sinistros` table, joined to the `pessoas` table for each person's age and injury, leaving out the unconfirmed notifications. Its snapshot, `src/data-source-static/data/heat/acidentes.json`, holds each crash's position and the age bands of its older people hurt (`65-69`, `70-74`, `75`), so the map's "Faixa etária" filter narrows the heat. The generator downloads the 140 MB archive from the `infosigasp` mirror (DETRAN-SP's own download refuses requests from outside its dashboard) and drops crashes without a position or outside the official districts; the archive is never versioned:
+
+```bash
+node scripts/generateCrashesData.ts   # data/heat/acidentes.json, for the year in its YEAR constant
+```
+
 ---
 
 ## Development
