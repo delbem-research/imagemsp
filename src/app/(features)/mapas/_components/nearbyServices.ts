@@ -58,7 +58,9 @@ const POINT_OVERLAYS = OVERLAYS.filter(
 /**
  * The map's search around a pin: clicking the pin of any point overlay asks
  * {@link fetchNearbyServices} for the points of every overlay around it, and
- * each answer drops in as a pin in its own overlay's colour and icon.
+ * each answer drops in as a pin in its own overlay's colour and icon. With
+ * `fromAnyPoint`, a button under the map's controls lets the reader search
+ * from any point of the map instead — one search per press.
  */
 export const NEARBY_SEARCH: ProximitySearch = {
   layers: POINT_OVERLAYS.map((config) => {
@@ -75,4 +77,5 @@ export const NEARBY_SEARCH: ProximitySearch = {
     };
   }),
   labels: { one: 'serviço', other: 'serviços' },
+  fromAnyPoint: true,
 };
