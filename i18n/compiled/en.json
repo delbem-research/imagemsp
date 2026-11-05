@@ -11,6 +11,12 @@
       "value": "Two map data entries declare the same dimension for the same source."
     }
   ],
+  "/H0Dkt": [
+    {
+      "type": 0,
+      "value": "More"
+    }
+  ],
   "/LbTu2": [
     {
       "type": 0,
@@ -47,6 +53,12 @@
     {
       "type": 0,
       "value": "Dismiss selection"
+    }
+  ],
+  "0tpCri": [
+    {
+      "type": 0,
+      "value": "Searched point · clear search"
     }
   ],
   "1DwZsQ": [
@@ -499,6 +511,58 @@
       "value": "Two map data entries collide on the same feature-state key."
     }
   ],
+  "P/ahxW": [
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " "
+            },
+            {
+              "type": 1,
+              "value": "one"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " "
+            },
+            {
+              "type": 1,
+              "value": "other"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": " within "
+    },
+    {
+      "type": 1,
+      "value": "radius"
+    },
+    {
+      "type": 0,
+      "value": " of this point"
+    }
+  ],
   "RJi0HT": [
     {
       "type": 0,
@@ -729,6 +793,20 @@
       "pluralType": "cardinal"
     }
   ],
+  "Z0O4wv": [
+    {
+      "type": 0,
+      "value": "Searching "
+    },
+    {
+      "type": 1,
+      "value": "results"
+    },
+    {
+      "type": 0,
+      "value": " near this point…"
+    }
+  ],
   "ZBWmDx": [
     {
       "type": 0,
@@ -891,6 +969,20 @@
       "value": "Close details"
     }
   ],
+  "jD634V": [
+    {
+      "type": 0,
+      "value": "Search "
+    },
+    {
+      "type": 1,
+      "value": "results"
+    },
+    {
+      "type": 0,
+      "value": " from any point of the map"
+    }
+  ],
   "jFZRGK": [
     {
       "type": 0,
@@ -939,6 +1031,12 @@
       "value": "No data"
     }
   ],
+  "lUA3Ob": [
+    {
+      "type": 0,
+      "value": "Less"
+    }
+  ],
   "lfjp7g": [
     {
       "type": 0,
@@ -985,6 +1083,28 @@
     {
       "type": 0,
       "value": "Previous step"
+    }
+  ],
+  "q5Z03D": [
+    {
+      "type": 1,
+      "value": "title"
+    },
+    {
+      "type": 0,
+      "value": ": "
+    },
+    {
+      "type": 1,
+      "value": "low"
+    },
+    {
+      "type": 0,
+      "value": " to "
+    },
+    {
+      "type": 1,
+      "value": "high"
     }
   ],
   "qOPKRg": [
@@ -1079,6 +1199,16 @@
     {
       "type": 0,
       "value": "Hex"
+    }
+  ],
+  "xEeif3": [
+    {
+      "type": 1,
+      "value": "results"
+    },
+    {
+      "type": 0,
+      "value": " around any point"
     }
   ],
   "yb6iwx": [
