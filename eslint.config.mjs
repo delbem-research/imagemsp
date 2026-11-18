@@ -29,6 +29,8 @@ export default [
       'build/**',
       'out/**',
       'public/**',
+      // ttoss Flow skills, vendored by skills-lock.json: kept byte for byte.
+      '.claude/skills/**',
     ],
   },
   {

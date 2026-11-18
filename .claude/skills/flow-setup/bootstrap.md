@@ -1,0 +1,135 @@
+# Bootstrap
+
+The Flow part of [`flow-setup`](SKILL.md) step 7. It creates what the agents need in Flow, once per project. Creating a commitment is the person's call ([GTF-A1, GTF-A4](https://flow.ttoss.dev/docs/agents/protocol.md#authority)): list every write, numbered, and wait for their answer.
+
+1. **Project.** `list-projects`; ask which one, or offer `create-project`.
+2. **Standing decision.** Search for an existing one (`list-tasks` `kind: decision`, `query: "standing"`). If none authorises the agents, propose one `decision` task, closed `completed` with the user's verbatim answer as `basis: { said }`, titled `Standing: the agents run the Agentic Workflow autonomously`. Its body delegates by pointer, so a new version of the skills or a changed parameter needs no new decision ([GTF-A6, GTF-T1](https://flow.ttoss.dev/docs/agents/protocol.md#authority)):
+
+   ```markdown
+   The project's agents run the delivery process of the ttoss Flow skills that `<repo>`'s `skills-lock.json` pins, with this project's answers in `<parameters file>`, both as they stand on the default branch of `<repo>`, where they change only through a merge a person approved (<how: required review from the files' owners>).
+
+   - **Acts:** every act that process gives the tick, its children and its routines under those answers: take, move and close tasks; start and end child runs; integrate what the `Merge rule` lets the agents integrate; ask for the reviews `Review` gives it; run the steps the `Release procedure` gives it; run the checks of the `Closing evidence`; write what it notices as the `Intake` says.
+   - **Closing evidence:** the `Closing evidence` answer.
+   - **Choices:** which ready task to start next, in `get-next` order, and the choices that pass the `Decisions` test.
+   - **Noticed work:** what the `Intake` says the agents write from what they notice (GTF-C1); without an answer, an `active` task when it leaves the product unchanged (a refactor, a test repaired: no behaviour a caller observes, no existing assertion, gate or agent instruction changed), else an `incubated` one.
+   - **Tidying:** end finished child runs; retract the `implements` reference of a change closed without integrating; close the tasks an integrated change says it settles, citing it; re-point the `blocks` edges the `Release procedure` moves.
+   - **Reserved to a person:** the classes `Decisions` reserves, any change to the files above or to the project's agent instructions, and every act the process does not give the agents.
+   ```
+
+3. **Release procedure tasks.** When the procedure tracks work in flight in a task, propose that task, `active`.
+4. **Write the parameters**, with the standing decision's id, to the parameters file: `.agents/flow.md`, or `.claude/flow.md` where the repo keeps its agent files under `.claude/`.
+
+## The parameters file
+
+A list, one parameter per item, each a pointer or a short rule:
+
+```markdown
+# Flow
+
+`flow` parameters for Acme. Each value points to the rule that holds it; edit the rule, not this list.
+
+- **Flow project id**: `proj_xxxxxxxxxx`.
+- **Standing-decision task id**: `task_xxxxxxxxxx`.
+- **Repos**: `acme/api`, `acme/web`.
+- **Runtime**: `ops/agent-runtime.md` (children, run records, max runs 2, models by exact id).
+- **Routines**: the Tick hourly on weekdays 09:00–18:00 `America/Sao_Paulo` (`/flow proj_xxxxxxxxxx`); the Chase on weekdays at 08:50 (`/flow proj_xxxxxxxxxx --chase`), to `#eng`; the Health on Mondays at 08:40 (`/flow proj_xxxxxxxxxx --health`), to `#eng`; the Audit on Fridays at 16:50 (`/token-audit --routine`); Sentry triage on each new issue (`.agents/routines/sentry-triage.md`). Models and connectors in `ops/agent-runtime.md`.
+- **Intake**: `docs/agents/intake.md`; a pull request with no task gets one.
+- **Ready brief**: default.
+- **Decisions**: `AGENTS.md` § Decisions, tested by `docs/agents/open-questions.md`.
+- **Before proposing**: `scripts/ci.sh`, the script the CI runs; every change records its flag and its monitoring (`docs/agents/change-checklist.md`).
+- **Review**: an agent reviewer, asked by CI once `ci` is green on a ready pull request (`docs/agents/review.md`).
+- **Merge rule**: `docs/agents/merge.md`.
+- **Release procedure**: every merge to `main` deploys `acme/api`; `acme/web` bumps the published client (`docs/agents/release.md`).
+- **Closing evidence**: `docs/agents/done.md`, the validations: `merged` (integrated, pipeline green: refactors and internal code), `staging` (the Staging API `https://api.staging.acme.dev` shows it after the deploy, token in `ACME_TOKEN`, GET only: features and API contracts), `adoption` (the usage dashboard after 14 days: a change whose effect is a behaviour).
+- **Delivery kinds**: help-center articles (a person approves, an agent publishes, the live page proves it).
+```
+
+The `flow` skill's scripts read this file (`scripts/params.mjs`): the project and decision ids, the backticked `owner/repo` items of **Repos**, and the values below. Each comes from an item of its own when there is one, here or in the file **Runtime** points to, else from the prose that states it ("max runs 3", "one automatic round", the Chase's "8 lines"), else the default. An item of its own is the one way to set:
+
+- **Review child**: `yes` when the tick starts a review child.
+- **Agents integrate**: `no` when a person integrates every change.
+- **Reviewer**: the backticked code-host identities whose verdict counts; none named, any identity with write access to the repo.
+- **Max short runs**: how many check and review children may run at once, beside the `Max runs` that caps the children that push a branch; default 2.
+- **Release queue**: how many changes may wait for review or validation, open past draft or integrated and waiting on a person to see them in effect, before the tick stops starting new work; decisions do not count; default 20.
+- **Person-free lane**: how many tasks whose path to production reaches no person may be in flight at once while the release queue is full; default 1, and `0` makes a full queue hold every new task.
+- **Branches per repo**: how many children may push to one repo in one tick, for a runtime whose children cannot push a branch of their own and share the tick's; empty, no cap, as when each child pushes its own branch. A tick that learns it only at run time sets it in the snapshot instead (`flow` § 1).
+
+**Review** is read as a gate and fails closed: `none` means the gates are the checks, a reviewer named means no change integrates without a verdict for its head, and a file that leaves it out makes every tick ask. A verdict is the `flow/review` commit status on the head (`success` CLEAN, `failure` FINDINGS, `pending` while the reviewer works), a pull request review, or a comment ending in `<!-- flow-verdict sha=<head sha> result=CLEAN|FINDINGS -->`; prose such as "Verdict: CLEAN" is never read. A reviewer outside the tick sets the same status:
+
+```markdown
+- **Max runs**: 3.
+- **Max short runs**: 2.
+- **Release queue**: 20.
+- **Person-free lane**: 1.
+- **Stale after**: 4 hours.
+- **Rounds**: 1.
+- **Review child**: no.
+- **Reviewer**: `acme-reviewer[bot]`.
+- **Agents integrate**: yes.
+```
+
+`node <flow skill>/scripts/params.mjs --root .` prints what the scripts read and where each value came from (`sources`).
+
+## The entry section
+
+[`flow-setup`](SKILL.md) step 6 writes it, filled, into the repo's always-loaded entry file. It is what a session started without `/flow` knows about Flow, so it stays short: pointers, never the rules they point to.
+
+```markdown
+## Flow
+
+Work in this repo lives in the Flow project `<proj id>`; no other tracker holds it. Every session follows [Get Things Flowing](https://flow.ttoss.dev/docs/agents/protocol.md), the [delivery process](https://raw.githubusercontent.com/ttoss/ttoss/main/docs/website/docs/engineering/workflow/process.md) and this project's parameters in `<parameters file>`, started by `/flow` or not:
+
+- Work through a task: the one you were given, or one you find (`list-tasks` with `query`) or propose before changing anything. Your run holds the task (GTF-S8).
+- Apply the parameters on the way: `Before proposing` before the change; `Merge rule`; `Intake` for what you notice; `Decisions` for open choices.
+- This codebase is yours: how it's built is your call, and you'll keep building on it. Improve the code your change touches; work you notice outside it is a task of its own by `Intake`, never part of this change.
+- A task whose `implements` change is out keeps its title and brief: new or wider scope is a successor task, `derived_from` it. Before writing again to a task you wrote earlier, `get-task` it and send `if_unmodified_since` with the `updated_at` you read.
+- The change carries the task's URL and the tasks it settles; before you stop, the task carries the change as an `implements` reference, `after_integration` (what integrating leaves), and its wait on the gates. After the verdict, the tick writes the task.
+- Friction with a skill, GTF or a Flow tool → `flow-friction`, then continue.
+```
+
+## The workflow map
+
+[`flow-setup`](SKILL.md) step 8 rebuilds `AGENTIC_WORKFLOW.md` whole on every setup and audit, for the project's people: the project's blueprint, the [Agentic Workflow](https://ttoss.dev/docs/engineering/workflow) as the project runs it. It is generated and says so on its first line. It points: every line names the parameter, rule, skill or routine that holds it, so a change to it is a change to those, followed by `/flow-setup audit`. It tells apart the workflow's stages and the three kinds of actor in them: a routine's run (the tick and the runs it starts), a person, and automation (CI, a pipeline, a channel where signals arrive). The diagram colours each state by who acts next, the stage table gives each kind its column, the routines table lists every routine the workflow has and whether this project runs it, and the last table says where each instruction the agents follow lives.
+
+```markdown
+# Agentic Workflow — <project name>
+
+> Generated by `/flow-setup` from `<parameters file>` on <date>. Do not edit: change the parameters or the rules they point to, then run `/flow-setup audit`.
+
+Work lives in the Flow project `<proj id>`, under the standing decision [`<task id>`](https://flow.ttoss.dev/app/tasks/<task id>); <the code host> holds the code and its changes, in <the project's repos>. It runs the ttoss [Agentic Workflow](https://ttoss.dev/docs/engineering/workflow): every run reads a task's state from Flow, acts and writes it back, so the next run starts from the graph. The tick takes what ages fastest first ([process](https://ttoss.dev/docs/engineering/workflow/process#three-rules), rule 3).
+
+<a mermaid stateDiagram-v2 of the workflow's states as this project has them, each transition labelled with who makes it, each state coloured by who acts next: classDef routine fill:#cfe2ff,stroke:#1f2328,color:#1f2328, person fill:#f6c177,stroke:#1f2328,color:#1f2328, automation fill:#e5e5e5,stroke:#1f2328,color:#1f2328 — each sets its text colour, or a dark theme draws light text on the light fills>
+
+Blue: a routine's run acts next. Orange: a person. Grey: automation.
+
+| Stage | Routine | Person | Automation | Governed by |
+| --- | --- | --- | --- | --- |
+| Intake | <the intake routines; what runs write as they notice it> | <who writes a task by hand, for which signals> | <where signals arrive> | `Intake` |
+| Decide | — | <the choices reserved to a person> | — | `Decisions`, `Ready brief` |
+| Implement | <the tick starts a child per ready task> | <a person working a task in their own session> | — | `Before proposing` |
+| Gates | <the reviewer `Review` names, when it is a run> | <a person's review> | <the required checks> | `Review`, `Merge rule` |
+| Integrate | <what the reviewer or the tick integrates> | <what a person integrates> | — | `Merge rule` |
+| Release | <a release step the tick delegates> | <a person's release step> | <the pipeline> | `Release procedure` |
+| Verify | <the tick's check child, or the routine `Closing evidence` names> | <a check a person reads> | — | `Closing evidence` |
+
+## Routines
+
+| Routine | What it does | Runs | Here |
+| --- | --- | --- | --- |
+| Tick | moves tasks through the stages: delegates, integrates, releases, verifies | `/flow <proj id>` | <its schedule and model, or "not scheduled: someone runs it by hand"> |
+| Chase | tells each person what waits on them | `/flow <proj id> --chase` | <its schedule and model, or "not set up"> |
+| Health | reports how the work flows, and proposes a standing rule from an answer given more than once | `/flow <proj id> --health` | <its schedule and model, or "not set up"> |
+| Audit | finds where the agents spend tokens, files each fix as a task | `/token-audit --routine` | <its schedule and model, or "not set up"> |
+| <each project routine> | <what it does> | `<its file>` | <what fires it, and its model> |
+
+## Where each piece lives
+
+| What | Where |
+| --- | --- |
+| The method | [Get Things Flowing](https://flow.ttoss.dev/docs/agents/protocol.md) |
+| The workflow | [Agentic Workflow](https://ttoss.dev/docs/engineering/workflow) |
+| The skills | `flow`, `flow-setup`, `flow-friction`, `token-audit`, pinned in `skills-lock.json` |
+| The parameters | `<parameters file>` |
+| The entry section every session loads | `<the entry file of each repo>` |
+| <each file a parameter points to> | `<path>` |
+```

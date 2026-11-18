@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "skills": {
     "chakra-ui-builder": {
       "source": "chakra-ui/chakra-ui",
@@ -7,6 +7,54 @@
       "sourceType": "github",
       "skillPath": "skills/chakra-ui-builder/SKILL.md",
       "computedHash": "b60b9f098afb4464df10f625bb8635e9567969d99f8b10012e1305ca988906bb"
+    },
+    "flow": {
+      "source": "ttoss/skills",
+      "commit": "a1bc414556b1059a77d6e0e37f3e1a58a548cb21",
+      "sourceType": "github",
+      "skillPath": "skills/flow/SKILL.md",
+      "computedHash": "e46fa654e393933c6863cdcd166ec0405a98d69061edf5387e6df2551e15232e",
+      "installMode": "copy"
+    },
+    "flow-friction": {
+      "source": "ttoss/skills",
+      "commit": "a1bc414556b1059a77d6e0e37f3e1a58a548cb21",
+      "sourceType": "github",
+      "skillPath": "skills/flow-friction/SKILL.md",
+      "computedHash": "695f322231ae1737ff522f8af59ac802680d0aac9073156b3919707d12e7918e",
+      "installMode": "copy"
+    },
+    "flow-me": {
+      "source": "ttoss/skills",
+      "commit": "a1bc414556b1059a77d6e0e37f3e1a58a548cb21",
+      "sourceType": "github",
+      "skillPath": "skills/flow-me/SKILL.md",
+      "computedHash": "a11703d15ea95c80fbc3200d65b419433e03ed7477d9733c14e49e682a877e3a",
+      "installMode": "copy"
+    },
+    "flow-setup": {
+      "source": "ttoss/skills",
+      "commit": "a1bc414556b1059a77d6e0e37f3e1a58a548cb21",
+      "sourceType": "github",
+      "skillPath": "skills/flow-setup/SKILL.md",
+      "computedHash": "979c286e2a6cfe4ae20162d2ab698c6488d654a87ab11eabe3295201c1557189",
+      "installMode": "copy"
+    },
+    "instruction-hygiene": {
+      "source": "ttoss/skills",
+      "commit": "a1bc414556b1059a77d6e0e37f3e1a58a548cb21",
+      "sourceType": "github",
+      "skillPath": "skills/instruction-hygiene/SKILL.md",
+      "computedHash": "3bcaf3da38d100fb5dcd1e07a166d9a85cee3c444c598da8b9a9d9e3f8d8be1b",
+      "installMode": "copy"
+    },
+    "token-audit": {
+      "source": "ttoss/skills",
+      "commit": "a1bc414556b1059a77d6e0e37f3e1a58a548cb21",
+      "sourceType": "github",
+      "skillPath": "skills/token-audit/SKILL.md",
+      "computedHash": "d436fbd1f8e3228e4a0a59c6d9aaa0c9c889cf5b7d9ebe2d290cba1e944d66d1",
+      "installMode": "copy"
     }
   }
 }
