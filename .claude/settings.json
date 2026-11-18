@@ -1,0 +1,37 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/skills/flow/scripts/session-run.mjs\" --project proj_7x0hj7zhe7",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/skills/flow/scripts/session-run.mjs\" --project proj_7x0hj7zhe7",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/skills/flow/scripts/session-run.mjs\" --project proj_7x0hj7zhe7",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

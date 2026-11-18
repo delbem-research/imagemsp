@@ -4,3 +4,6 @@ pnpm-lock.yaml
 src/data-source-static/data/points/
 src/data-source-static/data/polygons/
 i18n/compiled/
+
+# ttoss Flow skills, vendored by skills-lock.json: kept byte for byte.
+.claude/skills/
