@@ -73,6 +73,12 @@
       "value": "Increase"
     }
   ],
+  "1i1sR5": [
+    {
+      "type": 0,
+      "value": "Swap sides"
+    }
+  ],
   "26nzWk": [
     {
       "type": 0,
@@ -125,10 +131,34 @@
       "value": "Details"
     }
   ],
+  "38rJNf": [
+    {
+      "type": 0,
+      "value": "Copy side "
+    },
+    {
+      "type": 1,
+      "value": "from"
+    },
+    {
+      "type": 0,
+      "value": "'s settings to side "
+    },
+    {
+      "type": 1,
+      "value": "to"
+    }
+  ],
   "3Jc+Ry": [
     {
       "type": 0,
       "value": "Scroll groups backward"
+    }
+  ],
+  "3oxukp": [
+    {
+      "type": 0,
+      "value": "Editing side"
     }
   ],
   "3wGIVX": [
@@ -395,6 +425,46 @@
       "value": "Selecionado"
     }
   ],
+  "Bzu5pS": [
+    {
+      "type": 0,
+      "value": "Edit map "
+    },
+    {
+      "type": 1,
+      "value": "side"
+    },
+    {
+      "type": 0,
+      "value": ", "
+    },
+    {
+      "type": 5,
+      "value": "position",
+      "options": {
+        "left": {
+          "value": [
+            {
+              "type": 0,
+              "value": "left"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 0,
+              "value": "right"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": 0,
+      "value": " side of the map"
+    }
+  ],
   "CBHuv6": [
     {
       "type": 0,
@@ -417,6 +487,12 @@
     {
       "type": 0,
       "value": "Your location is used only for this search. It is neither saved nor shared."
+    }
+  ],
+  "EJZz0J": [
+    {
+      "type": 0,
+      "value": "Swap the settings of A and B"
     }
   ],
   "GT4LWE": [
@@ -593,6 +669,16 @@
       "value": "Two map data entries share the same id."
     }
   ],
+  "SzKkSF": [
+    {
+      "type": 0,
+      "value": "Edit map "
+    },
+    {
+      "type": 1,
+      "value": "side"
+    }
+  ],
   "T/eK/a": [
     {
       "type": 0,
@@ -627,6 +713,16 @@
     {
       "type": 0,
       "value": "Permission was denied or no signal was found. Turn location on in your browser settings and try again — or click a pin on the map to search from it."
+    }
+  ],
+  "ULABMr": [
+    {
+      "type": 0,
+      "value": "Copy to "
+    },
+    {
+      "type": 1,
+      "value": "side"
     }
   ],
   "V3z2n/": [
@@ -889,6 +985,16 @@
       "value": "Exportar mapa como PNG"
     }
   ],
+  "fRDOf3": [
+    {
+      "type": 0,
+      "value": "Map "
+    },
+    {
+      "type": 1,
+      "value": "side"
+    }
+  ],
   "g65tjJ": [
     {
       "type": 0,
@@ -901,6 +1007,12 @@
     {
       "type": 0,
       "value": " around you, the map needs your current location. Your browser will ask you to confirm next."
+    }
+  ],
+  "gO8Ya1": [
+    {
+      "type": 0,
+      "value": "Map side"
     }
   ],
   "gsoC7t": [

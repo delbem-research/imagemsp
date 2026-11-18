@@ -73,6 +73,12 @@
       "value": "Aumentar"
     }
   ],
+  "1i1sR5": [
+    {
+      "type": 0,
+      "value": "Trocar lados"
+    }
+  ],
   "26nzWk": [
     {
       "type": 0,
@@ -125,10 +131,34 @@
       "value": "Detalhes"
     }
   ],
+  "38rJNf": [
+    {
+      "type": 0,
+      "value": "Copiar as configurações do lado "
+    },
+    {
+      "type": 1,
+      "value": "from"
+    },
+    {
+      "type": 0,
+      "value": " para o lado "
+    },
+    {
+      "type": 1,
+      "value": "to"
+    }
+  ],
   "3Jc+Ry": [
     {
       "type": 0,
       "value": "Voltar grupos"
+    }
+  ],
+  "3oxukp": [
+    {
+      "type": 0,
+      "value": "Editando o lado"
     }
   ],
   "3wGIVX": [
@@ -395,6 +425,46 @@
       "value": "Selecionado"
     }
   ],
+  "Bzu5pS": [
+    {
+      "type": 0,
+      "value": "Editar o mapa "
+    },
+    {
+      "type": 1,
+      "value": "side"
+    },
+    {
+      "type": 0,
+      "value": ", lado "
+    },
+    {
+      "type": 5,
+      "value": "position",
+      "options": {
+        "left": {
+          "value": [
+            {
+              "type": 0,
+              "value": "esquerdo"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 0,
+              "value": "direito"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": 0,
+      "value": " do mapa"
+    }
+  ],
   "CBHuv6": [
     {
       "type": 0,
@@ -417,6 +487,12 @@
     {
       "type": 0,
       "value": "Usamos sua localização só para esta busca. Ela não é salva nem compartilhada."
+    }
+  ],
+  "EJZz0J": [
+    {
+      "type": 0,
+      "value": "Trocar configurações entre A e B"
     }
   ],
   "GT4LWE": [
@@ -593,6 +669,16 @@
       "value": "Duas entradas de dados do mapa têm o mesmo id."
     }
   ],
+  "SzKkSF": [
+    {
+      "type": 0,
+      "value": "Editar o mapa "
+    },
+    {
+      "type": 1,
+      "value": "side"
+    }
+  ],
   "T/eK/a": [
     {
       "type": 0,
@@ -627,6 +713,16 @@
     {
       "type": 0,
       "value": "A permissão foi negada ou o sinal não foi encontrado. Ative a localização nas configurações do navegador e tente de novo — ou clique em um pin no mapa para buscar a partir dele."
+    }
+  ],
+  "ULABMr": [
+    {
+      "type": 0,
+      "value": "Copiar p/ "
+    },
+    {
+      "type": 1,
+      "value": "side"
     }
   ],
   "V3z2n/": [
@@ -889,6 +985,16 @@
       "value": "Exportar mapa como PNG"
     }
   ],
+  "fRDOf3": [
+    {
+      "type": 0,
+      "value": "Mapa "
+    },
+    {
+      "type": 1,
+      "value": "side"
+    }
+  ],
   "g65tjJ": [
     {
       "type": 0,
@@ -901,6 +1007,12 @@
     {
       "type": 0,
       "value": " disponíveis ao seu redor, o mapa precisa da sua localização atual. Seu navegador vai pedir uma confirmação em seguida."
+    }
+  ],
+  "gO8Ya1": [
+    {
+      "type": 0,
+      "value": "Lado do mapa"
     }
   ],
   "gsoC7t": [
